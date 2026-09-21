@@ -104,11 +104,35 @@ variables → Actions**:
 | `SHOPIFY_CLI_THEME_TOKEN` | the Theme Access token |
 | `SHOPIFY_THEME_ID` | *(optional)* the theme id to publish to |
 
+The workflow uses a locked install so deploys are reproducible:
+
+- `/.github/shopify-cli/package.json` pins `@shopify/cli@3.69.4` exact
+- `/.github/shopify-cli/package-lock.json` is checked in with integrity hashes
+- the job runs `npm ci` in that folder, verifies `npx shopify version | grep 3.69.4`, then `npx shopify theme push --path ../../shopify-theme`
+
+Local equivalent if you need to test the same path:
+
+```bash
+SHOPIFY_FLAG_STORE=your-store.myshopify.com \
+SHOPIFY_CLI_THEME_TOKEN=shptka_xxx \
+npx --prefix .github/shopify-cli shopify theme push --path shopify-theme --unpublished
+```
+
 Now **Actions → Deploy Shopify theme → Run workflow** pushes `shopify-theme/`
 to your store — pick `unpublished` to review in the theme editor first, or
 `live` to publish. Pushing a `v*` tag does the same automatically.
 
-### 4. Everyday local workflow
+### 4. Production env vars and everyday workflow
+
+**Storefront hardening you should know before deploying:**
+
+| Env | What it does |
+| --- | --- |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Override admin credentials on boot. If `ADMIN_PASSWORD` is not set in production the seed prints a one-time password only when the stored credential is still the demo `vennix123` — it never rotates on every boot. Set `ADMIN_PASSWORD` for a stable login. |
+| `TRUST_PROXY` | Set to `1` only when behind a trusted reverse proxy (Fly, Render, Nginx). Rate limiters (`/track`, `/api/notify`, admin login, storefront login) use `socket.remoteAddress` by default and only trust `X-Forwarded-For` when `TRUST_PROXY=1`, preventing XFF bypass. |
+| `NODE_ENV=production` | Switches payments badge to LIVE, hides demo password hint, enables first-run admin password generation path. |
+
+**Cart reuse fix:** after a successful checkout the cart keeps `_lastOrderId` for idempotency while empty. If the customer adds items again, `clearCheckoutReuse()` clears the marker so a fresh order can be created instead of redirecting to the old order.
 
 ```bash
 npm start                 # storefront + admin on http://localhost:3000
