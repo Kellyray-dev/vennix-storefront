@@ -75,16 +75,42 @@ function checkoutToken(cart) {
 
 /* --------------------------- in-memory rate limit -------------------------- */
 // Tiny sliding-window rate limiter keyed on IP + route. Single-process only,
-// good enough to blunt credential stuffing and form spam behind a real proxy.
+// good enough to blunt credential stuffing and form spam. By default we use
+// the socket address; only when TRUST_PROXY=1 do we trust X-Forwarded-For.
 const RATE_BUCKETS = new Map();
+function getClientIp(req) {
+  const trustProxy = process.env.TRUST_PROXY === '1' || process.env.TRUST_PROXY === 'true';
+  if (trustProxy) {
+    const xff = req.headers['x-forwarded-for'];
+    if (xff) return xff.toString().split(',')[0].trim();
+  }
+  return (req.socket.remoteAddress || 'unknown').toString();
+}
+function pruneBuckets(map, windowMs) {
+  if (map.size <= 5000) return;
+  const now = Date.now();
+  for (const [k, v] of map) {
+    const filtered = v.filter(t => now - t < windowMs);
+    if (filtered.length === 0) map.delete(k);
+    else if (filtered.length !== v.length) map.set(k, filtered);
+    if (map.size <= 4000) break;
+  }
+}
 function rateLimit(req, key, { windowMs = 60_000, max = 10 } = {}) {
-  const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown').toString().split(',')[0].trim();
+  const ip = getClientIp(req);
   const bucketKey = `${ip}:${key}`;
   const now = Date.now();
-  const bucket = (RATE_BUCKETS.get(bucketKey) || []).filter(t => now - t < windowMs);
-  if (bucket.length >= max) return false;
+  let bucket = RATE_BUCKETS.get(bucketKey);
+  bucket = (bucket || []).filter(t => now - t < windowMs);
+  if (bucket.length >= max) {
+    if (bucket.length === 0) RATE_BUCKETS.delete(bucketKey);
+    else RATE_BUCKETS.set(bucketKey, bucket);
+    pruneBuckets(RATE_BUCKETS, windowMs);
+    return false;
+  }
   bucket.push(now);
   RATE_BUCKETS.set(bucketKey, bucket);
+  pruneBuckets(RATE_BUCKETS, windowMs);
   return true;
 }
 
@@ -530,12 +556,23 @@ const server = http.createServer(async (req, res) => {
 
       if (pathname === '/checkout') {
         // Idempotency: if this cart has already produced an order, redirect
-        // there rather than charging again. The early guard runs before any
-        // async work so overlapping POSTs hit the same state.
+        // there rather than charging again — but only while the cart is still
+        // empty. Once the customer adds new items the cart is being reused and
+        // we must clear the old checkout state so a fresh purchase can proceed.
         const priorOrder = ctx.rawCart._lastOrderId
           && store.find('orders', o => o.id === ctx.rawCart._lastOrderId);
         if (priorOrder) {
-          return redirect(res, `/orders/${priorOrder.number}?email=${encodeURIComponent(priorOrder.email)}&new=1`, 303);
+          if (!ctx.rawCart.items || ctx.rawCart.items.length === 0) {
+            return redirect(res, `/orders/${priorOrder.number}?email=${encodeURIComponent(priorOrder.email)}&new=1`, 303);
+          }
+          // Cart has been reused since the last conversion — drop the old
+          // idempotency marker so a new order can be created.
+          delete ctx.rawCart._lastOrderId;
+          delete ctx.rawCart._converting;
+          delete ctx.rawCart._checkoutToken;
+          ctx.rawCart.status = 'active';
+          delete ctx.rawCart.orderId;
+          store.save();
         }
         // If an earlier submission is currently converting this cart (e.g.
         // double-click) short-circuit to prevent a second charge.

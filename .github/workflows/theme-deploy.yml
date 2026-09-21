@@ -47,13 +47,18 @@ jobs:
             exit 1
           fi
 
-      - name: Install the Shopify CLI (pinned)
-        # Pinned versions — upgrade deliberately. @shopify/cli and @shopify/theme
-        # must be kept at the same version or push breaks. When bumping, run
-        # `npx shopify version` locally after an install and record it here.
-        run: npm install --no-save --no-audit --no-fund @shopify/cli@3.69.4 @shopify/theme@3.69.4
+      - name: Install the Shopify CLI (pinned, locked)
+        working-directory: .github/shopify-cli
+        run: npm ci
+
+      - name: Verify CLI version
+        working-directory: .github/shopify-cli
+        run: |
+          npx shopify version
+          npx shopify version | grep -q "3.69.4" || (echo "::error::Shopify CLI version mismatch — expected 3.69.4"; exit 1)
 
       - name: Push the theme
+        working-directory: .github/shopify-cli
         env:
           SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
           SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
@@ -61,9 +66,9 @@ jobs:
           TARGET: ${{ inputs.target || 'unpublished' }}
         run: |
           if [ "$TARGET" = "live" ]; then
-            npx shopify theme push --path ./shopify-theme --live ${SHOPIFY_THEME_ID:+--theme "$SHOPIFY_THEME_ID"}
+            npx shopify theme push --path ../../shopify-theme --live ${SHOPIFY_THEME_ID:+--theme "$SHOPIFY_THEME_ID"}
           else
-            npx shopify theme push --path ./shopify-theme --unpublished
+            npx shopify theme push --path ../../shopify-theme --unpublished
           fi
 
       - name: Summary
