@@ -1,0 +1,20 @@
+# runtime data (regenerate with `npm run seed`)
+data/db.json
+data/emails/
+
+# build output (regenerate with `npm run export`)
+dist/
+
+# dependencies + local tooling
+node_modules/
+.tmp/
+*.log
+
+# editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# generated per-machine by `npm run brand:theme` (holds your store handle)
+shopify-theme/shopify.theme.toml

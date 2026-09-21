@@ -1,0 +1,18 @@
+{
+  "_comment": "Copy this to brand.json, replace the values, then run:  npm run brand -- --file brand.json   &&   npm run brand:theme -- --file brand.json",
+  "brand": "Northline",
+  "suffix": "Supply Co",
+  "domain": "northline.co",
+  "email": "help@northline.co",
+  "phone": "+1 512 555 0139",
+  "_noPhone": "Set \"noPhone\": true instead of a phone number for an email-only brand.",
+  "address": "1201 Comal St",
+  "city": "Austin",
+  "province": "TX",
+  "zip": "78702",
+  "_socials": "List only the networks you run. Omit a network to delete the demo link ('instagram': 'none' also works).",
+  "tiktok": "https://www.tiktok.com/@northline",
+  "pinterest": "https://www.pinterest.com/northline",
+  "linkedin": "https://www.linkedin.com/company/northline",
+  "tagline": "Built for the long run."
+}

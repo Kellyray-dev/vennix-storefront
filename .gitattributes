@@ -1,0 +1,6 @@
+# Shopify import files must stay byte-identical — do not rewrite line endings
+# or normalise encoding on data files that are handed to another system.
+seo/*.csv    -text
+*.png binary
+*.jpg binary
+*.woff2 binary

@@ -1,0 +1,45 @@
+{
+  "name": "vennix-storefront",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vennix \u2014 storefront, admin back office and Shopify Online Store 2.0 theme. Zero runtime dependencies.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed": "node -e \"require('./lib/seed').ensureSeeded(); console.log('store ready \u2014 data/db.json')\"",
+    "reset": "node -e \"const s=require('./lib/seed'); s.seed(); console.log('store reset: catalog, orders, customers and content rebuilt')\"",
+    "check": "node --check server.js && node -e \"require('./lib/store');require('./lib/seed');require('./lib/auth');require('./lib/cart');require('./lib/commerce');require('./lib/emails');require('./lib/ui');require('./lib/layout');require('./lib/api');require('./lib/admin/router');require('./lib/pages/home');require('./lib/pages/catalog');require('./lib/pages/product');require('./lib/pages/cart');require('./lib/pages/checkout');require('./lib/pages/account');require('./lib/pages/content');console.log('all modules load cleanly')\"",
+    "export": "node scripts/export-shopify.js",
+    "theme:check": "node scripts/theme-check.js",
+    "smoke": "node scripts/smoke.js",
+    "verify": "npm run check && npm run check:render && npm run theme:check && npm run smoke && npm run features && npm run links && npm run browser:test",
+    "links": "node scripts/link-check.js",
+    "browser:test": "node scripts/browser-smoke.js",
+    "import:shopify": "node scripts/import-shopify-catalog.js",
+    "brand": "node scripts/format-catalog.js",
+    "brand:theme": "node scripts/format-theme.js",
+    "check:render": "node scripts/render-check.js",
+    "features": "node scripts/features.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "shopify",
+    "ecommerce",
+    "storefront",
+    "admin",
+    "dawn",
+    "theme"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/vennix-storefront.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-org/vennix-storefront/issues"
+  },
+  "homepage": "https://github.com/your-org/vennix-storefront#readme"
+}
