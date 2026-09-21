@@ -1,0 +1,360 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "blocks": {
+        "b1": {
+          "type": "button",
+          "settings": {
+            "label": "Shop women",
+            "link": "shopify://collections/women",
+            "style": "primary"
+          }
+        },
+        "b2": {
+          "type": "button",
+          "settings": {
+            "label": "Shop men",
+            "link": "shopify://collections/men",
+            "style": "outline-light"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2"
+      ],
+      "settings": {
+        "eyebrow": "Capsule 01 \u2014 brushed, bonded, built to last",
+        "heading": "Modern essentials. Engineered for movement.",
+        "subheading": "Heavyweight fleece, four-way stretch and merino-blend layers \u2014 cut in Brooklyn, tested on the 6am loop.",
+        "rating_text": "Reviewed by verified customers only \u2014 no seeded ratings",
+        "height": "large",
+        "overlay": 35,
+        "alignment": "left"
+      }
+    },
+    "trust": {
+      "type": "trust-bar",
+      "blocks": {
+        "t1": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "title": "Free shipping over $50",
+            "text": "Dispatched same day from Brooklyn."
+          }
+        },
+        "t2": {
+          "type": "item",
+          "settings": {
+            "icon": "refresh",
+            "title": "30-day returns",
+            "text": "Free returns and exchanges, no questions."
+          }
+        },
+        "t3": {
+          "type": "item",
+          "settings": {
+            "icon": "lock",
+            "title": "Secure checkout",
+            "text": "PCI-compliant payments, buyer protection."
+          }
+        },
+        "t4": {
+          "type": "item",
+          "settings": {
+            "icon": "leaf",
+            "title": "Responsible fabric",
+            "text": "GOTS cotton, recycled nylon, low-waste runs."
+          }
+        }
+      },
+      "block_order": [
+        "t1",
+        "t2",
+        "t3",
+        "t4"
+      ],
+      "settings": {}
+    },
+    "featured": {
+      "type": "featured-collection",
+      "settings": {
+        "collection": "new-in",
+        "eyebrow": "Fresh cut",
+        "heading": "New in apparel",
+        "subheading": "Capsule 01 \u2014 eight pieces, made properly.",
+        "products_to_show": 8,
+        "use_rail": true,
+        "link_label": "Shop all"
+      }
+    },
+    "categories": {
+      "type": "category-grid",
+      "blocks": {
+        "c1": {
+          "type": "tile",
+          "settings": {
+            "collection": "women"
+          }
+        },
+        "c2": {
+          "type": "tile",
+          "settings": {
+            "collection": "men"
+          }
+        },
+        "c3": {
+          "type": "tile",
+          "settings": {
+            "collection": "active"
+          }
+        }
+      },
+      "block_order": [
+        "c1",
+        "c2",
+        "c3"
+      ],
+      "settings": {
+        "eyebrow": "Shop by category",
+        "heading": "Built for the everyday and the effort"
+      }
+    },
+    "showcase": {
+      "type": "product-showcase",
+      "blocks": {
+        "s1": {
+          "type": "spec",
+          "settings": {
+            "value": "480 gsm",
+            "label": "Brushed fleece"
+          }
+        },
+        "s2": {
+          "type": "spec",
+          "settings": {
+            "value": "4-way",
+            "label": "Stretch knit"
+          }
+        },
+        "s3": {
+          "type": "spec",
+          "settings": {
+            "value": "Oeko-Tex",
+            "label": "Certified"
+          }
+        },
+        "b1": {
+          "type": "button",
+          "settings": {
+            "label": "Shop the Atlas",
+            "link": "shopify://products/atlas-heavyweight-hoodie",
+            "style": "primary"
+          }
+        }
+      },
+      "block_order": [
+        "s1",
+        "s2",
+        "s3",
+        "b1"
+      ],
+      "settings": {
+        "eyebrow": "The Atlas hoodie",
+        "heading": "480gsm brushed fleece. Zero compromise.",
+        "media_position": "left",
+        "badge_text": "Best seller",
+        "product": "atlas-heavyweight-hoodie"
+      }
+    },
+    "story": {
+      "type": "brand-story",
+      "blocks": {
+        "st1": {
+          "type": "stat",
+          "settings": {
+            "value": "12,000+",
+            "label": "Pairs shipped"
+          }
+        },
+        "st2": {
+          "type": "stat",
+          "settings": {
+            "value": "2 yrs",
+            "label": "Free repairs"
+          }
+        },
+        "st3": {
+          "type": "stat",
+          "settings": {
+            "value": "30 days",
+            "label": "Free returns"
+          }
+        }
+      },
+      "block_order": [
+        "st1",
+        "st2",
+        "st3"
+      ],
+      "settings": {
+        "eyebrow": "Our story",
+        "heading": "Really good essentials, fairly priced.",
+        "link": "shopify://pages/about",
+        "link_label": "Read our story"
+      }
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "blocks": {
+        "q1": {
+          "type": "quote",
+          "settings": {
+            "quote": "The Atlas hoodie is the only one I reach for. Heavy in the best way and it hasn't pilled once.",
+            "author": "Danielle R.",
+            "detail": "Atlas hoodie, Fog / M",
+            "rating": 5
+          }
+        },
+        "q2": {
+          "type": "quote",
+          "settings": {
+            "quote": "The training shorts stay put through sprints, lifts and a full day of dad duty.",
+            "author": "Marcus T.",
+            "detail": "Kinetic 7\" short, Ink / L",
+            "rating": 5
+          }
+        },
+        "q3": {
+          "type": "quote",
+          "settings": {
+            "quote": "Finally a bra that holds for a 10k without digging in. Ordered two more.",
+            "author": "Priya N.",
+            "detail": "Ribbed seamless bra, Clay / S",
+            "rating": 5
+          }
+        }
+      },
+      "block_order": [
+        "q1",
+        "q2",
+        "q3"
+      ],
+      "settings": {
+        "eyebrow": "Reviews",
+        "heading": "What customers actually say"
+      }
+    },
+    "journal": {
+      "type": "journal",
+      "settings": {
+        "blog": "journal",
+        "eyebrow": "The journal",
+        "heading": "Notes from the studio",
+        "posts_to_show": 3
+      }
+    },
+    "lookbook": {
+      "type": "instagram",
+      "blocks": {
+        "l1": {
+          "type": "tile",
+          "settings": {
+            "caption": "6am loop"
+          }
+        },
+        "l2": {
+          "type": "tile",
+          "settings": {
+            "caption": "Brooklyn studio"
+          }
+        },
+        "l3": {
+          "type": "tile",
+          "settings": {
+            "caption": "Washed in fog"
+          }
+        },
+        "l4": {
+          "type": "tile",
+          "settings": {
+            "caption": "Rest day"
+          }
+        }
+      },
+      "block_order": [
+        "l1",
+        "l2",
+        "l3",
+        "l4"
+      ],
+      "settings": {
+        "eyebrow": "@vennixstore",
+        "heading": "Worn in the wild",
+        "columns": "4"
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {}
+    },
+    "pulse": {
+      "type": "store-pulse",
+      "blocks": {
+        "p1": {
+          "type": "stat",
+          "settings": {
+            "count_to": "24",
+            "label": "Styles in the range"
+          }
+        },
+        "p2": {
+          "type": "stat",
+          "settings": {
+            "count_to": "138",
+            "label": "Verified reviews",
+            "highlight": true
+          }
+        },
+        "p3": {
+          "type": "stat",
+          "settings": {
+            "count_to": "4.6",
+            "decimals": "1",
+            "label": "Average rating"
+          }
+        },
+        "p4": {
+          "type": "stat",
+          "settings": {
+            "count_to": "320",
+            "suffix": "+",
+            "label": "Colour & size options"
+          }
+        }
+      },
+      "block_order": [
+        "p1",
+        "p2",
+        "p3",
+        "p4"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero",
+    "trust",
+    "featured",
+    "categories",
+    "showcase",
+    "story",
+    "pulse",
+    "testimonials",
+    "journal",
+    "lookbook",
+    "newsletter"
+  ]
+}

@@ -1,0 +1,40 @@
+<section class="trust-bar">
+  <div class="page-width trust-bar__grid">
+    {%- for block in section.blocks -%}
+      <article class="trust-bar__item" {{ block.shopify_attributes }}>
+        <span class="trust-bar__icon">{% render 'icon', name: block.settings.icon, size: 22 %}</span>
+        <h3>{{ block.settings.title }}</h3>
+        <p>{{ block.settings.text }}</p>
+        {%- if block.settings.link != blank -%}
+          <a class="link-arrow" href="{{ block.settings.link }}">{{ block.settings.link_label }}</a>
+        {%- endif -%}
+      </article>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Trust bar",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        { "type": "select", "id": "icon", "label": "Icon", "options": [
+          { "value": "truck", "label": "Truck" }, { "value": "refresh", "label": "Returns" },
+          { "value": "lock", "label": "Secure" }, { "value": "leaf", "label": "Responsible" },
+          { "value": "sparkle", "label": "Sparkle" }, { "value": "ruler", "label": "Sizing" }
+        ], "default": "truck" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Free shipping over $50" },
+        { "type": "text", "id": "text", "label": "Text", "default": "Dispatched same day from Brooklyn." },
+        { "type": "url", "id": "link", "label": "Link" },
+        { "type": "text", "id": "link_label", "label": "Link label", "default": "Learn more" }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [{ "name": "Trust bar", "blocks": [{ "type": "item" }, { "type": "item" }, { "type": "item" }, { "type": "item" }] }]
+}
+{% endschema %}

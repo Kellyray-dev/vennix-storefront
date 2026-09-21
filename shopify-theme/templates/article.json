@@ -1,0 +1,7 @@
+{
+  "sections": {
+    "main": { "type": "main-article", "settings": {} },
+    "featured": { "type": "featured-collection", "settings": { "eyebrow": "Worn in this story", "heading": "Shop the pieces", "products_to_show": 4, "use_rail": true, "show_arrows": true } }
+  },
+  "order": ["main", "featured"]
+}

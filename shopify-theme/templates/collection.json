@@ -1,0 +1,7 @@
+{
+  "sections": {
+    "main": { "type": "main-collection", "settings": { "per_page": 24, "columns": "3", "enable_sorting": true, "paginate_type": "pagination" } },
+    "newsletter": { "type": "newsletter", "settings": { "heading": "Get first access to restocks" } }
+  },
+  "order": ["main", "newsletter"]
+}

@@ -1,0 +1,26 @@
+{%- comment -%}Price with compare-at, unit price and savings.{%- endcomment -%}
+{%- liquid
+  assign target = variant | default: product.selected_or_first_available_variant
+  assign price = target.price | default: product.price
+  assign compare = target.compare_at_price | default: product.compare_at_price
+  assign on_sale = false
+  if compare and compare > price
+    assign on_sale = true
+    assign saving = compare | minus: price
+  endif
+-%}
+<div class="price{% if on_sale %} price--sale{% endif %}{% unless target.available %} price--sold-out{% endunless %}" data-price-block>
+  <span class="price__current" data-price-current>{{ price | money }}</span>
+  {%- if on_sale -%}
+    <s class="price__was" data-price-was>{{ compare | money }}</s>
+    <span class="price__save" data-price-save>
+      {{ 'products.product.save' | t }} {{ saving | money }} ({{ saving | times: 100 | divided_by: compare }}%)
+    </span>
+  {%- endif -%}
+  {%- if target.available == false -%}
+    <span class="price__state">{{ 'products.product.sold_out' | t }}</span>
+  {%- endif -%}
+  {%- if target.unit_price_measurement -%}
+    <span class="price__unit">{{ target.unit_price | money }} / {{ target.unit_price_measurement.reference_value }}{{ target.unit_price_measurement.reference_unit }}</span>
+  {%- endif -%}
+</div>

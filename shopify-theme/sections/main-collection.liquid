@@ -1,0 +1,196 @@
+{%- liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign per_page = section.settings.per_page
+-%}
+
+<section class="collection-hero" style="{% if collection.image %}--hero-image: url({{ collection.image | image_url: width: 1600 }});{% endif %}">
+  <div class="page-width">
+    <nav class="breadcrumbs" aria-label="{{ 'general.accessibility.breadcrumb' | t }}">
+      <ol>
+        <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+        <li><span aria-current="page">{{ collection.title }}</span></li>
+      </ol>
+    </nav>
+    <p class="eyebrow">{{ 'collections.eyebrow' | t }}</p>
+    <h1>{{ collection.title }}</h1>
+    {%- if collection.description != blank -%}
+      <div class="rte collection-hero__desc">{{ collection.description }}</div>
+    {%- endif -%}
+    <p class="collection-hero__count">{{ 'collections.count' | t: count: collection.all_products_count }}</p>
+  </div>
+</section>
+
+<div class="page-width collection">
+  <aside class="filters" data-filters aria-label="{{ 'collections.filter' | t }}">
+    <button class="filters__toggle button button--outline button--block" type="button" data-filters-toggle aria-expanded="false">
+      {% render 'icon', name: 'filter', size: 16 %} {{ 'collections.filter' | t }}
+      <span class="filters__count" data-filter-count hidden></span>
+    </button>
+
+    <form class="filters__form" data-filters-form method="get">
+      {%- for filter in collection.filters -%}
+        <details class="filter-group" open>
+          <summary>
+            {{ filter.label }}
+            {%- if filter.active_values.size > 0 -%}<span class="filter-group__badge">{{ filter.active_values.size }}</span>{%- endif -%}
+          </summary>
+
+          {%- case filter.type -%}
+            {%- when 'boolean' or 'list' -%}
+              <ul class="filter-group__list">
+                {%- for value in filter.values -%}
+                  <li>
+                    <label class="checkbox{% if value.count == 0 and value.active == false %} is-disabled{% endif %}">
+                      <input type="checkbox" name="{{ value.param_name }}" value="{{ value.value }}"
+                             {% if value.active %}checked{% endif %} {% if value.count == 0 and value.active == false %}disabled{% endif %}>
+                      <span class="checkbox__box">{% render 'icon', name: 'check', size: 12 %}</span>
+                      <span class="checkbox__label">{{ value.label }}</span>
+                      <span class="checkbox__count">{{ value.count }}</span>
+                    </label>
+                  </li>
+                {%- endfor -%}
+              </ul>
+
+            {%- when 'price_range' -%}
+              <div class="filter-group__price">
+                <label>
+                  <span>{{ 'collections.from' | t }}</span>
+                  <input type="number" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                         min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}" placeholder="0">
+                </label>
+                <label>
+                  <span>{{ 'collections.to' | t }}</span>
+                  <input type="number" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                         min="0" max="{{ filter.range_max | money_without_currency | replace: ',', '' }}" placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}">
+                </label>
+              </div>
+          {%- endcase -%}
+        </details>
+      {%- endfor -%}
+
+      <div class="filters__actions">
+        <button class="button button--primary button--block" type="submit">{{ 'collections.apply' | t }}</button>
+        <a class="button button--ghost button--block" href="{{ collection.url }}">{{ 'collections.clear' | t }}</a>
+      </div>
+    </form>
+  </aside>
+
+  <div class="collection__main">
+    <div class="collection__toolbar">
+      {%- if section.settings.enable_sorting -%}
+        <label class="select-wrap">
+          <span class="visually-hidden">{{ 'collections.sort_by' | t }}</span>
+          {% render 'icon', name: 'sort', size: 16 %}
+          <select name="sort_by" form="SortForm" data-sort-select>
+            {%- for option in collection.sort_options -%}
+              <option value="{{ option.value }}" {% if option.value == sort_by %}selected{% endif %}>{{ option.name }}</option>
+            {%- endfor -%}
+          </select>
+        </label>
+        <form id="SortForm" method="get" hidden></form>
+      {%- endif -%}
+
+      {%- assign has_active_filters = false -%}
+      {%- for filter in collection.filters -%}
+        {%- if filter.active_values.size > 0 -%}{%- assign has_active_filters = true -%}{%- endif -%}
+        {%- if filter.type == 'price_range' -%}
+          {%- if filter.min_value.value != blank or filter.max_value.value != blank -%}{%- assign has_active_filters = true -%}{%- endif -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- if has_active_filters -%}
+        <ul class="active-filters">
+          {%- for filter in collection.filters -%}
+            {%- for value in filter.active_values -%}
+              <li>
+                <a class="chip chip--removable" href="{{ value.url_to_remove }}">
+                  {{ filter.label }}: {{ value.label }} {% render 'icon', name: 'close', size: 12 %}
+                </a>
+              </li>
+            {%- endfor -%}
+            {%- if filter.type == 'price_range' -%}
+              {%- if filter.min_value.value or filter.max_value.value -%}
+                <li>
+                  <a class="chip chip--removable" href="{{ filter.url_to_remove }}">
+                    {{ filter.min_value.value | default: 0 | money }} – {{ filter.max_value.value | default: filter.range_max | money }}
+                    {% render 'icon', name: 'close', size: 12 %}
+                  </a>
+                </li>
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+          <li><a class="chip chip--clear" href="{{ collection.url }}">{{ 'collections.clear_all' | t }}</a></li>
+        </ul>
+      {%- endif -%}
+    </div>
+
+    {%- paginate collection.products by per_page -%}
+      {%- if collection.products.size == 0 -%}
+        <div class="empty-state">
+          {% render 'icon', name: 'search', size: 30 %}
+          <h2>{{ 'collections.empty' | t }}</h2>
+          <p>{{ 'collections.empty_hint' | t }}</p>
+          <a class="button button--primary" href="{{ routes.all_products_collection_url }}">{{ 'collections.shop_all' | t }}</a>
+        </div>
+      {%- else -%}
+        <ul class="product-grid product-grid--{{ section.settings.columns }}" data-collection-grid>
+          {%- for product in collection.products -%}
+            <li>
+              {% render 'product-card', product: product %}
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {%- if paginate.pages > 1 -%}
+          {%- if section.settings.paginate_type == 'load_more' -%}
+            <div class="load-more">
+              {%- comment -%}
+                The href keeps this working for crawlers and with JavaScript off;
+                theme.js uses data-next to append the page in place instead.
+              {%- endcomment -%}
+              <a class="button button--outline" href="{{ paginate.next.url }}"
+                 data-load-more data-next="{{ paginate.next.url }}">{{ 'collections.load_more' | t }}</a>
+              <p class="load-more__count">{{ 'collections.showing' | t: shown: paginate.items, total: paginate.items | times: paginate.pages }}</p>
+            </div>
+          {%- else -%}
+            {% render 'pagination', paginate: paginate %}
+          {%- endif -%}
+        {%- endif -%}
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": {{ collection.title | json }},
+    "url": {{ shop.url | append: collection.url | json }},
+    {%- if collection.description != blank -%}"description": {{ collection.description | strip_html | json }},{%- endif -%}
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": {{ collection.all_products_count }},
+      "itemListElement": [
+        {%- for product in collection.products limit: 12 -%}
+          { "@type": "ListItem", "position": {{ forloop.index }}, "url": {{ shop.url | append: product.url | json }} }{% unless forloop.last %},{% endunless %}
+        {%- endfor -%}
+      ]
+    }
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Collection page",
+  "settings": [
+    { "type": "range", "id": "per_page", "min": 8, "max": 48, "step": 4, "label": "Products per page", "default": 24 },
+    { "type": "select", "id": "columns", "label": "Grid columns (desktop)", "options": [
+      { "value": "2", "label": "2" }, { "value": "3", "label": "3" }, { "value": "4", "label": "4" }
+    ], "default": "3" },
+    { "type": "checkbox", "id": "enable_sorting", "label": "Enable sorting", "default": true },
+    { "type": "select", "id": "paginate_type", "label": "Pagination style", "options": [
+      { "value": "pagination", "label": "Pagination" }, { "value": "load_more", "label": "Load more" }
+    ], "default": "load_more" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,57 @@
+{% layout none %}
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ 'gift_cards.issued.title' | t }}</title>
+  {{ 'theme.css' | asset_url | stylesheet_tag }}
+</head>
+<body class="template-gift-card" style="background: var(--bone);">
+  <div class="page-width" style="max-width: 720px; padding: 48px 24px;">
+    <p class="brand__word" style="font-family: var(--font-display); letter-spacing: .13em;">{{ shop.name | upcase }}</p>
+
+    <article style="background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 34px; margin-top: 22px;">
+      <p class="eyebrow">{{ 'gift_cards.issued.eyebrow' | t }}</p>
+      <h1 style="margin-bottom: 6px;">{{ 'gift_cards.issued.title' | t }}</h1>
+      <p class="muted">{{ 'gift_cards.issued.subtext' | t }}</p>
+
+      <div style="border: 1px dashed var(--line-strong); border-radius: 6px; padding: 22px; margin: 24px 0; text-align: center; background: var(--bone);">
+        <p class="muted" style="margin: 0 0 6px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;">
+          {{ shop.name }}
+        </p>
+        <p style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 26px; letter-spacing: .18em; margin: 0;">
+          {{ gift_card.code | format_code }}
+        </p>
+        <p style="font-size: 30px; font-family: var(--font-display); margin: 14px 0 0;">
+          {%- if gift_card.balance != gift_card.initial_value -%}
+            {{ gift_card.balance | money_without_trailing_zeros }}
+          {%- else -%}
+            {{ gift_card.initial_value | money_without_trailing_zeros }}
+          {%- endif -%}
+        </p>
+        {%- if gift_card.expired -%}
+          <p class="form-msg is-error" style="display:inline-flex; margin-top: 12px;">{{ 'gift_cards.issued.expired' | t }}</p>
+        {%- endif -%}
+      </div>
+
+      <ul style="display: grid; gap: 8px; font-size: 13.5px; color: var(--muted);">
+        <li>{{ 'gift_cards.issued.how_to_use' | t }}</li>
+        <li>{{ 'gift_cards.issued.no_expiry' | t }}</li>
+        <li>{{ 'gift_cards.issued.contact' | t }}</li>
+      </ul>
+
+      <div style="display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap;">
+        <a class="button button--primary" href="{{ shop.url }}">{{ 'gift_cards.issued.shop_link' | t }}</a>
+        <button class="button button--outline" type="button" onclick="window.print()">{{ 'gift_cards.issued.print' | t }}</button>
+      </div>
+
+      {%- if gift_card.qr_identifier -%}
+        <div style="margin-top: 26px; text-align: center;">
+          <img src="{{ gift_card.qr_identifier | img_url: 'medium' }}" alt="{{ 'gift_cards.issued.qr_alt' | t }}" width="160" height="160">
+        </div>
+      {%- endif -%}
+    </article>
+  </div>
+</body>
+</html>

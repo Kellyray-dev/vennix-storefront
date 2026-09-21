@@ -1,0 +1,70 @@
+<div class="page-width search-page">
+  <nav class="breadcrumbs" aria-label="{{ 'general.accessibility.breadcrumb' | t }}">
+    <ol>
+      <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+      <li><span aria-current="page">{{ 'general.search.search' | t }}</span></li>
+    </ol>
+  </nav>
+
+  <h1 class="search-page__title">
+    {%- if search.performed -%}
+      {{ 'general.search.results_for' | t: terms: search.terms }}
+    {%- else -%}
+      {{ 'general.search.heading' | t }}
+    {%- endif -%}
+  </h1>
+
+  <form class="search-page__form" action="{{ routes.search_url }}" method="get" role="search">
+    <input type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'general.search.placeholder' | t }}"
+           aria-label="{{ 'general.search.search' | t }}">
+    <button class="button button--primary" type="submit">{{ 'general.search.search' | t }}</button>
+  </form>
+
+  {%- if search.performed -%}
+    {%- if search.results_count == 0 -%}
+      <div class="empty-state">
+        {% render 'icon', name: 'search', size: 30 %}
+        <h2>{{ 'general.search.no_results' | t: terms: search.terms }}</h2>
+        <p>{{ 'general.search.try_again' | t }}</p>
+        <ul class="chip-list">
+          <li><a class="chip" href="{{ routes.all_products_collection_url }}">{{ 'collections.shop_all' | t }}</a></li>
+          <li><a class="chip" href="/collections/new-in">{{ 'collections.new_in' | t }}</a></li>
+          <li><a class="chip" href="/pages/size-guide">{{ 'general.search.size_guide' | t }}</a></li>
+        </ul>
+      </div>
+    {%- else -%}
+      <p class="muted">{{ 'general.search.count' | t: count: search.results_count }}</p>
+      <ul class="product-grid product-grid--3">
+        {%- for item in search.results -%}
+          {%- if item.object_type == 'product' -%}
+            <li>{% render 'product-card', product: item %}</li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+
+      {%- assign content_results = search.results | where: 'object_type', 'article' -%}
+      {%- if content_results.size > 0 -%}
+        <section class="search-page__content">
+          <h2>{{ 'general.search.journal' | t }}</h2>
+          <ul class="post-list">
+            {%- for item in content_results -%}
+              <li>
+                <a href="{{ item.url }}">
+                  <span class="post-list__cat">{{ item.tags.first | default: 'Journal' }}</span>
+                  <strong>{{ item.title }}</strong>
+                  <span class="muted">{{ item.content | strip_html | truncatewords: 20 }}</span>
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </section>
+      {%- endif -%}
+
+      {% render 'pagination', paginate: search %}
+    {%- endif -%}
+  {%- endif -%}
+</div>
+
+{% schema %}
+{ "name": "Search page", "settings": [] }
+{% endschema %}

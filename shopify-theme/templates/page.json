@@ -1,0 +1,7 @@
+{
+  "sections": {
+    "main": { "type": "main-page", "settings": { "show_title": true, "show_contact_cta": true } },
+    "faq": { "type": "faq", "settings": { "heading": "Questions, answered" }, "blocks": { "f1": { "type": "question", "settings": { "question": "How long does delivery take?", "answer": "<p>2–4 business days across the US, 5–9 internationally.</p>" } }, "f2": { "type": "question", "settings": { "question": "Can I change an order after placing it?", "answer": "<p>Email us within 2 hours and we'll amend it before dispatch.</p>" } } }, "block_order": ["f1", "f2"] }
+  },
+  "order": ["main", "faq"]
+}

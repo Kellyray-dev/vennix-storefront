@@ -1,0 +1,405 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'product-form-' | append: section.id
+-%}
+
+<nav class="breadcrumbs page-width" aria-label="{{ 'general.accessibility.breadcrumb' | t }}">
+  <ol>
+    <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+    {%- if collection -%}
+      <li><a href="{{ collection.url }}">{{ collection.title }}</a></li>
+    {%- endif -%}
+    <li><span aria-current="page">{{ product.title }}</span></li>
+  </ol>
+</nav>
+
+<section class="product page-width" data-product-root data-handle="{{ product.handle }}">
+  <div class="product__media" data-media-gallery>
+    <div class="product__thumbs" data-media-thumbs>
+      {%- for media in product.media -%}
+        <button class="product__thumb{% if forloop.first %} is-active{% endif %}" type="button" data-media-thumb="{{ forloop.index0 }}"
+                aria-label="{{ 'products.product.view_media' | t: index: forloop.index }}">
+          {{ media | image_url: width: 160 | image_tag: loading: 'lazy', alt: media.alt | default: product.title }}
+        </button>
+      {%- endfor -%}
+    </div>
+
+    <div class="product__stage">
+      {%- for media in product.media -%}
+        <figure class="product__slide{% if forloop.first %} is-active{% endif %}" data-media-slide="{{ forloop.index0 }}">
+          {{ media | image_url: width: 1600 | image_tag: loading: forloop.first | default: 'lazy', class: 'product__image',
+             alt: media.alt | default: product.title, sizes: '(min-width: 990px) 55vw, 100vw' }}
+          <figcaption class="visually-hidden">{{ media.alt | default: product.title }}</figcaption>
+        </figure>
+      {%- endfor -%}
+      {% render 'badges', product: product %}
+      <button class="product__zoom" type="button" data-media-zoom aria-label="{{ 'products.product.zoom' | t }}">
+        {% render 'icon', name: 'search', size: 18 %}
+      </button>
+    </div>
+  </div>
+
+  <div class="product__info">
+    <div class="product__head">
+      <p class="eyebrow">{{ product.vendor }} · {{ product.type }}</p>
+      <h1 class="product__title">{{ product.title }}</h1>
+      {%- if product.metafields.reviews.rating.value -%}
+        <a href="#reviews" class="product__rating">
+          {% render 'rating', rating: product.metafields.reviews.rating.value, count: product.metafields.reviews.rating_count %}
+        </a>
+      {%- else -%}
+        <a href="#reviews" class="product__rating product__rating--new">
+          {% render 'icon', name: 'star', size: 15 %} {{ 'products.product.no_reviews_yet' | t }}
+        </a>
+      {%- endif -%}
+      {%- if product.description != blank -%}
+        <p class="product__tagline">{{ product.description | strip_html | truncatewords: 22 }}</p>
+      {%- endif -%}
+    </div>
+
+    {% render 'price', product: product, variant: current_variant %}
+
+    {%- form 'product', product, id: product_form_id, class: 'product-form', novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+      <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+
+      {% render 'variant-picker', product: product, block: section %}
+
+      {%- if section.settings.show_size_finder -%}
+        <div class="picker__links">
+          <button class="link-inline" type="button" data-size-finder-open>
+            {% render 'icon', name: 'ruler', size: 15 %} {{ 'products.product.whats_my_size' | t }}
+          </button>
+          {%- if product.metafields.custom.fit_notes != blank -%}
+            <span class="picker__fit">{{ product.metafields.custom.fit_notes }}</span>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%}
+        Paid personalisation. On Shopify this is a line item property with a
+        price attached (a variant that carries the add-on), so the charge is real
+        and it travels with the order into fulfilment and the packing slip.
+      {%- endcomment -%}
+      {%- if section.settings.show_monogram -%}
+        {%- comment -%}
+          Two honest ways to sell this, because Shopify only charges for things
+          that are variants:
+            property — the monogram is a free note on the line item
+            variant  — a "Monogrammed" variant carries the fee, and we swap to it
+          The price is only ever advertised in the second case.
+        {%- endcomment -%}
+        {%- assign monogram_variant = null -%}
+        {%- if section.settings.monogram_mode == 'variant' -%}
+          {%- for variant in product.variants -%}
+            {%- if variant.title contains 'Monogram' -%}{%- assign monogram_variant = variant -%}{%- endif -%}
+          {%- endfor -%}
+        {%- endif -%}
+        {%- assign base_variant_id = current_variant.id -%}
+        {%- if monogram_variant -%}{%- assign monogram_charge = monogram_variant.price -%}{%- else -%}{%- assign monogram_charge = section.settings.monogram_price | times: 100 -%}{%- endif -%}
+        <fieldset class="monogram" data-monogram
+                  data-mode="{{ section.settings.monogram_mode }}"
+                  data-monogram-variant="{{ monogram_variant.id }}"
+                  data-base-variant="{{ base_variant_id }}"
+                  data-price="{% if monogram_variant %}{{ monogram_charge }}{% else %}0{% endif %}"
+                  data-max="{{ section.settings.monogram_chars }}">
+          <legend class="monogram__legend">
+            <label class="checkbox monogram__toggle">
+              <input type="checkbox" data-monogram-toggle aria-controls="theme-monogram" aria-expanded="false">
+              <span>{{ section.settings.monogram_label }}{% if monogram_variant %} <em>+{{ monogram_charge | money }}</em>{% endif %}</span>
+            </label>
+          </legend>
+          <div class="monogram__body" id="theme-monogram" data-monogram-body hidden>
+            {%- if section.settings.monogram_intro != blank -%}
+              <p class="monogram__intro">{{ section.settings.monogram_intro }}</p>
+            {%- endif -%}
+            <div class="monogram__row">
+              <label class="field monogram__field">
+                <span class="field__label">{{ 'products.product.monogram' | t }}</span>
+                <input type="text" name="properties[{{ section.settings.monogram_label }}]"
+                       maxlength="{{ section.settings.monogram_chars }}" autocomplete="off" spellcheck="false"
+                       data-monogram-input placeholder="{{ section.settings.monogram_placeholder }}">
+              </label>
+              <div class="monogram__preview" aria-hidden="true">
+                <span class="monogram__stitch" data-monogram-preview>···</span>
+                <small>{{ section.settings.monogram_placement }} — as stitched</small>
+              </div>
+            </div>
+            <p class="monogram__help">
+              {{ section.settings.monogram_help }}
+              {%- if monogram_variant == null -%}
+                <em>{{ 'products.product.monogram_free_note' | t }}</em>
+              {%- endif -%}
+            </p>
+          </div>
+        </fieldset>
+      {%- endif -%}
+
+      <div class="product-form__row">
+        {% render 'quantity-input', value: 1, size: 'md' %}
+
+        <button type="submit" name="add" class="button button--primary button--lg button--grow" data-add-to-cart
+                {% unless current_variant.available %}disabled{% endunless %}>
+          <span data-add-to-cart-text>
+            {%- if current_variant.available -%}{{ 'products.product.add_to_cart' | t }}{%- else -%}{{ 'products.product.sold_out' | t }}{%- endif -%}
+          </span>
+          <span class="button__price" data-add-to-cart-price>{{ current_variant.price | money }}</span>
+        </button>
+      </div>
+
+      {%- if section.settings.show_dynamic_checkout -%}
+        {{ form | payment_button }}
+      {%- endif -%}
+
+      <p class="product-form__error" data-cart-error role="alert" hidden></p>
+      <p class="product-form__success" data-cart-success role="status" hidden></p>
+    {%- endform -%}
+
+    <div class="notify" data-notify hidden>
+      <p class="notify__lead">{% render 'icon', name: 'clock', size: 15 %} <span data-notify-lead>{{ 'products.product.sold_out_lead' | t }}</span></p>
+      {%- comment -%}
+        Shopify has no alert without an app, so this posts to the contact form
+        with the size pre-filled — a real request the merchant can action, and
+        never a button that quietly does nothing.
+      {%- endcomment -%}
+      <form method="post" action="{{ routes.contact_url }}" class="notify__form">
+        <input type="hidden" name="form_type" value="contact">
+        <input type="hidden" name="utf8" value="✓">
+        <input type="hidden" name="contact[subject]" value="Back in stock: {{ product.title }}">
+        <input type="hidden" name="contact[body]" value="Please tell me when {{ product.title }} ({{ current_variant.title }}) is back in stock.">
+        <label class="field">
+          <span class="field__label">{{ 'products.product.email' | t }}</span>
+          <input type="email" name="contact[email]" required autocomplete="email" placeholder="you@example.com">
+        </label>
+        <button class="button button--outline" type="submit">{{ 'products.product.notify_me' | t }}</button>
+      </form>
+    </div>
+
+    <div class="product__actions">
+      <button class="button button--ghost" type="button" data-wishlist-toggle="{{ product.handle }}">
+        {% render 'icon', name: 'heart', size: 16 %} <span>{{ 'products.product.wishlist' | t }}</span>
+      </button>
+      <button class="button button--ghost" type="button" data-share
+              data-share-title="{{ product.title | escape }}" data-share-url="{{ shop.url }}{{ product.url }}">
+        {% render 'icon', name: 'external', size: 16 %} <span>{{ 'products.product.share' | t }}</span>
+      </button>
+      <button class="button button--ghost" type="button" data-size-guide-open>
+        {% render 'icon', name: 'ruler', size: 16 %} <span>{{ 'products.product.size_guide' | t }}</span>
+      </button>
+    </div>
+
+    {%- if section.settings.show_delivery_estimate -%}
+      <div class="delivery-estimate">
+        {% render 'icon', name: 'truck', size: 18 %}
+        <p>{{ 'products.product.delivery_estimate' | t }}
+          <strong data-delivery-window>{{ section.settings.delivery_fallback }}</strong></p>
+      </div>
+    {%- endif -%}
+
+    <ul class="product__trust">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'trust' -%}
+          <li {{ block.shopify_attributes }}>
+            {% render 'icon', name: block.settings.icon, size: 18 %}
+            <div><strong>{{ block.settings.title }}</strong><span>{{ block.settings.text }}</span></div>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+
+    <div class="accordion" data-accordion>
+      {%- if product.description != blank -%}
+        <details class="accordion__item" open>
+          <summary>{{ 'products.product.details' | t }}</summary>
+          <div class="rte">{{ product.description }}</div>
+        </details>
+      {%- endif -%}
+
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'collapsible' -%}
+            <details class="accordion__item" {{ block.shopify_attributes }}>
+              <summary>{{ block.settings.heading }}</summary>
+              <div class="rte">{{ block.settings.content }}</div>
+            </details>
+          {%- when 'metafield' -%}
+            {%- assign mf = product.metafields[block.settings.metafield_namespace][block.settings.metafield_key] -%}
+            {%- if mf != blank -%}
+              <details class="accordion__item" {{ block.shopify_attributes }}>
+                <summary>{{ block.settings.heading }}</summary>
+                <div class="rte">{{ mf | metafield_tag }}</div>
+              </details>
+            {%- endif -%}
+        {%- endcase -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{%- if section.settings.show_sticky_atc -%}
+  <div class="sticky-atc" data-sticky-atc hidden>
+    <div class="page-width sticky-atc__inner">
+      {%- if product.featured_image -%}
+        {{ product.featured_image | image_url: width: 120 | image_tag: alt: product.title, class: 'sticky-atc__img' }}
+      {%- endif -%}
+      <div class="sticky-atc__meta">
+        <strong>{{ product.title }}</strong>
+        <span data-sticky-variant>{{ current_variant.title }}</span>
+      </div>
+      <button class="button button--primary" type="button" data-sticky-add data-variant-id="{{ current_variant.id }}"
+              {% unless current_variant.available %}disabled{% endunless %}>
+        {{ 'products.product.add_to_cart' | t }} · {{ current_variant.price | money }}
+      </button>
+    </div>
+  </div>
+{%- endif -%}
+
+{%- if section.settings.show_reviews -%}
+  <section class="reviews page-width" id="reviews" data-reviews data-handle="{{ product.handle }}">
+    <header class="reviews__head">
+      <h2>{{ 'products.product.reviews' | t }}</h2>
+      {%- if product.metafields.reviews.rating.value -%}
+        {% render 'rating', rating: product.metafields.reviews.rating.value, count: product.metafields.reviews.rating_count %}
+      {%- endif -%}
+    </header>
+    <div class="reviews__body" data-reviews-list>
+      <p class="muted">{{ 'products.product.reviews_loading' | t }}</p>
+    </div>
+    <p class="reviews__policy">{{ 'products.product.reviews_policy' | t }}</p>
+  </section>
+{%- endif -%}
+
+{%- if section.settings.show_related and recommendations.products.size > 0 -%}
+  <section class="rail page-width">
+    <div class="section-head">
+      <h2>{{ 'products.product.complete_the_look' | t }}</h2>
+    </div>
+    <ul class="product-grid product-grid--4">
+      {%- for related in recommendations.products limit: 4 -%}
+        <li>{% render 'product-card', product: related %}</li>
+      {%- endfor -%}
+    </ul>
+  </section>
+{%- endif -%}
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": {{ product.title | json }},
+    "description": {{ product.description | strip_html | truncate: 300 | json }},
+    "sku": {{ current_variant.sku | json }},
+    "brand": { "@type": "Brand", "name": {{ product.vendor | json }} },
+    "url": {{ shop.url | append: product.url | json }},
+    {%- if product.featured_image -%}"image": [{{ product.featured_image | image_url: width: 1200 | prepend: 'https:' | json }}],{%- endif -%}
+    "offers": {
+      "@type": "AggregateOffer",
+      "priceCurrency": {{ cart.currency.iso_code | json }},
+      "lowPrice": {{ product.price_min | divided_by: 100.0 | json }},
+      "highPrice": {{ product.price_max | divided_by: 100.0 | json }},
+      "offerCount": {{ product.variants.size }},
+      "availability": "{% if product.available %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}"
+    }
+  }
+</script>
+
+{%- if section.settings.show_size_finder -%}
+  <div class="size-finder" data-size-finder hidden role="dialog" aria-modal="true" aria-labelledby="size-finder-title">
+    <div class="size-finder__panel">
+      <button class="icon-btn size-finder__close" type="button" data-size-finder-close aria-label="{{ 'general.accessibility.close' | t }}">
+        {% render 'icon', name: 'close' %}
+      </button>
+      <p class="eyebrow">{{ 'products.product.size_finder' | t }}</p>
+      <h2 id="size-finder-title" class="size-finder__title">{{ 'products.product.whats_my_size' | t }}</h2>
+      <p class="size-finder__intro">{{ 'products.product.size_finder_intro' | t }}</p>
+      <form class="size-finder__form" data-size-finder-form>
+        <label class="field">
+          <span class="field__label">{{ 'products.product.height' | t }}</span>
+          <span class="field__pair">
+            <input type="number" name="heightFt" min="4" max="7" value="5" inputmode="numeric" aria-label="Feet">
+            <input type="number" name="heightIn" min="0" max="11" value="9" inputmode="numeric" aria-label="Inches">
+          </span>
+        </label>
+        <label class="field">
+          <span class="field__label">{{ 'products.product.weight' | t }}</span>
+          <input type="number" name="weight" min="70" max="450" value="165" inputmode="numeric">
+        </label>
+        <fieldset class="size-finder__pref">
+          <legend class="field__label">{{ 'products.product.fit_preference' | t }}</legend>
+          <label class="checkbox"><input type="radio" name="preference" value="snug"><span>{{ 'products.product.fit_snug' | t }}</span></label>
+          <label class="checkbox"><input type="radio" name="preference" value="true" checked><span>{{ 'products.product.fit_true' | t }}</span></label>
+          <label class="checkbox"><input type="radio" name="preference" value="relaxed"><span>{{ 'products.product.fit_relaxed' | t }}</span></label>
+        </fieldset>
+        <button class="button button--primary button--full" type="submit">{{ 'products.product.show_my_size' | t }}</button>
+      </form>
+      <div class="size-finder__result" data-size-finder-result hidden aria-live="polite"></div>
+      <p class="size-finder__disclaimer">
+        {{ 'products.product.size_finder_disclaimer' | t }}
+        {%- if section.settings.size_guide_page != blank -%}
+          <a href="{{ section.settings.size_guide_page.url }}">{{ 'products.product.size_guide' | t }}</a>
+        {%- endif -%}
+      </p>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Product page",
+  "settings": [
+    { "type": "checkbox", "id": "show_dynamic_checkout", "label": "Show dynamic checkout buttons", "default": true },
+    { "type": "checkbox", "id": "show_sticky_atc", "label": "Show sticky add to cart", "default": true },
+    { "type": "checkbox", "id": "show_delivery_estimate", "label": "Show delivery estimate", "default": true },
+    { "type": "text", "id": "delivery_fallback", "label": "Delivery fallback text", "default": "2–4 business days" },
+    { "type": "checkbox", "id": "show_reviews", "label": "Show reviews block", "default": true },
+    { "type": "checkbox", "id": "show_related", "label": "Show complete the look", "default": true },
+    { "type": "header", "content": "Monogramming" },
+    { "type": "checkbox", "id": "show_monogram", "label": "Offer monogramming", "default": true },
+    { "type": "text", "id": "monogram_label", "label": "Add-on name", "default": "Monogramming" },
+    { "type": "select", "id": "monogram_mode", "label": "How the add-on is charged", "options": [
+      { "value": "variant", "label": "By a Monogrammed variant (charges the fee)" },
+      { "value": "property", "label": "As a free note on the line item" }
+    ], "default": "variant", "info": "Shopify only charges for variants. Pick the variant option once the product has a Monogrammed variant; otherwise the monogram is recorded as a note." },
+    { "type": "number", "id": "monogram_price", "label": "Fallback price (whole units)", "default": 20, "info": "Shown only when no Monogrammed variant exists and the mode is variant." },
+    { "type": "number", "id": "monogram_chars", "label": "Maximum characters", "default": 3 },
+    { "type": "text", "id": "monogram_placement", "label": "Placement", "default": "Left cuff" },
+    { "type": "text", "id": "monogram_placeholder", "label": "Placeholder", "default": "ABC" },
+    { "type": "text", "id": "monogram_intro", "label": "Intro line", "default": "Letters, stitched in our studio." },
+    { "type": "text", "id": "monogram_help", "label": "Small print", "default": "Monogrammed pieces are personalised for you and cannot be returned." },
+    { "type": "header", "content": "Size finder" },
+    { "type": "checkbox", "id": "show_size_finder", "label": "Show the size finder", "default": true },
+    { "type": "page", "id": "size_guide_page", "label": "Size guide page" }
+  ],
+  "blocks": [
+    {
+      "type": "trust",
+      "name": "Trust item",
+      "settings": [
+        { "type": "select", "id": "icon", "label": "Icon", "options": [
+          { "value": "truck", "label": "Truck" }, { "value": "refresh", "label": "Returns" },
+          { "value": "leaf", "label": "Responsible" }, { "value": "repair", "label": "Repairs" }
+        ], "default": "truck" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Free shipping over $50" },
+        { "type": "text", "id": "text", "label": "Text", "default": "Carbon-neutral delivery in 2–4 days." }
+      ]
+    },
+    {
+      "type": "collapsible",
+      "name": "Collapsible row",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Materials & care" },
+        { "type": "richtext", "id": "content", "label": "Content", "default": "<p>Machine wash cold, hang dry.</p>" }
+      ]
+    },
+    {
+      "type": "metafield",
+      "name": "Metafield row",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Fit notes" },
+        { "type": "text", "id": "metafield_namespace", "label": "Metafield namespace", "default": "custom" },
+        { "type": "text", "id": "metafield_key", "label": "Metafield key", "default": "fit_notes" }
+      ]
+    }
+  ],
+  "max_blocks": 8
+}
+{% endschema %}

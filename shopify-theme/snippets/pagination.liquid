@@ -1,0 +1,30 @@
+{%- comment -%}Pagination with previous/next and page window.{%- endcomment -%}
+{%- if paginate.pages > 1 -%}
+  <nav class="pagination" role="navigation" aria-label="{{ 'general.pagination.label' | t }}">
+    {%- if paginate.previous -%}
+      <a class="pagination__item pagination__item--arrow" href="{{ paginate.previous.url }}" rel="prev" aria-label="{{ 'general.pagination.previous' | t }}">
+        {% render 'icon', name: 'arrow-left', size: 16 %}
+      </a>
+    {%- else -%}
+      <span class="pagination__item pagination__item--arrow is-disabled">{% render 'icon', name: 'arrow-left', size: 16 %}</span>
+    {%- endif -%}
+
+    {%- for part in paginate.parts -%}
+      {%- if part.is_link -%}
+        <a class="pagination__item" href="{{ part.url }}">{{ part.title }}</a>
+      {%- elsif part.title == paginate.current_page -%}
+        <span class="pagination__item is-current" aria-current="page">{{ part.title }}</span>
+      {%- else -%}
+        <span class="pagination__item is-gap">{{ part.title }}</span>
+      {%- endif -%}
+    {%- endfor -%}
+
+    {%- if paginate.next -%}
+      <a class="pagination__item pagination__item--arrow" href="{{ paginate.next.url }}" rel="next" aria-label="{{ 'general.pagination.next' | t }}">
+        {% render 'icon', name: 'arrow', size: 16 %}
+      </a>
+    {%- else -%}
+      <span class="pagination__item pagination__item--arrow is-disabled">{% render 'icon', name: 'arrow', size: 16 %}</span>
+    {%- endif -%}
+  </nav>
+{%- endif -%}

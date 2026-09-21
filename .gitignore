@@ -1,5 +1,7 @@
 # runtime data (regenerate with `npm run seed`)
 data/db.json
+data/db.*.tmp
+data/db.*.corrupt-*.json
 data/emails/
 
 # build output (regenerate with `npm run export`)
@@ -18,3 +20,8 @@ node_modules/
 
 # generated per-machine by `npm run brand:theme` (holds your store handle)
 shopify-theme/shopify.theme.toml
+
+# local env
+.env
+.env.local
+brand.json

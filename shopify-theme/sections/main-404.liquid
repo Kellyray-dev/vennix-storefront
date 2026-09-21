@@ -1,0 +1,23 @@
+<section class="not-found page-width">
+  <div class="not-found__inner">
+    <p class="eyebrow">404</p>
+    <h1>{{ 'templates.404.title' | t }}</h1>
+    <p class="not-found__lead">{{ 'templates.404.subtext' | t }}</p>
+
+    <form class="not-found__search" action="{{ routes.search_url }}" method="get" role="search">
+      <input type="search" name="q" placeholder="{{ 'general.search.placeholder' | t }}" aria-label="{{ 'general.search.search' | t }}">
+      <button class="button button--primary" type="submit">{{ 'general.search.search' | t }}</button>
+    </form>
+
+    <ul class="not-found__links">
+      <li><a class="chip" href="{{ routes.all_products_collection_url }}">{{ 'collections.shop_all' | t }}</a></li>
+      <li><a class="chip" href="/collections/new-in">{{ 'collections.new_in' | t }}</a></li>
+      <li><a class="chip" href="/pages/faq">{{ 'pages.faq' | t }}</a></li>
+      <li><a class="chip" href="/pages/contact">{{ 'customer.contact' | t }}</a></li>
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{ "name": "404", "settings": [] }
+{% endschema %}

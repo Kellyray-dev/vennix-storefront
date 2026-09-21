@@ -1,0 +1,70 @@
+<article class="article">
+  <div class="page-width article__head">
+    <nav class="breadcrumbs" aria-label="{{ 'general.accessibility.breadcrumb' | t }}">
+      <ol>
+        <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+        <li><a href="{{ blog.url }}">{{ blog.title }}</a></li>
+        <li><span aria-current="page">{{ article.title }}</span></li>
+      </ol>
+    </nav>
+
+    <p class="eyebrow">{{ article.tags.first | default: 'Journal' }}</p>
+    <h1>{{ article.title }}</h1>
+    <p class="article__meta">
+      <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: '%d %B %Y' }}</time>
+      {%- if article.author != blank %} · {{ article.author }}{%- endif -%}
+      · {{ article.content | strip_html | split: ' ' | size | divided_by: 220 | plus: 1 }} {{ 'blogs.min_read' | t }}
+    </p>
+  </div>
+
+  {%- if article.image -%}
+    <div class="page-width article__hero">
+      {{ article.image | image_url: width: 1800 | image_tag: loading: 'eager', alt: article.title }}
+    </div>
+  {%- endif -%}
+
+  <div class="page-width article__body rte">
+    {{ article.content }}
+  </div>
+
+  <footer class="page-width article__foot">
+    {%- if article.tags.size > 0 -%}
+      <ul class="chip-list">
+        {%- for tag in article.tags -%}
+          <li><a class="chip" href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag }}</a></li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    <div class="article__nav">
+      {%- if blog.previous_article -%}
+        <a class="article__nav-item" href="{{ blog.previous_article.url }}">
+          {% render 'icon', name: 'arrow-left', size: 16 %}
+          <span><em>{{ 'blogs.previous' | t }}</em><strong>{{ blog.previous_article.title }}</strong></span>
+        </a>
+      {%- endif -%}
+      {%- if blog.next_article -%}
+        <a class="article__nav-item article__nav-item--next" href="{{ blog.next_article.url }}">
+          <span><em>{{ 'blogs.next' | t }}</em><strong>{{ blog.next_article.title }}</strong></span>
+          {% render 'icon', name: 'arrow', size: 16 %}
+        </a>
+      {%- endif -%}
+    </div>
+  </footer>
+</article>
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": {{ article.title | json }},
+    "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+    {%- if article.author != blank -%}"author": { "@type": "Person", "name": {{ article.author | json }} },{%- endif -%}
+    {%- if article.image -%}"image": [{{ article.image | image_url: width: 1200 | prepend: 'https:' | json }}],{%- endif -%}
+    "publisher": { "@type": "Organization", "name": {{ shop.name | json }} }
+  }
+</script>
+
+{% schema %}
+{ "name": "Article", "settings": [] }
+{% endschema %}

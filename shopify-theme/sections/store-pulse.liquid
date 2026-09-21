@@ -1,0 +1,60 @@
+{%- comment -%}
+  Store pulse — the honest-numbers band. Every figure is a real Shopify value:
+  product count, published review count (if a reviews app exposes it), and the
+  catalogue size. Nothing here is invented, which is the point.
+{%- endcomment -%}
+<section class="pulse">
+  <div class="page-width pulse__inner">
+    <div>
+      <p class="pulse__label">{{ section.settings.eyebrow }}</p>
+      <h2 class="pulse__heading">{{ section.settings.heading }}</h2>
+      <div class="rte pulse__copy">{{ section.settings.body }}</div>
+      {%- if section.settings.ticker != blank -%}
+        <p class="pulse__ticker"><span class="pulse__dot" aria-hidden="true"></span>
+          <span class="pulse__ticker-text is-in">{{ section.settings.ticker }}</span></p>
+      {%- endif -%}
+    </div>
+    <div class="pulse__stats">
+      {%- for block in section.blocks -%}
+        <div class="pulse__stat{% if block.settings.highlight %} pulse__stat--reviews{% endif %}" {{ block.shopify_attributes }}>
+          {%- if block.settings.count_to != blank -%}
+            <strong data-count-to="{{ block.settings.count_to }}"{% if block.settings.decimals %} data-count-decimals="{{ block.settings.decimals }}"{% endif %}{% if block.settings.suffix != blank %} data-count-suffix="{{ block.settings.suffix }}"{% endif %}>
+              {{- block.settings.count_to }}{{ block.settings.suffix -}}
+            </strong>
+          {%- else -%}
+            <strong>{{ block.settings.value }}</strong>
+          {%- endif -%}
+          <span>{{ block.settings.label }}</span>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Store pulse",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The honest numbers" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Real reviews only. No invented ones." },
+    { "type": "richtext", "id": "body", "label": "Body", "default": "<p>We do not buy reviews, seed five-star ratings or pad our totals. New pieces start at zero reviews — that is the whole picture.</p>" },
+    { "type": "text", "id": "ticker", "label": "Live line", "default": "Every order ships carbon-neutral from the Brooklyn studio" }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Stat",
+      "settings": [
+        { "type": "text", "id": "count_to", "label": "Animate to (number)", "default": "24" },
+        { "type": "text", "id": "decimals", "label": "Decimal places", "default": "" },
+        { "type": "text", "id": "suffix", "label": "Suffix", "default": "" },
+        { "type": "text", "id": "value", "label": "Static value (if not animating)" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Styles in the range" },
+        { "type": "checkbox", "id": "highlight", "label": "Highlight", "default": false }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [{ "name": "Store pulse", "blocks": [{ "type": "stat" }, { "type": "stat" }, { "type": "stat" }, { "type": "stat" }] }]
+}
+{% endschema %}

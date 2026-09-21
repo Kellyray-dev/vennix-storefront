@@ -1,0 +1,7 @@
+{
+  "sections": {
+    "main": { "type": "main-404", "settings": {} },
+    "featured": { "type": "featured-collection", "settings": { "eyebrow": "Start somewhere", "heading": "Best sellers", "products_to_show": 4, "use_rail": true } }
+  },
+  "order": ["main", "featured"]
+}

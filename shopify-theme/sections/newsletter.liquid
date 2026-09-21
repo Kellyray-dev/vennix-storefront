@@ -1,0 +1,41 @@
+<section class="newsletter">
+  <div class="page-width newsletter__inner">
+    <div class="newsletter__copy">
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2>{{ section.settings.heading }}</h2>
+      <p>{{ section.settings.body }}</p>
+    </div>
+
+    {%- form 'customer', class: 'newsletter__form' -%}
+      <input type="hidden" name="contact[tags]" value="newsletter,{{ section.settings.tag }}">
+      <div class="newsletter__row">
+        <input type="email" name="contact[email]" required placeholder="{{ 'newsletter.placeholder' | t }}"
+               aria-label="{{ 'newsletter.email' | t }}">
+        <button class="button button--primary" type="submit">{{ section.settings.button_label }}</button>
+      </div>
+      {%- if form.posted_successfully? -%}
+        <p class="newsletter__msg is-ok">{{ section.settings.success_text }}</p>
+      {%- endif -%}
+      {%- if form.errors -%}
+        <p class="newsletter__msg is-error">{{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}</p>
+      {%- endif -%}
+      <p class="newsletter__fineprint">{{ section.settings.fineprint }}</p>
+    {%- endform -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The studio letter" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "10% off your first order" },
+    { "type": "textarea", "id": "body", "label": "Body", "default": "Restock alerts, fit notes from the studio and early access to capsule drops. One email a fortnight, never more." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Get 10% off" },
+    { "type": "text", "id": "success_text", "label": "Success message", "default": "You're in — check your inbox for the code." },
+    { "type": "text", "id": "fineprint", "label": "Fine print", "default": "No spam. Unsubscribe in one click." },
+    { "type": "text", "id": "tag", "label": "Customer tag", "default": "newsletter" }
+  ],
+  "presets": [{ "name": "Newsletter" }]
+}
+{% endschema %}

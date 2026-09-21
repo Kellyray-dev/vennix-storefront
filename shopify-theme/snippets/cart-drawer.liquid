@@ -1,0 +1,136 @@
+{%- comment -%}
+  Cart drawer. Rendered in the layout; re-rendered by theme.js via the
+  Cart API using this same markup (see assets/theme.js → renderCartDrawer).
+{%- endcomment -%}
+<aside class="cart-drawer" data-cart-drawer hidden aria-label="{{ 'templates.cart.cart' | t }}" role="dialog" aria-modal="true">
+  <header class="cart-drawer__head">
+    <h2>{{ 'templates.cart.cart' | t }} <span data-cart-count-inline>{{ cart.item_count }}</span></h2>
+    <button class="icon-button" type="button" data-cart-close aria-label="{{ 'general.accessibility.close' | t }}">
+      {% render 'icon', name: 'close' %}
+    </button>
+  </header>
+
+  {%- if settings.cart_show_free_shipping_bar -%}
+    {%- assign threshold = settings.cart_free_shipping_threshold | default: 7500 -%}
+    {%- assign remaining = threshold | minus: cart.total_price -%}
+    <div class="ship-progress" data-ship-progress
+         data-threshold="{{ threshold }}" data-total="{{ cart.total_price }}">
+      <p class="ship-progress__msg">
+        {%- if remaining > 0 -%}
+          {{ 'sections.cart.shipping_progress' | t: amount: remaining | money }}
+        {%- else -%}
+          {{ 'sections.cart.shipping_unlocked' | t }}
+        {%- endif -%}
+      </p>
+      <div class="ship-progress__bar">
+        <span style="width: {{ cart.total_price | times: 100 | divided_by: threshold | at_most: 100 }}%"></span>
+      </div>
+    </div>
+  {%- endif -%}
+
+  <div class="cart-drawer__body" data-cart-body>
+    {%- if cart.item_count == 0 -%}
+      <div class="cart-empty">
+        {% render 'icon', name: 'bag', size: 32 %}
+        <h3>{{ 'sections.cart.empty' | t }}</h3>
+        <p>{{ 'sections.cart.empty_hint' | t }}</p>
+        <a class="button button--primary" href="{{ routes.all_products_collection_url }}">{{ 'sections.cart.continue_shopping' | t }}</a>
+      </div>
+    {%- else -%}
+      <ul class="cart-lines">
+        {%- for item in cart.items -%}
+          <li class="cart-line" data-line="{{ forloop.index }}">
+            <a class="cart-line__media" href="{{ item.url }}">
+              {%- if item.image -%}
+                {{ item.image | image_url: width: 200 | image_tag: loading: 'lazy', alt: item.title }}
+              {%- endif -%}
+            </a>
+            <div class="cart-line__body">
+              <a class="cart-line__title" href="{{ item.url }}">{{ item.product.title }}</a>
+              {%- unless item.product.has_only_default_variant -%}
+                <p class="cart-line__variant">{{ item.variant.title }}</p>
+              {%- endunless -%}
+              {%- if item.selling_plan_allocation -%}
+                <p class="cart-line__variant">{{ item.selling_plan_allocation.selling_plan.name }}</p>
+              {%- endif -%}
+              {%- if item.properties != empty -%}
+                {%- for property in item.properties -%}
+                  {%- if property.last != blank -%}<p class="cart-line__prop">{{ property.first }}: {{ property.last }}</p>{%- endif -%}
+                {%- endfor -%}
+              {%- endif -%}
+              {%- if item.line_level_discount_allocations.size > 0 -%}
+                <p class="cart-line__discount">
+                  {%- for allocation in item.line_level_discount_allocations -%}
+                    {{ allocation.discount_application.title }} (&minus;{{ allocation.amount | money }})
+                  {%- endfor -%}
+                </p>
+              {%- endif -%}
+
+              <div class="cart-line__foot">
+                <div class="qty" data-qty>
+                  <button class="qty__btn" type="button" data-qty-change="-1" aria-label="{{ 'sections.cart.decrease' | t }}">{% render 'icon', name: 'minus', size: 14 %}</button>
+                  <input class="qty__input" type="number" min="0" value="{{ item.quantity }}" data-qty-input
+                         data-line-key="{{ item.key }}" aria-label="{{ 'sections.cart.quantity' | t }}">
+                  <button class="qty__btn" type="button" data-qty-change="1" aria-label="{{ 'sections.cart.increase' | t }}">{% render 'icon', name: 'plus', size: 14 %}</button>
+                </div>
+                <div class="cart-line__prices">
+                  {%- if item.original_line_price != item.final_line_price -%}
+                    <s>{{ item.original_line_price | money }}</s>
+                  {%- endif -%}
+                  <strong>{{ item.final_line_price | money }}</strong>
+                </div>
+              </div>
+            </div>
+            <button class="cart-line__remove" type="button" data-line-remove="{{ item.key }}" aria-label="{{ 'sections.cart.remove' | t }}">
+              {% render 'icon', name: 'trash', size: 16 %}
+            </button>
+          </li>
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+
+  {%- if cart.item_count > 0 -%}
+    <footer class="cart-drawer__foot">
+      {%- if settings.cart_show_gift_note -%}
+        <details class="cart-note">
+          <summary>{% render 'icon', name: 'gift', size: 16 %} {{ 'sections.cart.gift_note' | t }}</summary>
+          <textarea name="attributes[gift_note]" rows="2" data-cart-attribute="gift_note"
+                    placeholder="{{ 'sections.cart.gift_note_placeholder' | t }}">{{ cart.attributes.gift_note }}</textarea>
+        </details>
+      {%- endif -%}
+      {%- if settings.cart_show_note -%}
+        <details class="cart-note">
+          <summary>{% render 'icon', name: 'info', size: 16 %} {{ 'sections.cart.order_note' | t }}</summary>
+          <textarea name="note" rows="2" data-cart-note
+                    placeholder="{{ 'sections.cart.note_placeholder' | t }}">{{ cart.note }}</textarea>
+        </details>
+      {%- endif -%}
+
+      {%- if cart.cart_level_discount_applications.size > 0 -%}
+        <ul class="cart-discounts">
+          {%- for discount in cart.cart_level_discount_applications -%}
+            <li>{{ discount.title }} &minus;{{ discount.total_allocated_amount | money }}</li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+
+      <div class="cart-drawer__totals">
+        <span>{{ 'sections.cart.subtotal' | t }}</span>
+        <strong data-cart-subtotal>{{ cart.total_price | money }}</strong>
+      </div>
+      <p class="cart-drawer__fineprint">{{ 'sections.cart.taxes_note' | t }}{% if cart.taxes_included %} {{ 'sections.cart.taxes_included' | t }}{% endif %}</p>
+
+      <form action="{{ routes.cart_url }}" method="post">
+        <button class="button button--primary button--block" type="submit" name="checkout">{{ 'sections.cart.checkout' | t }}</button>
+      </form>
+      <a class="cart-drawer__link" href="{{ routes.cart_url }}">{{ 'sections.cart.view_cart' | t }}</a>
+
+      <ul class="payment-methods" aria-label="{{ 'general.accessibility.payment_methods' | t }}">
+        {%- for type in shop.enabled_payment_types -%}{{ type | payment_type_svg_tag: class: 'payment-icon' }}{%- endfor -%}
+      </ul>
+    </footer>
+  {%- endif -%}
+</aside>
+
+<div class="overlay" data-overlay hidden></div>

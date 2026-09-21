@@ -1,0 +1,89 @@
+<footer class="site-footer">
+  <div class="page-width site-footer__top">
+    <div class="site-footer__brand">
+      <span class="brand__word">{{ shop.name | upcase }}</span>
+      <p>{{ section.settings.tagline }}</p>
+
+      {%- if section.settings.show_newsletter -%}
+        {% form 'customer', class: 'newsletter-form' %}
+          <input type="hidden" name="contact[tags]" value="newsletter">
+          <label class="newsletter-form__label" for="FooterEmail">{{ section.settings.newsletter_label }}</label>
+          <div class="newsletter-form__row">
+            <input id="FooterEmail" type="email" name="contact[email]" placeholder="you@email.com" required autocomplete="email"
+                   value="{% if customer %}{{ customer.email }}{% endif %}">
+            <button class="button button--primary" type="submit">{{ 'newsletter.button_label' | t }}</button>
+          </div>
+          {%- if form.posted_successfully? -%}
+            <p class="newsletter-form__msg is-ok">{{ 'newsletter.success' | t }}</p>
+          {%- endif -%}
+          {%- if form.errors -%}
+            <p class="newsletter-form__msg is-error">{{ form.errors.translated_fields.email | capitalize }} {{ form.errors.messages.email }}</p>
+          {%- endif -%}
+        {% endform %}
+      {%- endif -%}
+
+      <ul class="socials">
+        {%- comment -%} Only the networks this brand runs — no dead links. {%- endcomment -%}
+        {%- if settings.social_tiktok != blank -%}<li><a href="{{ settings.social_tiktok }}" rel="noopener" target="_blank">{% render 'icon', name: 'tiktok', size: 15 %} TikTok</a></li>{%- endif -%}
+        {%- if settings.social_pinterest != blank -%}<li><a href="{{ settings.social_pinterest }}" rel="noopener" target="_blank">{% render 'icon', name: 'pinterest', size: 15 %} Pinterest</a></li>{%- endif -%}
+        {%- if settings.social_linkedin != blank -%}<li><a href="{{ settings.social_linkedin }}" rel="noopener" target="_blank">{% render 'icon', name: 'linkedin', size: 15 %} LinkedIn</a></li>{%- endif -%}
+      </ul>
+    </div>
+
+    <nav class="site-footer__columns" aria-label="{{ 'general.accessibility.footer_nav' | t }}">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'menu' -%}
+          <div {{ block.shopify_attributes }}>
+            <h3>{{ block.settings.heading }}</h3>
+            <ul>
+              {%- for link in block.settings.menu.links -%}
+                <li><a href="{{ link.url }}">{{ link.title }}</a></li>
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </nav>
+  </div>
+
+  <div class="page-width site-footer__base">
+    <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. {{ section.settings.legal }}</p>
+    <ul>
+      {%- for policy in shop.policies -%}
+        {%- if policy != blank -%}<li><a href="{{ policy.url }}">{{ policy.title }}</a></li>{%- endif -%}
+      {%- endfor -%}
+      {%- if shop.privacy_policy != blank -%}<li><a href="{{ shop.privacy_policy.url }}">{{ shop.privacy_policy.title }}</a></li>{%- endif -%}
+    </ul>
+    {%- if section.settings.show_payment_icons -%}
+      <p class="site-footer__payments">
+        {%- for type in shop.enabled_payment_types -%}
+          {{ type | payment_type_svg_tag: class: 'payment-icon' }}
+        {%- endfor -%}
+      </p>
+    {%- endif -%}
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "text", "id": "tagline", "label": "Tagline", "default": "Modern clothing & active essentials." },
+    { "type": "checkbox", "id": "show_newsletter", "label": "Show newsletter signup", "default": true },
+    { "type": "text", "id": "newsletter_label", "label": "Newsletter label", "default": "Get the studio letter — 10% off your first order" },
+    { "type": "text", "id": "legal", "label": "Legal line", "default": "All rights reserved." },
+    { "type": "checkbox", "id": "show_payment_icons", "label": "Show payment icons", "default": true }
+  ],
+  "blocks": [
+    {
+      "type": "menu",
+      "name": "Menu column",
+      "settings": [
+        { "type": "text", "id": "heading", "label": "Heading", "default": "Shop" },
+        { "type": "link_list", "id": "menu", "label": "Menu", "default": "footer" }
+      ]
+    }
+  ],
+  "max_blocks": 3
+}
+{% endschema %}

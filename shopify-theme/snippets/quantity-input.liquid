@@ -1,0 +1,7 @@
+{%- comment -%}Quantity stepper.{%- endcomment -%}
+<div class="qty qty--{{ size | default: 'md' }}" data-qty>
+  <button class="qty__btn" type="button" data-qty-change="-1" aria-label="{{ 'products.product.decrease_quantity' | t }}">{% render 'icon', name: 'minus', size: 14 %}</button>
+  <input class="qty__input" type="number" name="quantity" value="{{ value | default: 1 }}" min="{{ min | default: 1 }}" data-qty-input
+         aria-label="{{ 'products.product.quantity' | t }}">
+  <button class="qty__btn" type="button" data-qty-change="1" aria-label="{{ 'products.product.increase_quantity' | t }}">{% render 'icon', name: 'plus', size: 14 %}</button>
+</div>

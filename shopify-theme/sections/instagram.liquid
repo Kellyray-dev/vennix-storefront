@@ -1,0 +1,65 @@
+<section class="lookbook">
+  <div class="page-width">
+    <div class="section-head section-head--center">
+      <div>
+        <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+        <h2>{{ section.settings.heading }}</h2>
+        <p class="section-head__sub">{{ section.settings.subheading }}</p>
+      </div>
+    </div>
+
+    <ul class="lookbook__grid lookbook__grid--{{ section.settings.columns }}" data-rail>
+      {%- for block in section.blocks -%}
+        <li class="lookbook__tile" {{ block.shopify_attributes }}>
+          <a href="{{ block.settings.link | default: settings.social_tiktok }}" {% if block.settings.link == blank %}target="_blank" rel="noopener"{% endif %}>
+            {%- if block.settings.image -%}
+              {{ block.settings.image | image_url: width: 800 | image_tag: loading: 'lazy', alt: block.settings.caption }}
+            {%- else -%}
+              {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+            <span class="lookbook__caption">
+              {% render 'icon', name: 'tiktok', size: 15 %}
+              {{ block.settings.caption }}
+            </span>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if settings.social_tiktok != blank -%}
+      <p class="lookbook__cta">
+        <a class="button button--outline" href="{{ settings.social_tiktok }}" target="_blank" rel="noopener">
+          {% render 'icon', name: 'tiktok', size: 16 %} {{ section.settings.cta_label }}
+        </a>
+      </p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Lookbook",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "@vennixstore" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Worn in the wild" },
+    { "type": "text", "id": "subheading", "label": "Subheading", "default": "Tag us and you might land here." },
+    { "type": "text", "id": "cta_label", "label": "CTA label", "default": "Follow along" },
+    { "type": "select", "id": "columns", "label": "Columns", "options": [
+      { "value": "4", "label": "4" }, { "value": "6", "label": "6" }
+    ], "default": "4" }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Tile",
+      "settings": [
+        { "type": "image_picker", "id": "image", "label": "Image" },
+        { "type": "text", "id": "caption", "label": "Caption", "default": "6am loop" },
+        { "type": "url", "id": "link", "label": "Link" }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [{ "name": "Lookbook", "blocks": [{ "type": "tile" }, { "type": "tile" }, { "type": "tile" }, { "type": "tile" }] }]
+}
+{% endschema %}

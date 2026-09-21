@@ -1,0 +1,72 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Store, theme and end-to-end checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # jsdom is a dev-only dependency for the browser click test; the app
+      # itself stays dependency-free.
+      - name: Install browser test harness
+        run: npm install --no-save --no-audit --no-fund jsdom
+
+      - name: Module load check
+        run: npm run check
+
+      - name: Theme structure check
+        run: npm run theme:check
+
+      - name: Seed the demo store
+        run: npm run seed
+
+      # boots the app on a spare port and renders every page shape
+      - name: Render check
+        run: npm run check:render
+
+      - name: Start the storefront
+        run: |
+          node server.js > server.log 2>&1 &
+          for i in $(seq 1 30); do
+            node -e "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" && break
+            sleep 1
+          done
+
+      - name: HTTP end-to-end suite
+        run: npm run smoke
+
+      - name: Storefront feature suite
+        run: npm run features
+
+      - name: Dead-link crawl
+        run: npm run links
+
+      - name: Browser click test
+        run: npm run browser:test
+
+      - name: Shopify export bundle
+        run: npm run export
+
+      - name: Upload the Shopify bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: shopify-deployment
+          path: dist/shopify/
+          retention-days: 14
+
+      - name: Server log on failure
+        if: failure()
+        run: tail -80 server.log

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" role="img" aria-label="Vennix gift card">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#26221f"/>
+      <stop offset="1" stop-color="#12100f"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0.4">
+      <stop offset="0" stop-color="#c8a37a" stop-opacity="0.9"/>
+      <stop offset="0.5" stop-color="#e8d6bd" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#8a6a4f" stop-opacity="0.85"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="800" fill="#edeae4"/>
+  <g transform="rotate(-6 400 400)">
+    <rect x="90" y="230" width="620" height="360" rx="22" fill="url(#g1)"/>
+    <rect x="90" y="230" width="620" height="360" rx="22" fill="url(#grid)"/>
+    <rect x="90" y="230" width="620" height="360" rx="22" fill="none" stroke="url(#shine)" stroke-width="2.5" stroke-opacity="0.55"/>
+    <path d="M150 300 210 200l60 100" fill="none" stroke="#e8d6bd" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M172 300 210 236l38 64" fill="none" stroke="#e8d6bd" stroke-width="4" stroke-linejoin="round"/>
+    <text x="150" y="392" fill="#f6f1e8" font-family="Georgia, 'Times New Roman', serif" font-size="46" letter-spacing="6">VENNIX</text>
+    <text x="152" y="424" fill="#c8a37a" font-family="Helvetica, Arial, sans-serif" font-size="17" letter-spacing="9">ACTIVE</text>
+    <text x="150" y="500" fill="#f6f1e8" font-family="Helvetica, Arial, sans-serif" font-size="22" letter-spacing="4">DIGITAL GIFT CARD</text>
+    <text x="150" y="534" fill="#a99b8b" font-family="Helvetica, Arial, sans-serif" font-size="15" letter-spacing="2">Delivered by email — no expiry</text>
+    <g transform="translate(596 250)">
+      <rect width="68" height="46" rx="7" fill="url(#shine)"/>
+      <rect x="8" y="30" width="20" height="10" rx="2" fill="#2a241f" fill-opacity="0.55"/>
+      <path d="M8 12h52" stroke="#2a241f" stroke-opacity="0.35" stroke-width="3"/>
+    </g>
+    <text x="596" y="560" fill="#c8a37a" font-family="Helvetica, Arial, sans-serif" font-size="14" letter-spacing="3">VENNIXSTORE.COM</text>
+  </g>
+</svg>

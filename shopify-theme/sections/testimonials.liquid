@@ -1,0 +1,55 @@
+<section class="testimonials">
+  <div class="page-width">
+    <div class="section-head section-head--center">
+      <div>
+        <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+        <h2>{{ section.settings.heading }}</h2>
+      </div>
+    </div>
+
+    <ul class="testimonials__list" data-rail>
+      {%- for block in section.blocks -%}
+        <li class="testimonial" {{ block.shopify_attributes }}>
+          <span class="rating__stars" aria-hidden="true">
+            {%- for i in (1..5) -%}
+              <span class="rating__star{% if i <= block.settings.rating %} is-on{% endif %}">{% render 'icon', name: 'star', size: 13 %}</span>
+            {%- endfor -%}
+          </span>
+          <blockquote>{{ block.settings.quote }}</blockquote>
+          <footer>
+            <strong>{{ block.settings.author }}</strong>
+            <span>{{ block.settings.detail }}</span>
+            {%- if block.settings.verified -%}
+              <span class="testimonial__verified">{% render 'icon', name: 'check', size: 12 %} {{ 'products.product.verified_buyer' | t }}</span>
+            {%- endif -%}
+          </footer>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Testimonials",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Reviews" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "What customers actually say" }
+  ],
+  "blocks": [
+    {
+      "type": "quote",
+      "name": "Testimonial",
+      "settings": [
+        { "type": "range", "id": "rating", "min": 1, "max": 5, "step": 1, "label": "Rating", "default": 5 },
+        { "type": "textarea", "id": "quote", "label": "Quote", "default": "The Atlas hoodie is the only one I reach for. Heavy in the best way and it hasn't pilled once." },
+        { "type": "text", "id": "author", "label": "Author", "default": "Danielle R." },
+        { "type": "text", "id": "detail", "label": "Detail", "default": "Verified purchase · Atlas hoodie, Fog / M" },
+        { "type": "checkbox", "id": "verified", "label": "Show verified badge", "default": true }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [{ "name": "Testimonials", "blocks": [{ "type": "quote" }, { "type": "quote" }, { "type": "quote" }] }]
+}
+{% endschema %}
