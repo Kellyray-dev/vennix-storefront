@@ -36,6 +36,84 @@ const HOST = process.env.HOST || '0.0.0.0';
 
 seed.ensureSeeded();
 
+/* ---------------------------- CSRF / origin check -------------------------- */
+/**
+ * Simple CSRF defense for state-changing requests: require the Origin (or
+ * Referer when Origin is omitted by the browser) to match the request's
+ * Host. SameSite=Lax cookies already blunt form-submit CSRF in modern
+ * browsers; this adds defense-in-depth against top-level navigations and
+ * older user agents.
+ */
+function sameOrigin(req) {
+  const host = (req.headers.host || '').split(':')[0].toLowerCase();
+  if (!host) return false;
+  const origin = req.headers.origin;
+  if (origin) {
+    try {
+      const o = new URL(origin);
+      return o.hostname.toLowerCase() === host;
+    } catch { return false; }
+  }
+  const ref = req.headers.referer;
+  if (ref) {
+    try {
+      const r = new URL(ref);
+      return r.hostname.toLowerCase() === host;
+    } catch { return false; }
+  }
+  // Accept if neither header is present (curl / same-origin users); browsers
+  // send at least Referer on same-origin POSTs.
+  return true;
+}
+
+/* ------------------------- idempotency for checkout ------------------------ */
+// Simple per-session checkout token stored on the cart to block double-submits.
+function checkoutToken(cart) {
+  if (!cart._checkoutToken) cart._checkoutToken = crypto.randomBytes(12).toString('base64url');
+  return cart._checkoutToken;
+}
+
+/* --------------------------- in-memory rate limit -------------------------- */
+// Tiny sliding-window rate limiter keyed on IP + route. Single-process only,
+// good enough to blunt credential stuffing and form spam. By default we use
+// the socket address; only when TRUST_PROXY=1 do we trust X-Forwarded-For.
+const RATE_BUCKETS = new Map();
+function getClientIp(req) {
+  const trustProxy = process.env.TRUST_PROXY === '1' || process.env.TRUST_PROXY === 'true';
+  if (trustProxy) {
+    const xff = req.headers['x-forwarded-for'];
+    if (xff) return xff.toString().split(',')[0].trim();
+  }
+  return (req.socket.remoteAddress || 'unknown').toString();
+}
+function pruneBuckets(map, windowMs) {
+  if (map.size <= 5000) return;
+  const now = Date.now();
+  for (const [k, v] of map) {
+    const filtered = v.filter(t => now - t < windowMs);
+    if (filtered.length === 0) map.delete(k);
+    else if (filtered.length !== v.length) map.set(k, filtered);
+    if (map.size <= 4000) break;
+  }
+}
+function rateLimit(req, key, { windowMs = 60_000, max = 10 } = {}) {
+  const ip = getClientIp(req);
+  const bucketKey = `${ip}:${key}`;
+  const now = Date.now();
+  let bucket = RATE_BUCKETS.get(bucketKey);
+  bucket = (bucket || []).filter(t => now - t < windowMs);
+  if (bucket.length >= max) {
+    if (bucket.length === 0) RATE_BUCKETS.delete(bucketKey);
+    else RATE_BUCKETS.set(bucketKey, bucket);
+    pruneBuckets(RATE_BUCKETS, windowMs);
+    return false;
+  }
+  bucket.push(now);
+  RATE_BUCKETS.set(bucketKey, bucket);
+  pruneBuckets(RATE_BUCKETS, windowMs);
+  return true;
+}
+
 /* ------------------------------- primitives ------------------------------- */
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -50,7 +128,9 @@ function sendHtml(res, html, status = 200, extraHeaders = {}) {
     'Content-Type': 'text/html; charset=utf-8',
     'Content-Length': body.length,
     'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
     ...extraHeaders
   });
   res.end(body);
@@ -58,7 +138,15 @@ function sendHtml(res, html, status = 200, extraHeaders = {}) {
 
 function sendJson(res, obj, status = 200) {
   const body = Buffer.from(JSON.stringify(obj));
-  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': body.length, 'Cache-Control': 'no-store' });
+  const headers = {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Length': body.length,
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'X-Frame-Options': 'DENY'
+  };
+  res.writeHead(status, headers);
   res.end(body);
 }
 
@@ -179,11 +267,25 @@ function createOrder(ctx, values) {
     }
   }
 
+  // Bail early on validation errors BEFORE marking the cart as converting — a
+  // failed decline/validation attempt must leave the cart reusable for the next
+  // submission in the same session.
+  if (Object.keys(errors).length) return { errors };
+
+  // Mark the cart as converting so a concurrent double-submit can't slip past
+  // the early guard above.
+  ctx.rawCart._converting = true;
+  store.save();
+
   const payment = commerce.authorize({
     number: values.cardNumber, exp: values.cardExpiry, cvv: values.cardCvc, name: values.cardName || `${values.firstName} ${values.lastName}`
   });
-  if (!payment.ok) errors.cardNumber = payment.error;
-  if (Object.keys(errors).length) return { errors };
+  if (!payment.ok) {
+    errors.cardNumber = payment.error;
+    ctx.rawCart._converting = false;
+    store.save();
+    return { errors };
+  }
 
   // reserve stock
   for (const line of cart.lines) {
@@ -297,10 +399,15 @@ function createOrder(ctx, values) {
   if (values.emailCopy !== 'off') store.writeEmail(`copy-${order.number}-${Date.now()}`, emails.orderConfirmation(order, ctx.settings));
 
   store.logActivity(order.email, 'order.created', `${order.number} · ${commerce.money(order.total)} · ${order.items.length} items`);
-  // Shopifiable behaviour: the cart is emptied and archived as converted
+  // Shopifiable behaviour: the cart is emptied and archived as converted.
+  // _lastOrderId is set BEFORE clearing items so concurrent requests see the
+  // prior order via the early guard above.
+  ctx.rawCart._lastOrderId = order.id;
+  ctx.rawCart._converting = false;
   ctx.rawCart.items = [];
   ctx.rawCart.discountCode = null;
   ctx.rawCart.giftNote = '';
+  ctx.rawCart._checkoutToken = null;
   cartLib.markRecovered(ctx.rawCart, order.id);
   return { order };
 }
@@ -332,6 +439,24 @@ const server = http.createServer(async (req, res) => {
   }
 
   try {
+    // CSRF defense for all state-changing requests. The check is here so it
+    // covers both POST routes below and POSTs to /api/* and /admin/*.
+    if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+      if (!sameOrigin(req)) {
+        res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
+        return res.end('Cross-origin request blocked.');
+      }
+    }
+
+    // --- logout (must accept POST only; GET is a soft redirect) ---
+    if (pathname === '/account/logout') {
+      if (method === 'POST') {
+        auth.destroySession(ctx.session && ctx.session.id);
+        return redirect(res, '/', 303);
+      }
+      return redirect(res, '/', 302);
+    }
+
     // --- API ---
     if (pathname.startsWith('/api/')) return await api.handle(ctx);
 
@@ -394,12 +519,18 @@ const server = http.createServer(async (req, res) => {
       if (pathname === '/account/recover') return renderPage(ctx, PAGES.account.recoverPage(ctx, { notice: query.ok || '', link: query.link || '' }));
       if (pathname === '/account/reset') {
         const token = query.token || '';
-        const customer = store.find('customers', c => c.resetToken === token);
-        return renderPage(ctx, PAGES.account.resetPage(ctx, { token, customer, error: token && !customer ? 'That reset link has expired or already been used.' : '' }));
-      }
-      if (pathname === '/account/logout') {
-        auth.destroySession(ctx.session && ctx.session.id);
-        return redirect(res, '/', 302);
+        let customer = token ? store.find('customers', c => c.resetToken === token) : null;
+        let error = '';
+        if (token) {
+          if (!customer) {
+            error = 'That reset link has expired or already been used.';
+          } else if (customer.resetExpires && Date.parse(customer.resetExpires) < Date.now()) {
+            store.update('customers', customer.id, { resetToken: null, resetExpires: null });
+            customer = null;
+            error = 'That reset link has expired. Request a new one.';
+          }
+        }
+        return renderPage(ctx, PAGES.account.resetPage(ctx, { token, customer, error }));
       }
       if (pathname.startsWith('/account')) {
         if (!ctx.customer) return redirect(res, `/account/login?return=${encodeURIComponent(pathname)}`);
@@ -424,6 +555,30 @@ const server = http.createServer(async (req, res) => {
       const body = await parseBody(req);
 
       if (pathname === '/checkout') {
+        // Idempotency: if this cart has already produced an order, redirect
+        // there rather than charging again — but only while the cart is still
+        // empty. Once the customer adds new items the cart is being reused and
+        // we must clear the old checkout state so a fresh purchase can proceed.
+        const priorOrder = ctx.rawCart._lastOrderId
+          && store.find('orders', o => o.id === ctx.rawCart._lastOrderId);
+        if (priorOrder) {
+          if (!ctx.rawCart.items || ctx.rawCart.items.length === 0) {
+            return redirect(res, `/orders/${priorOrder.number}?email=${encodeURIComponent(priorOrder.email)}&new=1`, 303);
+          }
+          // Cart has been reused since the last conversion — drop the old
+          // idempotency marker so a new order can be created.
+          delete ctx.rawCart._lastOrderId;
+          delete ctx.rawCart._converting;
+          delete ctx.rawCart._checkoutToken;
+          ctx.rawCart.status = 'active';
+          delete ctx.rawCart.orderId;
+          store.save();
+        }
+        // If an earlier submission is currently converting this cart (e.g.
+        // double-click) short-circuit to prevent a second charge.
+        if (ctx.rawCart._converting) {
+          return redirect(res, '/cart?error=' + encodeURIComponent('Your order is already being processed.'), 303);
+        }
         const result = createOrder(ctx, body);
         if (result.errors) {
           const view = PAGES.checkout.render(ctx, { errors: result.errors, values: body, stage: 2 });
@@ -437,6 +592,10 @@ const server = http.createServer(async (req, res) => {
       }
 
       if (pathname === '/track') {
+        if (!rateLimit(req, 'track', { windowMs: 60_000, max: 10 })) {
+          res.writeHead(429, { 'Content-Type': 'text/plain; charset=utf-8', 'Retry-After': '60' });
+          return res.end('Too many tracking attempts. Try again in a minute.');
+        }
         const number = String(body.number || '').trim().toUpperCase();
         const email = String(body.email || '').trim().toLowerCase();
         const order = store.find('orders', o => o.number.toUpperCase() === number);
@@ -466,6 +625,9 @@ const server = http.createServer(async (req, res) => {
 
       /* ------------------------------ account ------------------------------ */
       if (pathname === '/account/login') {
+        if (!rateLimit(req, 'login', { windowMs: 60_000, max: 10 })) {
+          return renderPage(ctx, PAGES.account.loginPage(ctx, { mode: 'login', errors: { password: 'Too many login attempts. Try again in a minute.' }, values: { email: body.email || '' } }));
+        }
         const email = String(body.email || '').trim().toLowerCase();
         const customer = store.find('customers', c => c.email === email);
         if (!customer || !auth.verifyPassword(body.password, customer.salt, customer.passwordHash)) {
@@ -520,10 +682,17 @@ const server = http.createServer(async (req, res) => {
       if (pathname === '/account/reset') {
         const customer = store.find('customers', c => c.resetToken === body.token);
         if (!customer) return renderPage(ctx, PAGES.account.resetPage(ctx, { token: body.token, error: 'That link is no longer valid. Request a new one.' }));
+        // One-hour expiry (set at token creation) is enforced here.
+        if (customer.resetExpires && Date.parse(customer.resetExpires) < Date.now()) {
+          store.update('customers', customer.id, { resetToken: null, resetExpires: null });
+          return renderPage(ctx, PAGES.account.resetPage(ctx, { token: '', error: 'That reset link has expired. Request a new one.' }));
+        }
         if (String(body.password || '').length < 8) return renderPage(ctx, PAGES.account.resetPage(ctx, { token: body.token, customer, error: 'Use at least 8 characters.' }));
         if (body.password !== body.passwordConfirm) return renderPage(ctx, PAGES.account.resetPage(ctx, { token: body.token, customer, error: 'Passwords do not match.' }));
         const pw = auth.hashPassword(body.password);
-        store.update('customers', customer.id, { passwordHash: pw.hash, salt: pw.salt, resetToken: null });
+        store.update('customers', customer.id, { passwordHash: pw.hash, salt: pw.salt, resetToken: null, resetExpires: null });
+        // Invalidate all existing sessions for this customer after a password reset.
+        store.all('sessions').filter(s => s.customerId === customer.id).forEach(s => store.remove('sessions', s.id));
         store.logActivity(customer.email, 'customer.password_changed', 'Password reset completed');
         return redirect(res, '/account/login?ok=' + encodeURIComponent('Password updated — log in with your new password.'), 303);
       }
@@ -620,9 +789,13 @@ server.listen(PORT, HOST, () => {
   console.log('  VENNIX — full-stack storefront + admin');
   console.log('  ───────────────────────────────────────────────────');
   console.log(`  Storefront   http://localhost:${PORT}/`);
-  console.log(`  Admin        http://localhost:${PORT}/admin  (admin@vennixstore.com / vennix123)`);
+  console.log(`  Admin        http://localhost:${PORT}/admin  (${db.settings.admin.email})`);
   console.log(`  Catalog      ${db.products.length} products · ${db.collections.length} collections · ${db.orders.length} orders`);
-  console.log(`  Payments     ${db.settings.payments.provider} (sandbox) — test card 4242 4242 4242 4242`);
+  const payMode = db.settings.payments.testMode ? 'sandbox' : 'LIVE';
+  console.log(`  Payments     ${db.settings.payments.provider} (${payMode}) — test card 4242 4242 4242 4242`);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('  Demo admin   password "vennix123" — set ADMIN_PASSWORD / NODE_ENV=production for live deploys.');
+  }
   console.log('');
 });
 

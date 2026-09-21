@@ -1,0 +1,193 @@
+{%- comment -%}
+  Header — sticky storefront navigation with mega menu, predictive search,
+  wishlist hook and cart drawer trigger.
+{%- endcomment -%}
+
+<header class="site-header{% if settings.enable_sticky_header %} site-header--sticky{% endif %}" data-header>
+  <div class="page-width site-header__inner">
+
+    <button class="icon-button site-header__burger" type="button" data-menu-open aria-label="{{ 'general.accessibility.open_menu' | t }}" aria-expanded="false" aria-controls="MobileMenu">
+      {% render 'icon', name: 'menu' %}
+    </button>
+
+    <nav class="primary-nav" aria-label="{{ 'general.accessibility.primary_nav' | t }}">
+      <ul>
+        {%- for link in section.settings.menu.links -%}
+          <li class="{% if link.links != blank %}has-mega{% endif %}{% if link.active %} is-active{% endif %}">
+            <a href="{{ link.url }}" {% if link.links != blank %}aria-haspopup="true" aria-expanded="false" data-mega-trigger{% endif %}>
+              {{ link.title }}
+              {%- if link.links != blank %}{% render 'icon', name: 'chevron-down', size: 14 %}{% endif -%}
+            </a>
+
+            {%- if link.links != blank and section.settings.show_mega_menu -%}
+              <div class="mega-menu" data-mega>
+                <div class="page-width mega-menu__inner">
+                  <div class="mega-menu__columns">
+                    {%- for child in link.links -%}
+                      <div class="mega-menu__column">
+                        <h3>{{ child.title }}</h3>
+                        <ul>
+                          {%- for grandchild in child.links -%}
+                            <li><a href="{{ grandchild.url }}"><span>{{ grandchild.title }}</span></a></li>
+                          {%- endfor -%}
+                        </ul>
+                      </div>
+                    {%- endfor -%}
+                  </div>
+
+                  {%- if section.settings.mega_feature_product != blank -%}
+                    {%- assign feature = section.settings.mega_feature_product -%}
+                    <a class="mega-menu__feature" href="{{ feature.url }}">
+                      {%- if feature.featured_image -%}
+                        {{ feature.featured_image | image_url: width: 420 | image_tag: loading: 'lazy', alt: feature.title }}
+                      {%- endif -%}
+                      <span class="mega-menu__feature-body">
+                        <em>{{ section.settings.mega_feature_eyebrow }}</em>
+                        <strong>{{ feature.title }}</strong>
+                        <span>{{ feature.description | strip_html | truncatewords: 12 }}</span>
+                        <span class="link-arrow">{{ 'products.product.view_details' | t }} {% render 'icon', name: 'arrow', size: 15 %}</span>
+                      </span>
+                    </a>
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    <a class="brand" href="{{ routes.root_url }}" aria-label="{{ shop.name }}">
+      {%- if section.settings.logo != blank -%}
+        {{ section.settings.logo | image_url: width: 240 | image_tag: alt: shop.name, class: 'brand__logo' }}
+      {%- else -%}
+        <span class="brand__word">{{ shop.name | upcase }}</span>
+      {%- endif -%}
+    </a>
+
+    <div class="site-header__actions">
+      <button class="icon-button" type="button" data-search-open aria-label="{{ 'general.search.search' | t }}">
+        {% render 'icon', name: 'search' %}
+      </button>
+
+      {%- if shop.customer_accounts_enabled -%}
+        <a class="icon-button" href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}" aria-label="{{ 'customer.account_fallback' | t }}">
+          {% render 'icon', name: 'user' %}
+          <span class="icon-button__label">{% if customer %}{{ customer.first_name }}{% else %}{{ 'customer.log_in' | t }}{% endif %}</span>
+        </a>
+      {%- endif -%}
+
+      <button class="icon-button" type="button" data-wishlist-open aria-label="{{ 'products.product.wishlist' | t }}">
+        {% render 'icon', name: 'heart' %}
+        <span class="icon-button__count" data-wishlist-count hidden>0</span>
+      </button>
+
+      <button class="icon-button icon-button--cart" type="button" {% if settings.enable_cart_drawer %}data-cart-open{% else %}onclick="location.href='{{ routes.cart_url }}'"{% endif %} aria-label="{{ 'templates.cart.cart' | t }}">
+        {% render 'icon', name: 'cart' %}
+        <span class="icon-button__count" data-cart-count>{{ cart.item_count }}</span>
+      </button>
+    </div>
+  </div>
+
+  {%- if settings.show_trust_bar -%}
+    <div class="trust-strip">
+      <div class="page-width trust-strip__inner">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'trust' -%}
+            <span class="trust-strip__item" {{ block.shopify_attributes }}>
+              {% render 'icon', name: block.settings.icon, size: 16 %}
+              {{ block.settings.text }}
+            </span>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+</header>
+
+<aside class="mobile-menu" id="MobileMenu" data-menu hidden aria-label="{{ 'general.accessibility.mobile_nav' | t }}">
+  <div class="mobile-menu__head">
+    <span class="brand__word">{{ shop.name | upcase }}</span>
+    <button class="icon-button" type="button" data-menu-close aria-label="{{ 'general.accessibility.close_menu' | t }}">
+      {% render 'icon', name: 'close' %}
+    </button>
+  </div>
+  <nav class="mobile-menu__nav">
+    <ul>
+      {%- for link in section.settings.menu.links -%}
+        <li>
+          <a href="{{ link.url }}">{{ link.title }} {% render 'icon', name: 'chevron', size: 16 %}</a>
+          {%- if link.links != blank -%}
+            <ul class="mobile-menu__sub">
+              {%- for child in link.links -%}
+                <li><a href="{{ child.url }}">{{ child.title }}</a></li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </nav>
+  <div class="mobile-menu__foot">
+    <a class="button button--outline button--block" href="{{ routes.account_login_url }}">{{ 'customer.log_in' | t }}</a>
+    <a class="button button--ghost button--block" href="/pages/contact">{{ 'customer.contact' | t }}</a>
+  </div>
+</aside>
+
+<div class="search-overlay" data-search hidden role="dialog" aria-modal="true" aria-label="{{ 'general.search.search' | t }}">
+  <div class="search-overlay__inner">
+    <form class="predictive-search-form" role="search" action="{{ routes.search_url }}" method="get">
+      {% render 'icon', name: 'search' %}
+      <input type="search" name="q" placeholder="{{ 'general.search.placeholder' | t }}" aria-label="{{ 'general.search.search' | t }}"
+             data-predictive-search-input autocomplete="off">
+      <button class="icon-button" type="button" data-search-close aria-label="{{ 'general.accessibility.close' | t }}">
+        {% render 'icon', name: 'close' %}
+      </button>
+    </form>
+    <div class="predictive-search" data-predictive-search-results>
+      {%- if section.settings.trending_terms != blank -%}
+        <div class="predictive-search__hint">
+          <h3>{{ 'general.search.trending' | t }}</h3>
+          <ul class="chip-list">
+            {%- assign terms = section.settings.trending_terms | split: ',' -%}
+            {%- for term in terms -%}
+              <li><a class="chip" href="{{ routes.search_url }}?q={{ term | strip | url_encode }}">{{ term | strip }}</a></li>
+            {%- endfor -%}
+          </ul>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Header",
+  "class": "section-header",
+  "settings": [
+    { "type": "link_list", "id": "menu", "label": "Menu", "default": "main-menu" },
+    { "type": "image_picker", "id": "logo", "label": "Logo" },
+    { "type": "checkbox", "id": "show_mega_menu", "label": "Enable mega menu", "default": true },
+    { "type": "product", "id": "mega_feature_product", "label": "Mega menu feature product" },
+    { "type": "text", "id": "mega_feature_eyebrow", "label": "Feature eyebrow", "default": "Capsule 01" },
+    { "type": "text", "id": "trending_terms", "label": "Trending search terms (comma separated)", "default": "Hoodie,Jogger,Legging,Base layer,Windbreaker" }
+  ],
+  "blocks": [
+    {
+      "type": "trust",
+      "name": "Trust item",
+      "settings": [
+        { "type": "select", "id": "icon", "label": "Icon", "options": [
+          { "value": "truck", "label": "Truck" },
+          { "value": "refresh", "label": "Returns" },
+          { "value": "lock", "label": "Secure" },
+          { "value": "leaf", "label": "Responsible" },
+          { "value": "repair", "label": "Repairs" }
+        ], "default": "truck" },
+        { "type": "text", "id": "text", "label": "Text", "default": "Free shipping over $50" }
+      ]
+    }
+  ],
+  "max_blocks": 4
+}
+{% endschema %}

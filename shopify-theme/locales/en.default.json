@@ -1,0 +1,326 @@
+{
+  "general": {
+    "accessibility": {
+      "skip_to_content": "Skip to content",
+      "refresh_page": "Choosing a selection results in a full page refresh.",
+      "close": "Close",
+      "close_menu": "Close menu",
+      "open_menu": "Open menu",
+      "dismiss": "Dismiss",
+      "previous": "Previous",
+      "next": "Next",
+      "breadcrumb": "Breadcrumb",
+      "primary_nav": "Primary navigation",
+      "mobile_nav": "Mobile navigation",
+      "footer_nav": "Footer navigation",
+      "payment_methods": "Payment methods"
+    },
+    "breadcrumbs": {
+      "home": "Home"
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous page",
+      "next": "Next page"
+    },
+    "search": {
+      "search": "Search",
+      "heading": "Search the store",
+      "placeholder": "Search for hoodies, leggings, layering…",
+      "trending": "Trending searches",
+      "results_for": "Results for “{{ terms }}”",
+      "count": "{{ count }} results",
+      "no_results": "No results for “{{ terms }}”",
+      "try_again": "Try a different word, or browse the capsule below.",
+      "journal": "From the journal",
+      "size_guide": "Size guide"
+    }
+  },
+  "accessibility": {
+    "skip_to_content": "Skip to content",
+    "refresh_page": "Choosing a selection results in a full page refresh.",
+    "rating_label": "Rated {{ rating }} out of 5 from {{ count }} reviews"
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to cart",
+      "quick_add": "Quick add",
+      "wishlist": "Wishlist",
+      "share": "Share",
+      "size_guide": "Size guide",
+      "zoom": "Zoom image",
+      "view_media": "View media {{ index }}",
+      "view_details": "View details",
+      "details": "Details",
+      "quantity": "Quantity",
+      "increase_quantity": "Increase quantity",
+      "decrease_quantity": "Decrease quantity",
+      "sold_out": "Sold out",
+      "unavailable": "Unavailable",
+      "in_stock": "In stock — ready to ship",
+      "low_stock": "Low stock — only {{ count }} left",
+      "colour": "Colour",
+      "new": "New",
+      "save": "Save",
+      "reviews": "Reviews",
+      "reviews_loading": "Loading reviews…",
+      "no_reviews": "No reviews yet",
+      "verified_buyer": "Verified buyer",
+      "complete_the_look": "Complete the look",
+      "delivery_estimate": "Delivery",
+      "care_note": "Shipped plastic-free in recycled packaging.",
+      "no_reviews_yet": "No reviews yet — be the first",
+      "reviews_policy": "Reviews are only ever published from real customers. New pieces start at zero.",
+      "monogram": "Your monogram",
+      "whats_my_size": "What's my size?",
+      "size_finder": "Size finder",
+      "size_finder_intro": "Three quick questions. We size from a body-measurement band, then adjust for the cut — an estimate, not a fitting.",
+      "size_finder_disclaimer": "Estimates only — if you are between two sizes, our studio will talk it through with you.",
+      "height": "How tall are you?",
+      "weight": "What do you weigh?",
+      "fit_preference": "How do you like it to fit?",
+      "fit_snug": "Close to the body",
+      "fit_true": "True to size",
+      "fit_relaxed": "Room to move",
+      "show_my_size": "Show my size",
+      "monogram_in_cart": "Monogram",
+      "monogram_free_note": "Recorded on your order as a note.",
+      "sold_out_lead": "This size is sold out. Leave your email and we will tell you the moment it is back.",
+      "email": "Email",
+      "notify_me": "Notify me"
+    }
+  },
+  "collections": {
+    "eyebrow": "Collection",
+    "count": "{{ count }} products",
+    "filter": "Filter",
+    "sort_by": "Sort by",
+    "apply": "Apply filters",
+    "clear": "Clear filters",
+    "clear_all": "Clear all",
+    "from": "From",
+    "to": "To",
+    "empty": "Nothing matches those filters",
+    "empty_hint": "Try loosening a filter or two — or browse the full capsule.",
+    "shop_all": "Shop all",
+    "shop_now": "Shop now",
+    "load_more": "Load more",
+    "showing": "Showing {{ shown }} of {{ total }}",
+    "new_in": "New in"
+  },
+  "sections": {
+    "cart": {
+      "cart_error": "There was an error updating your cart. Please try again.",
+      "cart_quantity_error_html": "Only [quantity] available.",
+      "cart": "Cart",
+      "product": "Product",
+      "price": "Price",
+      "quantity": "Quantity",
+      "total": "Total",
+      "subtotal": "Subtotal",
+      "discount": "Discount",
+      "discount_code": "Discount code",
+      "apply": "Apply",
+      "shipping": "Shipping",
+      "shipping_at_checkout": "Calculated at checkout",
+      "estimated_total": "Estimated total",
+      "summary": "Order summary",
+      "checkout": "Checkout",
+      "view_cart": "View cart",
+      "continue_shopping": "Continue shopping",
+      "remove": "Remove",
+      "increase": "Increase quantity",
+      "decrease": "Decrease quantity",
+      "empty": "Your cart is empty",
+      "empty_hint": "Start with the pieces everyone reaches for first.",
+      "taxes_note": "Taxes and shipping calculated at checkout.",
+      "taxes_included": "Taxes included.",
+      "gift_note": "Add a gift note",
+      "gift_note_placeholder": "We'll print this on a Vennix card — prices hidden.",
+      "order_note": "Delivery notes",
+      "note_placeholder": "Leave with the concierge, apartment buzzer, etc.",
+      "shipping_progress": "You're {{ amount }} away from free shipping",
+      "shipping_unlocked": "Free shipping unlocked 🎉",
+      "trust_shipping": "Carbon-neutral delivery in 2–4 days",
+      "trust_returns": "30-day free returns and exchanges",
+      "trust_secure": "Secure PCI-compliant checkout"
+    }
+  },
+  "templates": {
+    "404": {
+      "title": "This page took a personal day",
+      "subtext": "The link is broken or the page has moved. Let's get you back to something you can wear."
+    },
+    "cart": {
+      "cart": "Cart"
+    }
+  },
+  "customer": {
+    "account_fallback": "Account",
+    "log_in": "Log in",
+    "contact": "Contact us",
+    "account": {
+      "eyebrow": "Your account",
+      "title": "Hello, {{ name }}",
+      "title_short": "Account",
+      "overview": "Overview",
+      "nav": "Account navigation",
+      "details": "Account details",
+      "manage_addresses": "Manage addresses",
+      "rewards": "Rewards",
+      "points": "points",
+      "points_hint": "One point for every dollar spent. 500 points = $25 credit.",
+      "rewards_how": "How rewards work",
+      "marketing": "Email preferences",
+      "marketing_hint": "You're on the studio letter — restock alerts and fit notes.",
+      "manage_preferences": "Manage preferences",
+      "log_out": "Log out"
+    },
+    "orders": {
+      "title": "Order history",
+      "order": "Order",
+      "date": "Date",
+      "payment": "Payment",
+      "fulfillment": "Fulfilment",
+      "total": "Total",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "tax": "Tax",
+      "items": "Items",
+      "placed": "Placed",
+      "track": "Track",
+      "print": "Print receipt",
+      "request_return": "Start a return or exchange",
+      "shipping_address": "Shipping address",
+      "billing_address": "Billing address",
+      "none": "No orders yet"
+    },
+    "login": {
+      "eyebrow": "Welcome back",
+      "title": "Sign in",
+      "subtext": "Track orders, save addresses and keep your returns painless.",
+      "email": "Email",
+      "password": "Password",
+      "sign_in": "Sign in",
+      "forgot_password": "Forgot your password?",
+      "new_customer": "New here?",
+      "create_account": "Create an account"
+    },
+    "recover_password": {
+      "eyebrow": "Password help",
+      "title": "Reset your password",
+      "subtext": "Enter the email on your account and we'll send a reset link.",
+      "email": "Email",
+      "submit": "Send reset link",
+      "cancel": "Back to sign in",
+      "success": "Check your inbox — the reset link is on its way."
+    },
+    "reset_password": {
+      "eyebrow": "Almost there",
+      "title": "Choose a new password",
+      "subtext": "Resetting the password for {{ email }}.",
+      "password": "New password",
+      "password_confirm": "Confirm password",
+      "submit": "Save password"
+    },
+    "activate_account": {
+      "eyebrow": "One more step",
+      "title": "Activate your account",
+      "subtext": "Set a password to finish setting up your account.",
+      "password": "Password",
+      "password_confirm": "Confirm password",
+      "submit": "Activate account",
+      "decline": "Decline invitation"
+    },
+    "register": {
+      "eyebrow": "Join us",
+      "title": "Create your account",
+      "subtext": "Faster checkout, order history and priority access to capsule drops.",
+      "first_name": "First name",
+      "last_name": "Last name",
+      "email": "Email",
+      "password": "Password",
+      "password_hint": "At least 8 characters.",
+      "marketing": "Email me restock alerts and studio notes",
+      "submit": "Create account",
+      "have_account": "Already have an account?"
+    },
+    "addresses": {
+      "title": "Addresses",
+      "add_new": "Add a new address",
+      "edit": "Edit",
+      "delete": "Delete",
+      "delete_confirm": "Delete this address?",
+      "update": "Update address",
+      "save": "Save address",
+      "cancel": "Cancel",
+      "default": "Default",
+      "none": "No saved addresses yet",
+      "first_name": "First name",
+      "last_name": "Last name",
+      "company": "Company",
+      "address1": "Address",
+      "address2": "Apartment, suite, etc.",
+      "city": "City",
+      "country": "Country/region",
+      "province": "State",
+      "zip": "ZIP/Postal code",
+      "phone": "Phone",
+      "set_default": "Set as my default address"
+    }
+  },
+  "blogs": {
+    "read_all": "Read the journal",
+    "read_more": "Read more",
+    "all": "All",
+    "empty": "No stories yet — check back soon.",
+    "min_read": "min read",
+    "previous": "Previous story",
+    "next": "Next story"
+  },
+  "pages": {
+    "faq": "FAQ",
+    "on_this_page": "On this page",
+    "still_need_help": "Still need a hand?",
+    "still_need_help_text": "Our studio team answers every message within one business day."
+  },
+  "contact": {
+    "name": "Your name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "order_number": "Order number (optional)",
+    "topic": "What's this about?",
+    "message": "How can we help?",
+    "response_time": "We reply within one business day, usually much sooner.",
+    "topics": {
+      "order": "An order I placed",
+      "sizing": "Sizing and fit",
+      "returns": "Returns or exchanges",
+      "wholesale": "Wholesale",
+      "press": "Press"
+    }
+  },
+  "newsletter": {
+    "button_label": "Get 10% off",
+    "email": "Email address",
+    "placeholder": "you@email.com",
+    "success": "You're in — check your inbox for the code."
+  },
+  "onboarding": {
+    "product_title": "Sample product"
+  },
+  "gift_cards": {
+    "issued": {
+      "eyebrow": "Gift card",
+      "title": "Here's your Vennix gift card",
+      "subtext": "Use the code below at checkout — it never expires and works on everything in the store.",
+      "expired": "This gift card has expired.",
+      "how_to_use": "Enter the code in the discount field at checkout.",
+      "no_expiry": "No expiry date, no fees — spend it whenever you like.",
+      "contact": "Lost the code? Email support@vennixstore.com and we'll help.",
+      "shop_link": "Shop the capsule",
+      "print": "Print this card",
+      "qr_alt": "Scan to use this gift card"
+    }
+  }
+}

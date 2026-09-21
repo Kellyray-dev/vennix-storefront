@@ -1,0 +1,53 @@
+{%- comment -%}SEO + social meta tags, JSON-LD hooks.{%- endcomment -%}
+<meta property="og:site_name" content="{{ shop.name }}">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:title" content="{{ page_title | escape }}">
+<meta property="og:type" content="{% if request.page_type == 'product' %}product{% elsif request.page_type == 'article' %}article{% else %}website{% endif %}">
+<meta property="og:description" content="{{ page_description | default: shop.description | escape }}">
+
+{%- if request.page_type == 'product' -%}
+  {%- assign og_image = product.featured_image -%}
+{%- elsif request.page_type == 'article' -%}
+  {%- assign og_image = article.image -%}
+{%- else -%}
+  {%- assign og_image = settings.social_share_image -%}
+{%- endif -%}
+{%- if og_image -%}
+  <meta property="og:image" content="http:{{ og_image | image_url: width: 1200 }}">
+  <meta property="og:image:secure_url" content="https:{{ og_image | image_url: width: 1200 }}">
+  <meta property="og:image:width" content="1200">
+{%- endif -%}
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ page_title | escape }}">
+<meta name="twitter:description" content="{{ page_description | default: shop.description | escape }}">
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    "url": {{ request.origin | json }},
+    {%- if settings.logo -%}"logo": {{ settings.logo | image_url: width: 400 | prepend: 'https:' | json }},{%- endif -%}
+    "contactPoint": [{
+      "@type": "ContactPoint",
+      "email": {{ shop.email | json }},
+      "contactType": "customer support",
+      "areaServed": "US"
+    }]
+  }
+</script>
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": {{ shop.name | json }},
+    "url": {{ request.origin | json }},
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "{{ request.origin }}{{ routes.search_url }}?q={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+</script>

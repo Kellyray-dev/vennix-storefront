@@ -1,0 +1,84 @@
+{%- liquid
+  assign overlay_alpha = section.settings.overlay | divided_by: 100.0
+-%}
+<section class="hero hero--{{ section.settings.height }}" style="--overlay: {{ overlay_alpha }};">
+  {%- if section.settings.image != blank -%}
+    {{ section.settings.image | image_url: width: 2400 | image_tag:
+       loading: 'eager', fetchpriority: 'high', class: 'hero__img',
+       sizes: '100vw', alt: section.settings.image.alt | default: section.settings.heading }}
+  {%- elsif section.settings.video_url != blank -%}
+    <video class="hero__img" autoplay muted loop playsinline
+           poster="{% if section.settings.image %}{{ section.settings.image | image_url: width: 1600 }}{% endif %}">
+      <source src="{{ section.settings.video_url }}" type="video/mp4">
+    </video>
+  {%- endif -%}
+
+  <div class="hero__scrim"></div>
+
+  <div class="hero__inner page-width hero__inner--{{ section.settings.alignment }}">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="eyebrow eyebrow--light">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h1 class="hero__heading">{{ section.settings.heading }}</h1>
+    {%- if section.settings.subheading != blank -%}
+      <p class="hero__sub">{{ section.settings.subheading }}</p>
+    {%- endif -%}
+
+    <div class="hero__actions">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'button' -%}
+          <a class="button button--{{ block.settings.style }} button--lg" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>
+            {{ block.settings.label }}
+            {%- if block.settings.style == 'primary' %}{% render 'icon', name: 'arrow', size: 16 %}{% endif -%}
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    {%- if section.settings.rating_text != blank -%}
+      <p class="hero__rating">
+        <span class="rating__stars" aria-hidden="true">
+          {%- for i in (1..5) -%}<span class="rating__star is-on">{% render 'icon', name: 'star', size: 13 %}</span>{%- endfor -%}
+        </span>
+        {{ section.settings.rating_text }}
+      </p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Hero banner",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "text", "id": "video_url", "label": "MP4 video URL (optional)" },
+    { "type": "select", "id": "height", "label": "Height", "options": [
+      { "value": "small", "label": "Small" }, { "value": "medium", "label": "Medium" },
+      { "value": "large", "label": "Large" }, { "value": "full", "label": "Full screen" }
+    ], "default": "large" },
+    { "type": "range", "id": "overlay", "min": 0, "max": 80, "step": 5, "unit": "%", "label": "Overlay opacity", "default": 35 },
+    { "type": "select", "id": "alignment", "label": "Content alignment", "options": [
+      { "value": "left", "label": "Left" }, { "value": "center", "label": "Center" }, { "value": "right", "label": "Right" }
+    ], "default": "left" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Capsule 01 — Brushed, bonded, built to last" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Modern essentials. Engineered for movement." },
+    { "type": "textarea", "id": "subheading", "label": "Subheading", "default": "Heavyweight fleece, four-way stretch and merino-blend layers — cut in Brooklyn, tested on the 6am loop." },
+    { "type": "text", "id": "rating_text", "label": "Rating line (leave blank to hide)", "default": "Reviewed by verified customers only — no seeded ratings" }
+  ],
+  "blocks": [
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Shop the capsule" },
+        { "type": "url", "id": "link", "label": "Link" },
+        { "type": "select", "id": "style", "label": "Style", "options": [
+          { "value": "primary", "label": "Solid" }, { "value": "outline-light", "label": "Outline light" }, { "value": "outline", "label": "Outline dark" }
+        ], "default": "primary" }
+      ]
+    }
+  ],
+  "max_blocks": 2,
+  "presets": [{ "name": "Hero banner", "blocks": [{ "type": "button" }, { "type": "button" }] }]
+}
+{% endschema %}

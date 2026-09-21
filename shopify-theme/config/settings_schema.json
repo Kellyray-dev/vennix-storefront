@@ -1,0 +1,83 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Vennix",
+    "theme_version": "1.0.0",
+    "theme_author": "Vennix",
+    "theme_documentation_url": "https://vennixstore.com/pages/about",
+    "theme_support_url": "https://vennixstore.com/pages/contact"
+  },
+  {
+    "name": "Colours",
+    "settings": [
+      { "type": "color", "id": "colors_background", "label": "Background", "default": "#FFFFFF" },
+      { "type": "color", "id": "colors_text", "label": "Text", "default": "#191614" },
+      { "type": "color", "id": "colors_accent", "label": "Accent", "default": "#A8603F" },
+      { "type": "color", "id": "colors_surface", "label": "Surface (cards, bands)", "default": "#F7F4EF" }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      { "type": "font_picker", "id": "type_header_font", "label": "Heading font", "default": "assistant_n4" },
+      { "type": "font_picker", "id": "type_body_font", "label": "Body font", "default": "assistant_n4" },
+      { "type": "range", "id": "heading_scale", "min": 100, "max": 150, "step": 5, "unit": "%", "label": "Heading scale", "default": 120 },
+      { "type": "range", "id": "body_scale", "min": 90, "max": 120, "step": 5, "unit": "%", "label": "Body scale", "default": 100 }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      { "type": "range", "id": "page_width", "min": 1000, "max": 1600, "step": 40, "unit": "px", "label": "Page width", "default": 1280 },
+      { "type": "checkbox", "id": "enable_sticky_header", "label": "Sticky header", "default": true },
+      { "type": "checkbox", "id": "enable_cart_drawer", "label": "Open cart in a drawer", "default": true },
+      { "type": "checkbox", "id": "show_trust_bar", "label": "Show trust bar under the header", "default": true }
+    ]
+  },
+  {
+    "name": "Product cards",
+    "settings": [
+      { "type": "checkbox", "id": "card_show_vendor", "label": "Show vendor", "default": false },
+      { "type": "checkbox", "id": "card_show_rating", "label": "Show star rating", "default": true },
+      { "type": "checkbox", "id": "card_hover_second_image", "label": "Show second image on hover", "default": true },
+      { "type": "checkbox", "id": "card_show_quick_add", "label": "Show quick add", "default": true },
+      { "type": "select", "id": "card_image_ratio", "label": "Image ratio", "options": [
+        { "value": "adapt", "label": "Adapt to image" },
+        { "value": "4-5", "label": "Portrait (4:5)" },
+        { "value": "1-1", "label": "Square" }
+      ], "default": "4-5" }
+    ]
+  },
+  {
+    "name": "Badges",
+    "settings": [
+      { "type": "checkbox", "id": "badge_sale", "label": "Show sale badge", "default": true },
+      { "type": "checkbox", "id": "badge_sold_out", "label": "Show sold out badge", "default": true },
+      { "type": "range", "id": "low_stock_threshold", "min": 0, "max": 10, "step": 1, "label": "Low stock badge threshold", "default": 5 },
+      { "type": "text", "id": "sale_badge_text", "label": "Sale badge label", "default": "Sale" }
+    ]
+  },
+  {
+    "name": "Cart",
+    "settings": [
+      { "type": "checkbox", "id": "cart_show_free_shipping_bar", "label": "Show free shipping progress bar", "default": true },
+      { "type": "number", "id": "cart_free_shipping_threshold", "label": "Free shipping threshold (in cents)", "default": 7500 },
+      { "type": "checkbox", "id": "cart_show_gift_note", "label": "Allow gift notes", "default": true },
+      { "type": "checkbox", "id": "cart_show_note", "label": "Allow order notes", "default": true }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      { "type": "text", "id": "social_tiktok", "label": "TikTok URL" },
+      { "type": "text", "id": "social_pinterest", "label": "Pinterest URL" },
+      { "type": "text", "id": "social_linkedin", "label": "LinkedIn URL" }
+    ]
+  },
+  {
+    "name": "Favicon",
+    "settings": [
+      { "type": "image_picker", "id": "favicon", "label": "Favicon", "info": "32 x 32px PNG" }
+    ]
+  }
+]

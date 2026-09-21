@@ -1,0 +1,86 @@
+<section class="account page-width">
+  <header class="account__head">
+    <div>
+      <p class="eyebrow">{{ 'customer.account.eyebrow' | t }}</p>
+      <h1>{{ 'customer.account.title' | t: name: customer.first_name | default: customer.email }}</h1>
+    </div>
+    <a class="button button--ghost" href="{{ routes.account_logout_url }}">
+      {% render 'icon', name: 'logout', size: 16 %} {{ 'customer.account.log_out' | t }}
+    </a>
+  </header>
+
+  <nav class="account__nav" aria-label="{{ 'customer.account.nav' | t }}">
+    <a class="is-active" href="{{ routes.account_url }}">{{ 'customer.account.overview' | t }}</a>
+    <a href="{{ routes.account_url }}#orders">{{ 'customer.orders.title' | t }}</a>
+    <a href="{{ routes.account_addresses_url }}">{{ 'customer.addresses.title' | t }}</a>
+    <a href="/pages/contact">{{ 'customer.contact' | t }}</a>
+  </nav>
+
+  <div class="account__grid">
+    <article class="account__card">
+      <h2>{{ 'customer.orders.title' | t }}</h2>
+      {%- paginate customer.orders by 10 -%}
+        {%- if customer.orders.size > 0 -%}
+          <table class="table">
+            <thead>
+              <tr>
+                <th>{{ 'customer.orders.order' | t }}</th>
+                <th>{{ 'customer.orders.date' | t }}</th>
+                <th>{{ 'customer.orders.payment' | t }}</th>
+                <th>{{ 'customer.orders.fulfillment' | t }}</th>
+                <th>{{ 'customer.orders.total' | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {%- for order in customer.orders -%}
+                <tr>
+                  <td data-label="{{ 'customer.orders.order' | t }}"><a href="{{ order.customer_url }}">{{ order.name }}</a></td>
+                  <td data-label="{{ 'customer.orders.date' | t }}">{{ order.created_at | date: '%d %b %Y' }}</td>
+                  <td data-label="{{ 'customer.orders.payment' | t }}">{{ order.financial_status_label }}</td>
+                  <td data-label="{{ 'customer.orders.fulfillment' | t }}">{{ order.fulfillment_status_label }}</td>
+                  <td data-label="{{ 'customer.orders.total' | t }}">{{ order.total_price | money_with_currency }}</td>
+                </tr>
+              {%- endfor -%}
+            </tbody>
+          </table>
+          {% render 'pagination', paginate: paginate %}
+        {%- else -%}
+          <div class="empty-state empty-state--tight">
+            {% render 'icon', name: 'bag', size: 26 %}
+            <h3>{{ 'customer.orders.none' | t }}</h3>
+            <a class="button button--primary" href="{{ routes.all_products_collection_url }}">{{ 'sections.cart.continue_shopping' | t }}</a>
+          </div>
+        {%- endif -%}
+      {%- endpaginate -%}
+    </article>
+
+    <aside class="account__side">
+      <article class="account__card">
+        <h2>{{ 'customer.account.details' | t }}</h2>
+        <p class="muted">{{ customer.email }}</p>
+        {%- if customer.default_address -%}
+          <address>{{ customer.default_address | format_address }}</address>
+        {%- endif -%}
+        <a class="link-arrow" href="{{ routes.account_addresses_url }}">{{ 'customer.account.manage_addresses' | t }}
+          {% render 'icon', name: 'arrow', size: 15 %}</a>
+      </article>
+
+      <article class="account__card">
+        <h2>{{ 'customer.account.rewards' | t }}</h2>
+        <p class="account__points">{{ customer.total_spent | divided_by: 100 | floor }} {{ 'customer.account.points' | t }}</p>
+        <p class="muted">{{ 'customer.account.points_hint' | t }}</p>
+        <a class="link-arrow" href="/pages/rewards">{{ 'customer.account.rewards_how' | t }} {% render 'icon', name: 'arrow', size: 15 %}</a>
+      </article>
+
+      <article class="account__card">
+        <h2>{{ 'customer.account.marketing' | t }}</h2>
+        <p class="muted">{{ 'customer.account.marketing_hint' | t }}</p>
+        <a class="button button--outline button--block" href="/pages/contact">{{ 'customer.account.manage_preferences' | t }}</a>
+      </article>
+    </aside>
+  </div>
+</section>
+
+{% schema %}
+{ "name": "Customer account", "settings": [] }
+{% endschema %}

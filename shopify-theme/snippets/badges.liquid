@@ -1,0 +1,39 @@
+{%- comment -%}Badges: sale, sold out, low stock, custom product tags, new-in.{%- endcomment -%}
+{%- liquid
+  assign target = product.selected_or_first_available_variant
+  assign on_sale = false
+  if target.compare_at_price and target.compare_at_price > target.price
+    assign on_sale = true
+  endif
+  assign created_ts = product.created_at | date: '%s' | plus: 0
+  assign month_ago = 'now' | date: '%s' | minus: 2592000
+  assign is_new = false
+  if created_ts > month_ago
+    assign is_new = true
+  endif
+-%}
+<ul class="badges">
+  {%- if product.available == false and settings.badge_sold_out -%}
+    <li class="badge badge--sold">{{ 'products.product.sold_out' | t }}</li>
+  {%- elsif on_sale and settings.badge_sale -%}
+    <li class="badge badge--sale">{{ settings.sale_badge_text | default: 'Sale' }}</li>
+  {%- endif -%}
+
+  {%- if is_new and product.available -%}
+    <li class="badge badge--new">{{ 'products.product.new' | t }}</li>
+  {%- endif -%}
+
+  {%- for tag in product.tags -%}
+    {%- if tag contains 'badge:' -%}
+      <li class="badge">{{ tag | remove_first: 'badge:' | strip }}</li>
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if product.available and settings.low_stock_threshold > 0 -%}
+    {%- assign total_inventory = 0 -%}
+    {%- for v in product.variants -%}{%- assign total_inventory = total_inventory | plus: v.inventory_quantity -%}{%- endfor -%}
+    {%- if total_inventory <= settings.low_stock_threshold and total_inventory > 0 -%}
+      <li class="badge badge--low">{{ 'products.product.low_stock' | t: count: total_inventory }}</li>
+    {%- endif -%}
+  {%- endif -%}
+</ul>

@@ -1,0 +1,18 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "t1": { "type": "trust", "settings": { "icon": "truck", "title": "Free shipping over $50", "text": "Same-day dispatch before 2pm ET." } },
+        "t2": { "type": "trust", "settings": { "icon": "refresh", "title": "30-day free returns", "text": "Wrong size? We cover the label." } },
+        "c1": { "type": "collapsible", "settings": { "heading": "Materials & care", "content": "<p>Body: 100% organic cotton loopback. Machine wash cold, tumble dry low, no bleach.</p>" } },
+        "c2": { "type": "collapsible", "settings": { "heading": "Shipping & returns", "content": "<p>Free carbon-neutral shipping over $50. Returns are free within 30 days of delivery.</p>" } },
+        "m1": { "type": "metafield", "settings": { "heading": "Fit notes", "metafield_namespace": "custom", "metafield_key": "fit_notes" } }
+      },
+      "block_order": ["t1", "t2", "c1", "c2", "m1"],
+      "settings": { "show_dynamic_checkout": true, "show_sticky_atc": true, "show_delivery_estimate": true, "show_reviews": true, "show_related": true }
+    },
+    "faq": { "type": "faq", "settings": { "heading": "Fit & fabric questions", "body": "<p>Everything we get asked most about this piece.</p>" }, "blocks": { "f1": { "type": "question", "settings": { "question": "How does it fit?", "answer": "<p>True to size with a relaxed shoulder. Size down for a closer fit.</p>" } }, "f2": { "type": "question", "settings": { "question": "Will it shrink?", "answer": "<p>Pre-shrunk and garment-washed — under 3% shrinkage.</p>" } } }, "block_order": ["f1", "f2"] }
+  },
+  "order": ["main", "faq"]
+}

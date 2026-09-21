@@ -1,0 +1,71 @@
+{%- comment -%}
+  Product card. Accepts: product, show_rating, show_quick_add, sizes, lazy
+{%- endcomment -%}
+{%- assign ratio = settings.card_image_ratio -%}
+<article class="product-card{% unless product.available %} is-sold-out{% endunless %}" data-product-card>
+  <div class="product-card__media product-card__media--{{ ratio }}">
+    <a class="product-card__link" href="{{ product.url }}" aria-label="{{ product.title | escape }}">
+      {%- if product.featured_image -%}
+        {{ product.featured_image | image_url: width: 700 | image_tag:
+             loading: 'lazy', class: 'product-card__image', alt: product.featured_image.alt | default: product.title }}
+        {%- if settings.card_hover_second_image and product.images[1] -%}
+          {{ product.images[1] | image_url: width: 700 | image_tag:
+               loading: 'lazy', class: 'product-card__image product-card__image--hover', alt: product.images[1].alt | default: product.title }}
+        {%- endif -%}
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </a>
+
+    {% render 'badges', product: product %}
+
+    <button class="product-card__wish" type="button" data-wishlist-toggle="{{ product.handle }}"
+            aria-label="{{ 'products.product.wishlist' | t }}" aria-pressed="false">
+      {% render 'icon', name: 'heart', size: 18 %}
+    </button>
+
+    {%- if settings.card_show_quick_add and product.available -%}
+      {%- assign first_variant = product.selected_or_first_available_variant -%}
+      {%- if product.variants.size == 1 -%}
+        <form class="product-card__quick" action="{{ routes.cart_add_url }}" method="post" data-quick-add-form>
+          <input type="hidden" name="id" value="{{ first_variant.id }}">
+          <input type="hidden" name="quantity" value="1">
+          <button class="button button--quick" type="submit" name="add">
+            {% render 'icon', name: 'plus', size: 15 %}
+            <span>{{ 'products.product.add_to_cart' | t }}</span>
+          </button>
+        </form>
+      {%- else -%}
+        <button class="button button--quick" type="button" data-quick-view="{{ product.handle }}">
+          {% render 'icon', name: 'plus', size: 15 %}
+          <span>{{ 'products.product.quick_add' | t }}</span>
+        </button>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+
+  <div class="product-card__body">
+    {%- if settings.card_show_vendor -%}<p class="product-card__vendor">{{ product.vendor }}</p>{%- endif -%}
+
+    <h3 class="product-card__title"><a href="{{ product.url }}">{{ product.title }}</a></h3>
+
+    {%- if product.metafields.reviews.rating_count and settings.card_show_rating -%}
+      {% render 'rating', rating: product.metafields.reviews.rating.value, count: product.metafields.reviews.rating_count %}
+    {%- endif -%}
+
+    {% render 'price', product: product, variant: product.selected_or_first_available_variant %}
+
+    {%- if product.options_with_values.size > 1 or product.options_with_values.first.values.size > 1 -%}
+      <ul class="product-card__swatches" aria-label="{{ 'products.product.colour' | t }}">
+        {%- assign option = product.options_with_values.first -%}
+        {%- for value in option.values limit: 4 -%}
+          <li class="swatch swatch--dot" data-swatch="{{ value | handle }}"
+              {% if value.swatch.color %}style="background: rgb({{ value.swatch.color.rgb }})"{% endif %}>
+            <span class="visually-hidden">{{ value }}</span>
+          </li>
+        {%- endfor -%}
+        {%- if option.values.size > 4 -%}<li class="swatch swatch--more">+{{ option.values.size | minus: 4 }}</li>{%- endif -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</article>

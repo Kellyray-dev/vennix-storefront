@@ -1,0 +1,95 @@
+<section class="contact">
+  <div class="page-width contact__inner">
+    <div class="contact__intro">
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h1>{{ section.settings.heading }}</h1>
+      <div class="rte">{{ section.settings.body }}</div>
+
+      <ul class="contact__details">
+        {%- if section.settings.email != blank -%}
+          <li>{% render 'icon', name: 'mail', size: 17 %}<a href="mailto:{{ section.settings.email }}">{{ section.settings.email }}</a></li>
+        {%- endif -%}
+        {%- if section.settings.phone != blank -%}
+          <li>{% render 'icon', name: 'info', size: 17 %}<a href="tel:{{ section.settings.phone | remove: ' ' }}">{{ section.settings.phone }}</a></li>
+        {%- endif -%}
+        {%- if section.settings.address != blank -%}
+          <li>{% render 'icon', name: 'pin', size: 17 %}<span>{{ section.settings.address }}</span></li>
+        {%- endif -%}
+        {%- if section.settings.hours != blank -%}
+          <li>{% render 'icon', name: 'clock', size: 17 %}<span>{{ section.settings.hours }}</span></li>
+        {%- endif -%}
+      </ul>
+    </div>
+
+    <div class="contact__form">
+      {%- form 'contact', class: 'form-grid' -%}
+        {%- if form.posted_successfully? -%}
+          <p class="form-msg is-ok" role="status">
+            {% render 'icon', name: 'check', size: 16 %} {{ section.settings.success_text }}
+          </p>
+        {%- endif -%}
+
+        <div class="field field--half">
+          <label for="ContactName">{{ 'contact.name' | t }}</label>
+          <input id="ContactName" type="text" name="contact[name]" value="{% if customer %}{{ customer.name }}{% endif %}" required>
+        </div>
+
+        <div class="field field--half">
+          <label for="ContactEmail">{{ 'contact.email' | t }}</label>
+          <input id="ContactEmail" type="email" name="contact[email]" value="{% if customer %}{{ customer.email }}{% endif %}" required>
+        </div>
+
+        <div class="field field--half">
+          <label for="ContactPhone">{{ 'contact.phone' | t }}</label>
+          <input id="ContactPhone" type="tel" name="contact[phone]" value="{{ form.phone }}">
+        </div>
+
+        <div class="field field--half">
+          <label for="ContactOrder">{{ 'contact.order_number' | t }}</label>
+          <input id="ContactOrder" type="text" name="contact[order_number]" placeholder="#VEN-1001">
+        </div>
+
+        <div class="field">
+          <label for="ContactTopic">{{ 'contact.topic' | t }}</label>
+          <select id="ContactTopic" name="contact[topic]">
+            <option value="order">{{ 'contact.topics.order' | t }}</option>
+            <option value="sizing">{{ 'contact.topics.sizing' | t }}</option>
+            <option value="returns">{{ 'contact.topics.returns' | t }}</option>
+            <option value="wholesale">{{ 'contact.topics.wholesale' | t }}</option>
+            <option value="press">{{ 'contact.topics.press' | t }}</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="ContactBody">{{ 'contact.message' | t }}</label>
+          <textarea id="ContactBody" name="contact[body]" rows="6" required></textarea>
+        </div>
+
+        {%- if form.errors -%}
+          <p class="form-msg is-error" role="alert">{{ form.errors | default_errors }}</p>
+        {%- endif -%}
+
+        <button class="button button--primary button--lg" type="submit">{{ section.settings.button_label }}</button>
+        <p class="form-note">{{ 'contact.response_time' | t }}</p>
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Contact form",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Support" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Talk to the studio" },
+    { "type": "richtext", "id": "body", "label": "Body", "default": "<p>Questions about sizing, fit or an order? We answer every message personally.</p>" },
+    { "type": "text", "id": "email", "label": "Email", "default": "support@vennixstore.com" },
+    { "type": "text", "id": "phone", "label": "Phone" },
+    { "type": "text", "id": "address", "label": "Address", "default": "44 Wythe Ave, Brooklyn NY 11249" },
+    { "type": "text", "id": "hours", "label": "Hours", "default": "Mon–Fri, 9am–5pm EST" },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Send message" },
+    { "type": "text", "id": "success_text", "label": "Success text", "default": "Thanks — we'll reply within one business day." }
+  ],
+  "presets": [{ "name": "Contact form" }]
+}
+{% endschema %}

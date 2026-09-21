@@ -1,0 +1,52 @@
+<section class="list-collections page-width">
+  <nav class="breadcrumbs" aria-label="{{ 'general.accessibility.breadcrumb' | t }}">
+    <ol>
+      <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+      <li><span aria-current="page">{{ page_title }}</span></li>
+    </ol>
+  </nav>
+
+  <header class="section-head">
+    <div>
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h1>{{ section.settings.heading | default: page_title }}</h1>
+    </div>
+  </header>
+
+  <ul class="category-grid__list category-grid__list--3">
+    {%- for collection in collections -%}
+      {%- unless collection.handle == 'frontpage' -%}
+        {%- if collection.all_products_count > 0 -%}
+          <li class="category-tile">
+            <a href="{{ collection.url }}">
+              {%- if collection.image -%}
+                {{ collection.image | image_url: width: 900 | image_tag: loading: 'lazy', class: 'category-tile__img', alt: collection.title }}
+              {%- elsif collection.products.first.featured_image -%}
+                {{ collection.products.first.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', class: 'category-tile__img', alt: collection.title }}
+              {%- else -%}
+                {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              {%- endif -%}
+              <span class="category-tile__body">
+                <span class="category-tile__title">{{ collection.title }}</span>
+                <span class="category-tile__meta">{{ 'collections.count' | t: count: collection.all_products_count }}</span>
+                <span class="link-arrow">{{ 'collections.shop_now' | t }} {% render 'icon', name: 'arrow', size: 15 %}</span>
+              </span>
+            </a>
+          </li>
+        {%- endif -%}
+      {%- endunless -%}
+    {%- endfor -%}
+  </ul>
+
+  {% render 'pagination', paginate: paginate %}
+</section>
+
+{% schema %}
+{
+  "name": "Collections list",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Browse" },
+    { "type": "text", "id": "heading", "label": "Heading override" }
+  ]
+}
+{% endschema %}

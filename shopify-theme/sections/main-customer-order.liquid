@@ -1,0 +1,90 @@
+<section class="order page-width">
+  <nav class="breadcrumbs" aria-label="{{ 'general.accessibility.breadcrumb' | t }}">
+    <ol>
+      <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+      <li><a href="{{ routes.account_url }}">{{ 'customer.account.title_short' | t }}</a></li>
+      <li><span aria-current="page">{{ order.name }}</span></li>
+    </ol>
+  </nav>
+
+  <header class="order__head">
+    <div>
+      <p class="eyebrow">{{ 'customer.orders.order' | t }}</p>
+      <h1>{{ order.name }}</h1>
+      <p class="muted">{{ 'customer.orders.placed' | t }} {{ order.created_at | date: '%d %B %Y, %H:%M' }}</p>
+    </div>
+    <div class="order__status">
+      <span class="pill pill--{{ order.financial_status }}">{{ order.financial_status_label }}</span>
+      <span class="pill pill--{{ order.fulfillment_status }}">{{ order.fulfillment_status_label }}</span>
+    </div>
+  </header>
+
+  <div class="order__grid">
+    <article class="order__card">
+      <h2>{{ 'customer.orders.items' | t }}</h2>
+      <ul class="order__items">
+        {%- for line_item in order.line_items -%}
+          <li>
+            <a href="{{ line_item.product.url }}" class="order__item-media">
+              {%- if line_item.image -%}{{ line_item.image | image_url: width: 180 | image_tag: loading: 'lazy', alt: line_item.title }}{%- endif -%}
+            </a>
+            <div class="order__item-body">
+              <a href="{{ line_item.product.url }}"><strong>{{ line_item.title }}</strong></a>
+              {%- unless line_item.product.has_only_default_variant -%}<p class="muted">{{ line_item.variant.title }}</p>{%- endunless -%}
+              {%- for property in line_item.properties -%}
+                {%- if property.last != blank -%}<p class="muted">{{ property.first }}: {{ property.last }}</p>{%- endif -%}
+              {%- endfor -%}
+              {%- if line_item.fulfillment -%}
+                <p class="order__tracking">
+                  {% render 'icon', name: 'truck', size: 15 %}
+                  {{ line_item.fulfillment.tracking_company }}
+                  {%- if line_item.fulfillment.tracking_number %} · {{ line_item.fulfillment.tracking_number }}{%- endif -%}
+                  {%- if line_item.fulfillment.tracking_url %} <a href="{{ line_item.fulfillment.tracking_url }}" target="_blank" rel="noopener">{{ 'customer.orders.track' | t }}</a>{%- endif -%}
+                </p>
+              {%- endif -%}
+            </div>
+            <div class="order__item-price">{{ line_item.final_line_price | money }}</div>
+          </li>
+        {%- endfor -%}
+      </ul>
+
+      <dl class="totals">
+        <div><dt>{{ 'customer.orders.subtotal' | t }}</dt><dd>{{ order.subtotal_price | money }}</dd></div>
+        {%- for discount in order.cart_level_discount_applications -%}
+          <div><dt>{{ discount.title }}</dt><dd>&minus;{{ discount.total_allocated_amount | money }}</dd></div>
+        {%- endfor -%}
+        {%- for shipping_method in order.shipping_methods -%}
+          <div><dt>{{ 'customer.orders.shipping' | t }} ({{ shipping_method.title }})</dt><dd>{{ shipping_method.price | money }}</dd></div>
+        {%- endfor -%}
+        {%- for tax_line in order.tax_lines -%}
+          <div><dt>{{ 'customer.orders.tax' | t }} ({{ tax_line.title }} {{ tax_line.rate | times: 100 }}%)</dt><dd>{{ tax_line.price | money }}</dd></div>
+        {%- endfor -%}
+        <div class="totals__grand"><dt>{{ 'customer.orders.total' | t }}</dt><dd>{{ order.total_price | money_with_currency }}</dd></div>
+      </dl>
+
+      <div class="order__actions">
+        <a class="button button--outline" href="{{ order.customer_url }}?print=1" onclick="window.print();return false;">
+          {% render 'icon', name: 'list', size: 15 %} {{ 'customer.orders.print' | t }}
+        </a>
+        <a class="button button--ghost" href="/pages/contact">{{ 'customer.orders.request_return' | t }}</a>
+      </div>
+    </article>
+
+    <aside class="order__side">
+      <article class="order__card">
+        <h2>{{ 'customer.orders.shipping_address' | t }}</h2>
+        <address>{{ order.shipping_address | format_address }}</address>
+      </article>
+      {%- if order.billing_address -%}
+        <article class="order__card">
+          <h2>{{ 'customer.orders.billing_address' | t }}</h2>
+          <address>{{ order.billing_address | format_address }}</address>
+        </article>
+      {%- endif -%}
+    </aside>
+  </div>
+</section>
+
+{% schema %}
+{ "name": "Customer order", "settings": [] }
+{% endschema %}

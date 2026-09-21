@@ -1,0 +1,15 @@
+{%- comment -%}Star rating row. Accepts rating (0-5) and count.{%- endcomment -%}
+{%- assign value = rating | plus: 0 -%}
+{%- assign count = count | plus: 0 -%}
+<div class="rating" aria-label="{{ 'accessibility.rating_label' | t: rating: value, count: count }}">
+  <span class="rating__stars" role="img" aria-hidden="true">
+    {%- for i in (1..5) -%}
+      <span class="rating__star{% if i <= value %} is-on{% endif %}">{% render 'icon', name: 'star', size: 13 %}</span>
+    {%- endfor -%}
+  </span>
+  {%- if count > 0 -%}
+    <span class="rating__count">{{ count }} {{ 'products.product.reviews' | t }}</span>
+  {%- else -%}
+    <span class="rating__count">{{ 'products.product.no_reviews' | t }}</span>
+  {%- endif -%}
+</div>

@@ -1,0 +1,80 @@
+name: Deploy Shopify theme
+
+# Pushes the Online Store 2.0 theme in ./shopify-theme to your live store.
+#
+# Required repository secrets:
+#   SHOPIFY_STORE          your-store.myshopify.com
+#   SHOPIFY_CLI_THEME_TOKEN   a Theme Access token (Online Store → Themes →
+#                             ... → Theme access, or `shopify theme token`)
+#   SHOPIFY_THEME_ID       (optional) the live theme id to publish to
+#
+# Run it from the Actions tab → Deploy Shopify theme → Run workflow, or push a
+# tag like v1.0.1.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Where to push the theme
+        type: choice
+        options: [unpublished, live]
+        default: unpublished
+  push:
+    tags: ['v*']
+
+jobs:
+  push-theme:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate the theme before pushing
+        run: node scripts/theme-check.js
+
+      - name: Confirm credentials are present
+        env:
+          SHOPIFY_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+        run: |
+          if [ -z "$SHOPIFY_STORE" ] || [ -z "$SHOPIFY_CLI_THEME_TOKEN" ]; then
+            echo "::error::Add SHOPIFY_STORE and SHOPIFY_CLI_THEME_TOKEN as repository secrets (see docs/SETUP.md)."
+            exit 1
+          fi
+
+      - name: Install the Shopify CLI (pinned, locked)
+        working-directory: .github/shopify-cli
+        run: npm ci
+
+      - name: Verify CLI version
+        working-directory: .github/shopify-cli
+        run: |
+          npx shopify version
+          npx shopify version | grep -q "3.69.4" || (echo "::error::Shopify CLI version mismatch — expected 3.69.4"; exit 1)
+
+      - name: Push the theme
+        working-directory: .github/shopify-cli
+        env:
+          SHOPIFY_FLAG_STORE: ${{ secrets.SHOPIFY_STORE }}
+          SHOPIFY_CLI_THEME_TOKEN: ${{ secrets.SHOPIFY_CLI_THEME_TOKEN }}
+          SHOPIFY_THEME_ID: ${{ secrets.SHOPIFY_THEME_ID }}
+          TARGET: ${{ inputs.target || 'unpublished' }}
+        run: |
+          if [ "$TARGET" = "live" ]; then
+            npx shopify theme push --path ../../shopify-theme --live ${SHOPIFY_THEME_ID:+--theme "$SHOPIFY_THEME_ID"}
+          else
+            npx shopify theme push --path ../../shopify-theme --unpublished
+          fi
+
+      - name: Summary
+        run: |
+          echo "### Theme pushed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Store: \`${{ secrets.SHOPIFY_STORE }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Target: **${{ inputs.target || 'unpublished' }}**" >> $GITHUB_STEP_SUMMARY
+          echo "- Theme source: \`shopify-theme/\` at \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY

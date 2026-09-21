@@ -1,0 +1,89 @@
+<section class="showcase">
+  <div class="page-width showcase__inner showcase__inner--{{ section.settings.media_position }}">
+    <div class="showcase__media">
+      {%- if section.settings.image != blank -%}
+        {{ section.settings.image | image_url: width: 1200 | image_tag: loading: 'lazy', class: 'showcase__img', alt: section.settings.heading }}
+      {%- endif -%}
+      {%- if section.settings.badge_text != blank -%}
+        <span class="showcase__badge">{{ section.settings.badge_text }}</span>
+      {%- endif -%}
+    </div>
+
+    <div class="showcase__body">
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2>{{ section.settings.heading }}</h2>
+      <div class="rte">{{ section.settings.body }}</div>
+
+      <ul class="showcase__specs">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'spec' -%}
+            <li {{ block.shopify_attributes }}>
+              <strong>{{ block.settings.value }}</strong>
+              <span>{{ block.settings.label }}</span>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+
+      {%- if section.settings.product != blank -%}
+        {%- assign feature = section.settings.product -%}
+        <a class="showcase__product" href="{{ feature.url }}">
+          {%- if feature.featured_image -%}
+            {{ feature.featured_image | image_url: width: 200 | image_tag: loading: 'lazy', alt: feature.title }}
+          {%- endif -%}
+          <span>
+            <strong>{{ feature.title }}</strong>
+            {% render 'price', product: feature, variant: feature.selected_or_first_available_variant %}
+          </span>
+          {% render 'icon', name: 'arrow', size: 18 %}
+        </a>
+      {%- endif -%}
+
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'button' -%}
+          <a class="button button--{{ block.settings.style }}" href="{{ block.settings.link }}" {{ block.shopify_attributes }}>{{ block.settings.label }}</a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Product showcase",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "select", "id": "media_position", "label": "Image position", "options": [
+      { "value": "left", "label": "Left" }, { "value": "right", "label": "Right" }
+    ], "default": "left" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The Atlas hoodie" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "480gsm brushed fleece. Zero compromise." },
+    { "type": "richtext", "id": "body", "label": "Body", "default": "<p>Looped, brushed and bonded in a Portuguese mill, then cut with a boxy shoulder and a doubled hood seam so it keeps its shape after a hundred washes.</p>" },
+    { "type": "text", "id": "badge_text", "label": "Media badge", "default": "Best seller" },
+    { "type": "product", "id": "product", "label": "Featured product" }
+  ],
+  "blocks": [
+    {
+      "type": "spec",
+      "name": "Spec",
+      "settings": [
+        { "type": "text", "id": "value", "label": "Value", "default": "480 gsm" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Brushed fleece" }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "Button",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "Shop the Atlas" },
+        { "type": "url", "id": "link", "label": "Link" },
+        { "type": "select", "id": "style", "label": "Style", "options": [
+          { "value": "primary", "label": "Solid" }, { "value": "outline", "label": "Outline" }
+        ], "default": "primary" }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [{ "name": "Product showcase", "blocks": [{ "type": "spec" }, { "type": "spec" }, { "type": "spec" }, { "type": "button" }] }]
+}
+{% endschema %}

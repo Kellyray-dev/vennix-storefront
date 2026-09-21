@@ -1,0 +1,62 @@
+<section class="story">
+  <div class="page-width story__inner">
+    <div class="story__body">
+      <p class="eyebrow">{{ section.settings.eyebrow }}</p>
+      <h2>{{ section.settings.heading }}</h2>
+      <div class="rte">{{ section.settings.body }}</div>
+
+      <ul class="story__stats">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'stat' -%}
+            <li {{ block.shopify_attributes }}>
+              <strong>{{ block.settings.value }}</strong>
+              <span>{{ block.settings.label }}</span>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+
+      {%- if section.settings.link != blank -%}
+        <a class="button button--outline" href="{{ section.settings.link }}">{{ section.settings.link_label }}</a>
+      {%- endif -%}
+    </div>
+
+    <div class="story__media">
+      {%- assign img1 = section.settings.image_1 -%}
+      {%- assign img2 = section.settings.image_2 -%}
+      {%- if img1 != blank -%}
+        {{ img1 | image_url: width: 900 | image_tag: loading: 'lazy', class: 'story__img story__img--1', alt: section.settings.heading }}
+      {%- endif -%}
+      {%- if img2 != blank -%}
+        {{ img2 | image_url: width: 700 | image_tag: loading: 'lazy', class: 'story__img story__img--2', alt: section.settings.heading }}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Brand story",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Our story" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Really good essentials, fairly priced." },
+    { "type": "richtext", "id": "body", "label": "Body", "default": "<p>We make a short list of pieces properly — milled in Portugal, sewn in small runs, priced without the wholesale markup. No seasons, no filler.</p>" },
+    { "type": "image_picker", "id": "image_1", "label": "Image 1" },
+    { "type": "image_picker", "id": "image_2", "label": "Image 2" },
+    { "type": "url", "id": "link", "label": "Link" },
+    { "type": "text", "id": "link_label", "label": "Link label", "default": "Read our story" }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Stat",
+      "settings": [
+        { "type": "text", "id": "value", "label": "Value", "default": "12,000+" },
+        { "type": "text", "id": "label", "label": "Label", "default": "Pairs shipped" }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [{ "name": "Brand story", "blocks": [{ "type": "stat" }, { "type": "stat" }, { "type": "stat" }] }]
+}
+{% endschema %}

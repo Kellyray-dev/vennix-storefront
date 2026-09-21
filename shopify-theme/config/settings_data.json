@@ -1,0 +1,44 @@
+{
+  "current": {
+    "colors_background": "#FFFFFF",
+    "colors_text": "#191614",
+    "colors_accent": "#8A6A4F",
+    "colors_surface": "#F7F4EF",
+    "type_header_font": "assistant_n4",
+    "type_body_font": "assistant_n4",
+    "heading_scale": 120,
+    "body_scale": 100,
+    "page_width": 1280,
+    "enable_sticky_header": true,
+    "enable_cart_drawer": true,
+    "show_trust_bar": true,
+    "card_show_vendor": false,
+    "card_show_rating": true,
+    "card_hover_second_image": true,
+    "card_show_quick_add": true,
+    "card_image_ratio": "4-5",
+    "badge_sale": true,
+    "badge_sold_out": true,
+    "low_stock_threshold": 5,
+    "sale_badge_text": "Sale",
+    "cart_show_free_shipping_bar": true,
+    "cart_free_shipping_threshold": 5000,
+    "cart_show_gift_note": true,
+    "cart_show_note": true,
+    "social_tiktok": "https://www.tiktok.com/@vennixstore",
+    "social_pinterest": "https://www.pinterest.com/vennixstore",
+    "social_linkedin": "https://www.linkedin.com/company/vennixstore"
+  },
+  "presets": {
+    "Vennix": {
+      "colors_background": "#FFFFFF",
+      "colors_text": "#0E0D0B",
+      "colors_accent": "#8A6A4F",
+      "colors_surface": "#F7F6F3",
+      "colors_solid_button_labels": "#F7F6F3",
+      "page_width": 1280,
+      "card_image_ratio": "4-5",
+      "cart_free_shipping_threshold": 5000
+    }
+  }
+}

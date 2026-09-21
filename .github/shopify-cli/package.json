@@ -1,0 +1,7 @@
+{
+  "name": "shopify-cli-lock",
+  "private": true,
+  "dependencies": {
+    "@shopify/cli": "3.69.4"
+  }
+}

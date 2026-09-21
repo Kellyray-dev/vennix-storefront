@@ -1,0 +1,57 @@
+<article class="page-content page-width">
+  <nav class="breadcrumbs" aria-label="{{ 'general.accessibility.breadcrumb' | t }}">
+    <ol>
+      <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+      <li><span aria-current="page">{{ page.title }}</span></li>
+    </ol>
+  </nav>
+
+  {%- if section.settings.show_title -%}
+    <header class="page-content__head">
+      {%- if section.settings.eyebrow != blank -%}<p class="eyebrow">{{ section.settings.eyebrow }}</p>{%- endif -%}
+      <h1>{{ page.title }}</h1>
+      {%- if page.content contains '<!--intro-->' -%}{%- endif -%}
+    </header>
+  {%- endif -%}
+
+  <div class="rte page-content__body">
+    {{ page.content }}
+  </div>
+
+  {%- assign anchors = page.content | split: 'id="' -%}
+  {%- if anchors.size > 2 and section.settings.show_toc -%}
+    <aside class="page-content__toc">
+      <h2>{{ 'pages.on_this_page' | t }}</h2>
+      <ul>
+        {%- for anchor in anchors offset: 1 -%}
+          {%- assign id = anchor | split: '"' | first -%}
+          {%- if id contains 'section-' -%}
+            <li><a href="#{{ id }}">{{ id | replace: 'section-', '' | replace: '-', ' ' | capitalize }}</a></li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    </aside>
+  {%- endif -%}
+
+  {%- if section.settings.show_contact_cta -%}
+    <footer class="page-content__cta">
+      <div>
+        <h2>{{ 'pages.still_need_help' | t }}</h2>
+        <p>{{ 'pages.still_need_help_text' | t }}</p>
+      </div>
+      <a class="button button--primary" href="/pages/contact">{{ 'customer.contact' | t }}</a>
+    </footer>
+  {%- endif -%}
+</article>
+
+{% schema %}
+{
+  "name": "Page content",
+  "settings": [
+    { "type": "checkbox", "id": "show_title", "label": "Show title", "default": true },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "checkbox", "id": "show_toc", "label": "Show anchor menu", "default": false },
+    { "type": "checkbox", "id": "show_contact_cta", "label": "Show contact call to action", "default": true }
+  ]
+}
+{% endschema %}

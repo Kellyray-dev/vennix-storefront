@@ -1,0 +1,68 @@
+<section class="category-grid">
+  <div class="page-width">
+    {%- if section.settings.heading != blank -%}
+      <div class="section-head">
+        <div>
+          {%- if section.settings.eyebrow != blank -%}<p class="eyebrow">{{ section.settings.eyebrow }}</p>{%- endif -%}
+          <h2>{{ section.settings.heading }}</h2>
+        </div>
+        {%- if section.settings.link != blank -%}
+          <a class="link-arrow" href="{{ section.settings.link }}">{{ section.settings.link_label }} {% render 'icon', name: 'arrow', size: 15 %}</a>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <ul class="category-grid__list category-grid__list--{{ section.settings.columns }}">
+      {%- for block in section.blocks -%}
+        {%- assign col = block.settings.collection -%}
+        <li class="category-tile" {{ block.shopify_attributes }}>
+          <a href="{{ col.url | default: block.settings.link }}">
+            {%- assign img = block.settings.image | default: col.image | default: col.products.first.featured_image -%}
+            {%- if img -%}
+              {{ img | image_url: width: 900 | image_tag: loading: 'lazy', class: 'category-tile__img', alt: block.settings.title }}
+            {%- else -%}
+              {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+            <span class="category-tile__body">
+              <span class="category-tile__title">{{ block.settings.title | default: col.title }}</span>
+              <span class="category-tile__meta">
+                {%- if col.products_count -%}{{ 'collections.count' | t: count: col.products_count }}{%- else -%}{{ block.settings.text }}{%- endif -%}
+              </span>
+              <span class="link-arrow">{{ 'collections.shop_now' | t }} {% render 'icon', name: 'arrow', size: 15 %}</span>
+            </span>
+          </a>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Category grid",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Shop by category" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Built for the everyday and the effort" },
+    { "type": "url", "id": "link", "label": "Header link" },
+    { "type": "text", "id": "link_label", "label": "Header link label", "default": "Shop all" },
+    { "type": "select", "id": "columns", "label": "Columns", "options": [
+      { "value": "2", "label": "2" }, { "value": "3", "label": "3" }
+    ], "default": "3" }
+  ],
+  "blocks": [
+    {
+      "type": "tile",
+      "name": "Category tile",
+      "settings": [
+        { "type": "collection", "id": "collection", "label": "Collection" },
+        { "type": "image_picker", "id": "image", "label": "Image override" },
+        { "type": "text", "id": "title", "label": "Title override" },
+        { "type": "text", "id": "text", "label": "Meta text", "default": "Shop the edit" },
+        { "type": "url", "id": "link", "label": "Link override" }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [{ "name": "Category grid", "blocks": [{ "type": "tile" }, { "type": "tile" }, { "type": "tile" }] }]
+}
+{% endschema %}

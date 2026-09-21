@@ -1,0 +1,71 @@
+{%- comment -%}
+  Variant picker. Accepts: product, block (for shopify_attributes), picker_type
+{%- endcomment -%}
+<div class="variant-picker" data-variant-picker {{ block.shopify_attributes }}>
+  {%- for option in product.options_with_values -%}
+    {%- assign option_index = forloop.index0 -%}
+    <fieldset class="variant-picker__group" data-option-index="{{ option_index }}">
+      <legend class="variant-picker__legend">
+        <span class="variant-picker__label">{{ option.name }}</span>
+        <span class="variant-picker__value" data-option-value>{{ option.selected_value }}</span>
+        {%- if option.name contains 'Size' -%}
+          <button class="link-inline" type="button" data-size-guide-open>
+            {% render 'icon', name: 'ruler', size: 15 %} {{ 'products.product.size_guide' | t }}
+          </button>
+        {%- endif -%}
+      </legend>
+
+      {%- if option.name contains 'Colour' or option.name contains 'Color' -%}
+        <div class="swatch-grid" role="radiogroup">
+          {%- for value in option.values -%}
+            {%- assign variant_available = false -%}
+            {%- for v in product.variants -%}
+              {%- if v.options[option_index] == value and v.available -%}{%- assign variant_available = true -%}{%- endif -%}
+            {%- endfor -%}
+            <button type="button" class="swatch{% if option.selected_value == value %} is-active{% endif %}{% unless variant_available %} is-unavailable{% endunless %}"
+                    role="radio" aria-checked="{% if option.selected_value == value %}true{% else %}false{% endif %}"
+                    data-option-select="{{ option_index }}" data-option-value="{{ value | escape }}"
+                    {% if value.swatch.color %}style="--swatch: rgb({{ value.swatch.color.rgb }})"{% endif %}>
+              <span class="swatch__dot" {% if value.swatch.image %}style="background-image:url({{ value.swatch.image | image_url: width: 60 }})"{% endif %}></span>
+              <span class="swatch__name">{{ value }}</span>
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- else -%}
+        <div class="pill-grid" role="radiogroup">
+          {%- for value in option.values -%}
+            {%- assign variant_available = false -%}
+            {%- for v in product.variants -%}
+              {%- if v.options[option_index] == value and v.available -%}{%- assign variant_available = true -%}{%- endif -%}
+            {%- endfor -%}
+            <button type="button" class="pill{% if option.selected_value == value %} is-active{% endif %}{% unless variant_available %} is-unavailable{% endunless %}"
+                    role="radio" aria-checked="{% if option.selected_value == value %}true{% else %}false{% endif %}"
+                    data-option-select="{{ option_index }}" data-option-value="{{ value | escape }}">
+              {{ value }}
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </fieldset>
+  {%- endfor -%}
+
+  <p class="variant-picker__stock" data-stock-message aria-live="polite">
+    {%- assign target = product.selected_or_first_available_variant -%}
+    {%- if target.available -%}
+      {%- if target.inventory_management == 'shopify' and target.inventory_quantity <= settings.low_stock_threshold -%}
+        {{ 'products.product.low_stock' | t: count: target.inventory_quantity }}
+      {%- else -%}
+        {{ 'products.product.in_stock' | t }}
+      {%- endif -%}
+    {%- else -%}
+      {{ 'products.product.sold_out' | t }}
+    {%- endif -%}
+  </p>
+
+  <script type="application/json" data-variant-json>
+    {{ product.variants | json }}
+  </script>
+  <script type="application/json" data-product-json>
+    {{ product | json }}
+  </script>
+</div>

@@ -1,0 +1,78 @@
+<section class="account page-width">
+  <nav class="breadcrumbs" aria-label="{{ 'general.accessibility.breadcrumb' | t }}">
+    <ol>
+      <li><a href="{{ routes.root_url }}">{{ 'general.breadcrumbs.home' | t }}</a></li>
+      <li><a href="{{ routes.account_url }}">{{ 'customer.account.title_short' | t }}</a></li>
+      <li><span aria-current="page">{{ 'customer.addresses.title' | t }}</span></li>
+    </ol>
+  </nav>
+
+  <header class="account__head">
+    <div>
+      <p class="eyebrow">{{ 'customer.account.eyebrow' | t }}</p>
+      <h1>{{ 'customer.addresses.title' | t }}</h1>
+    </div>
+    <button class="button button--primary" type="button" data-address-form-open data-form-id="AddAddress">
+      {% render 'icon', name: 'plus', size: 16 %} {{ 'customer.addresses.add_new' | t }}
+    </button>
+  </header>
+
+  <div class="address-form" id="AddAddress" hidden>
+    <h2>{{ 'customer.addresses.add_new' | t }}</h2>
+    {%- form 'customer_address', customer.new_address, class: 'form-grid' -%}
+      {% render 'address-fields', form: form %}
+      <div class="address-form__actions">
+        <button class="button button--primary" type="submit">{{ 'customer.addresses.save' | t }}</button>
+        <button class="button button--ghost" type="button" data-address-form-close aria-label="{{ 'customer.addresses.cancel' | t }}">
+          {{ 'customer.addresses.cancel' | t }}
+        </button>
+      </div>
+    {%- endform -%}
+  </div>
+
+  {%- if customer.addresses.size > 0 -%}
+    <ul class="address-grid">
+      {%- for address in customer.addresses -%}
+        <li class="address-card">
+          {%- if address == customer.default_address -%}
+            <span class="pill pill--paid">{{ 'customer.addresses.default' | t }}</span>
+          {%- endif -%}
+          <address>{{ address | format_address }}</address>
+
+          <div class="address-card__actions">
+            <button class="link-inline" type="button" data-address-form-open data-form-id="EditAddress{{ forloop.index }}">
+              {{ 'customer.addresses.edit' | t }}
+            </button>
+
+            <form method="post" action="/account/addresses/{{ address.id }}">
+              <input type="hidden" name="_method" value="delete">
+              <button class="link-inline link-inline--danger" type="submit"
+                      onclick="return confirm('{{ 'customer.addresses.delete_confirm' | t }}');">
+                {{ 'customer.addresses.delete' | t }}
+              </button>
+            </form>
+          </div>
+
+          <div class="address-form" id="EditAddress{{ forloop.index }}" hidden>
+            {%- form 'customer_address', address, class: 'form-grid' -%}
+              {% render 'address-fields', form: form %}
+              <div class="address-form__actions">
+                <button class="button button--primary" type="submit">{{ 'customer.addresses.update' | t }}</button>
+                <button class="button button--ghost" type="button" data-address-form-close>{{ 'customer.addresses.cancel' | t }}</button>
+              </div>
+            {%- endform -%}
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+  {%- else -%}
+    <div class="empty-state empty-state--tight">
+      {% render 'icon', name: 'pin', size: 26 %}
+      <h3>{{ 'customer.addresses.none' | t }}</h3>
+    </div>
+  {%- endif -%}
+</section>
+
+{% schema %}
+{ "name": "Customer addresses", "settings": [] }
+{% endschema %}

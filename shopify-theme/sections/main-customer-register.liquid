@@ -1,0 +1,56 @@
+<section class="auth page-width">
+  <div class="auth__panel">
+    <p class="eyebrow">{{ 'customer.register.eyebrow' | t }}</p>
+    <h1>{{ 'customer.register.title' | t }}</h1>
+    <p class="auth__lead">{{ 'customer.register.subtext' | t }}</p>
+
+    {%- form 'create_customer', novalidate: 'novalidate', class: 'auth__form' -%}
+      {%- if form.errors -%}
+        <p class="form-msg is-error" role="alert">
+          {% render 'icon', name: 'info', size: 16 %} {{ form.errors | default_errors }}
+        </p>
+      {%- endif -%}
+
+      <div class="field field--half">
+        <label for="RegisterFirst">{{ 'customer.register.first_name' | t }}</label>
+        <input id="RegisterFirst" type="text" name="customer[first_name]" autocomplete="given-name"
+               value="{{ form.first_name }}">
+      </div>
+      <div class="field field--half">
+        <label for="RegisterLast">{{ 'customer.register.last_name' | t }}</label>
+        <input id="RegisterLast" type="text" name="customer[last_name]" autocomplete="family-name"
+               value="{{ form.last_name }}">
+      </div>
+
+      <div class="field">
+        <label for="RegisterEmail">{{ 'customer.register.email' | t }}</label>
+        <input id="RegisterEmail" type="email" name="customer[email]" autocomplete="email" required
+               {% if form.errors contains 'email' %}aria-invalid="true"{% endif %} value="{{ form.email }}">
+      </div>
+
+      <div class="field">
+        <label for="RegisterPassword">{{ 'customer.register.password' | t }}</label>
+        <input id="RegisterPassword" type="password" name="customer[password]" autocomplete="new-password" required
+               {% if form.errors contains 'password' %}aria-invalid="true"{% endif %}>
+        <p class="field__hint">{{ 'customer.register.password_hint' | t }}</p>
+      </div>
+
+      <label class="checkbox">
+        <input type="checkbox" name="customer[accepts_marketing]" value="true" checked>
+        <span class="checkbox__box">{% render 'icon', name: 'check', size: 12 %}</span>
+        <span class="checkbox__label">{{ 'customer.register.marketing' | t }}</span>
+      </label>
+
+      <button class="button button--primary button--lg" type="submit">{{ 'customer.register.submit' | t }}</button>
+    {%- endform -%}
+
+    <div class="auth__alt">
+      <p>{{ 'customer.register.have_account' | t }}</p>
+      <a class="button button--outline" href="{{ routes.account_login_url }}">{{ 'customer.login.sign_in' | t }}</a>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{ "name": "Customer register", "settings": [] }
+{% endschema %}
