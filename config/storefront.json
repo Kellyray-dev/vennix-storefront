@@ -1,0 +1,65 @@
+{
+  "$note": "Presentation settings for the VENNIX storefront. Brand/UX configuration only — no commerce state. Products, prices, inventory, carts, orders and customers live in Shopify and are read through the Storefront API at runtime.",
+  "brandName": "Vennix",
+  "legalName": "Vennix",
+  "tagline": "Modern clothing & active essentials.",
+  "supportEmail": "support@vennixstore.com",
+  "supportPhone": "",
+  "address": {
+    "line1": "44 Wythe Avenue",
+    "city": "Brooklyn",
+    "province": "NY",
+    "zip": "11249",
+    "country": "United States"
+  },
+  "currency": "USD",
+  "domain": "vennixstore.com",
+  "freeShippingThreshold": 5000,
+  "lowStockThreshold": 5,
+  "announcements": [
+    "Free standard shipping on US orders over $50",
+    "Capsule 01 — 8 styles, one palette. Now in stock.",
+    "Free exchanges and 2-year repairs on every piece"
+  ],
+  "socials": {
+    "tiktok": "https://www.tiktok.com/@vennixstore",
+    "pinterest": "https://www.pinterest.com/vennixstore",
+    "linkedin": "https://www.linkedin.com/company/vennixstore"
+  },
+  "trustBadges": [
+    { "icon": "truck", "title": "Free shipping over $50", "body": "Tracked, 4–6 business days" },
+    { "icon": "refresh", "title": "30-day returns", "body": "Prepaid label, free exchanges" },
+    { "icon": "lock", "title": "Secure checkout", "body": "PCI-DSS, tokenised cards" },
+    { "icon": "leaf", "title": "Made responsibly", "body": "Audited mills, repair service" }
+  ],
+  "personalization": {
+    "enabled": true,
+    "label": "Monogramming",
+    "price": 2000,
+    "maxChars": 3,
+    "minChars": 1,
+    "placement": "Left cuff",
+    "note": "Monogrammed pieces are personalised for you and cannot be returned.",
+    "serviceProductHandle": "monogramming"
+  },
+  "giftCardProductHandle": "gift-card",
+  "sizeGuidePath": "/pages/size-guide",
+  "journalHandle": "journal",
+  "colorSwatches": {
+    "Bone": "#EDE7DC",
+    "Fog Heather": "#BFBCB4",
+    "Charcoal": "#3B3B3D",
+    "Ink": "#1B1B1D",
+    "Clay": "#A8603F",
+    "Moss": "#5A6350",
+    "Storm": "#59616B",
+    "Slate Blue": "#414B5A",
+    "Oat": "#D6C9B4",
+    "Studio Black": "#191614",
+    "Digital": "#191614"
+  },
+  "seo": {
+    "title": "Vennix — Modern clothing & active essentials",
+    "description": "Modern clothing and active essentials, chosen for how they move and how they last. Free shipping over $50, 30-day returns, two-year repairs."
+  }
+}

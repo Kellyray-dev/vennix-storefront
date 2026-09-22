@@ -20,8 +20,8 @@ const SEEDS = [
   '/collections/essentials', '/collections/new-in', '/collections/bestsellers', '/collections/sale',
   '/products/atlas-heavyweight-hoodie', '/products/flow-high-rise-legging-28',
   '/products/everyday-pima-crew-tee', '/products/gift-card',
-  '/cart', '/checkout', '/track', '/search?q=hoodie',
-  '/account/login', '/account/register', '/account/recover',
+  '/cart', '/checkout', '/track', '/orders/VEN-1001', '/search?q=hoodie',
+  '/account', '/account/wishlist',
   '/pages/about', '/pages/faq', '/pages/size-guide', '/pages/contact',
   '/pages/shipping-returns', '/pages/terms', '/pages/privacy', '/pages/sustainability',
   '/blogs/journal', '/gift-cards', '/sitemap.xml', '/robots.txt', '/this-page-does-not-exist'

@@ -1,10 +1,9 @@
-# runtime data (regenerate with `npm run seed`)
-data/db.json
-data/db.*.tmp
-data/db.*.corrupt-*.json
-data/emails/
+# runtime data — non-commerce leads captured by the storefront
+# (newsletter, contact, back-in-stock, review submissions)
+data/leads.json
+data/leads.*.tmp
 
-# build output (regenerate with `npm run export`)
+# build output
 dist/
 
 # dependencies + local tooling

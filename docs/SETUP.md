@@ -1,251 +1,161 @@
-# From this repo to your live Shopify store
+# Setup — running the Vennix storefront with Shopify
 
-Two tracks, and you can do them in either order. Track A gets your catalogue,
-copy and theme onto **your** Shopify store. Track B puts this repo on GitHub with
-CI and one-click theme deploys.
+The storefront is a zero-dependency Node app that renders the editorial
+experience and reads/writes commerce through the **Shopify Storefront API**.
+There are three ways to run it:
 
-Everything below assumes you are in the project root.
-
----
-
-## Track A — your store on Shopify (about 30 minutes)
-
-### 1. Check the deployment bundle
-
-```bash
-npm run export
-ls dist/shopify
-#  catalog/products.csv  collections.csv  pages.csv  articles.csv
-#  customers.csv  discounts.csv  menu.json  catalog.json
-#  theme.zip
-```
-
-`theme.zip` is the finished Online Store 2.0 theme. The CSVs are Shopify's own
-import formats, so nothing needs transforming on their side.
-
-### 2. Import the catalogue
-
-In Shopify admin → **Products → Import** → `dist/shopify/catalog/products.csv`.
-Shopify creates every product, variant, image reference, tag, SEO field and
-collection membership from that file. Wait for the import to report completion
-before moving on (9 products / 159 variants takes a few seconds).
-
-Then:
-
-| What | Where | File |
-| --- | --- | --- |
-| Collections | **Products → Collections → Import** | `collections.csv` |
-| Pages | **Online Store → Pages → Import** | `pages.csv` |
-| Blog posts | **Online Store → Blog posts → Import** | `articles.csv` |
-| Customers | **Customers → Import** | `customers.csv` |
-| Discount codes | **Discounts → Create** (one per row) | `discounts.csv` |
-| Navigation | **Online Store → Navigation** | paste from `menu.json` |
-
-Customers import without passwords (Shopify never accepts them) — send them an
-account invite from the customer list when you are ready.
-
-### 3. Upload the theme
-
-**Online Store → Themes → Add theme → Upload zip file** → pick
-`dist/shopify/theme.zip` → **Publish**.
-
-Check **Online Store → Navigation → Main menu** points at your real collections,
-then open the theme editor: every section (hero, trust bar, store pulse, category
-grid, showcase, story, testimonials, journal, lookbook, newsletter, FAQ, contact)
-is editable and reorderable without touching code.
-
-### 4. Wire the theme to real data
-
-| Feature | What to switch on |
-| --- | --- |
-| Payments | Settings → Payments (Shopify Payments, PayPal, etc.) |
-| Shipping rates | Settings → Shipping and delivery |
-| Taxes | Settings → Taxes and duties |
-| Reviews | Install a reviews app (Judge.me, Loox, Okendo). The theme renders metafield ratings from any of them and shows an honest "no reviews yet" state until real ones arrive. |
-| Search, wishlist, cart | Already native — no app needed |
-| Metafield rows | Product → Metafields → `custom.fit_notes` powers the "Fit notes" accordion |
+1. **Demo mode** — no Shopify store needed (mock gateway + fixture catalog)
+2. **Against your store** — read-only catalog + Shopify carts/checkout
+3. **Theme-only** — deploy `shopify-theme/` to Shopify Online Store 2.0
 
 ---
 
-## Track B — GitHub, CI and one-click theme deploys (about 15 minutes)
-
-### 1. Push the repo
+## 1. Demo mode (default, no credentials)
 
 ```bash
-git init
-git add .
-git commit -m "Vennix storefront, admin and Shopify theme"
-git branch -M main
-git remote add origin git@github.com:<you>/<repo>.git
-git push -u origin main
+node server.js
+# [vennix] DEMO MODE — no SHOPIFY_STORE_DOMAIN configured.
+# [vennix] Mock Shopify gateway on ephemeral port; using fixture catalog.
 ```
 
-`data/db.json`, `data/emails/` and `dist/` are gitignored on purpose: runtime
-data and build output should never fight with your history. Regenerate them with
-`npm run seed` and `npm run export`.
+What happens:
 
-### 2. Watch CI pass
+- `tools/mock-shopify/gateway.js` boots on an ephemeral port and serves
+  `data/fixtures/shopify-store.json` through the exact GraphQL operations the
+  storefront uses (products, collections, search, recommendations, cart
+  mutations, checkout URLs).
+- The storefront talks to it with the same `lib/shopify/client.js` code path
+  as production — demo mode swaps the endpoint, not the code.
+- The UI shows a *Demo mode* banner. Carts, discounts (`WELCOME10`,
+  `FREESHIP`, `CAPSULE20`), oversell rules and the monogram service product
+  all behave like a real store.
 
-`.github/workflows/verify.yml` runs on every push: module load check, theme
-structure check, seed, boot the server, the HTTP end-to-end suite, the dead-link
-crawl, the browser click test, and the Shopify export — then uploads
-`dist/shopify/` as a downloadable artifact.
-
-### 3. Connect the theme to your store
-
-Create a **Theme Access** token (Shopify admin → **Apps → Develop apps → Create
-app → Admin API access** with `write_themes`, or `shopify theme token` from the
-CLI). Then add three repository secrets under **Settings → Secrets and
-variables → Actions**:
-
-| Secret | Value |
-| --- | --- |
-| `SHOPIFY_STORE` | `your-store.myshopify.com` |
-| `SHOPIFY_CLI_THEME_TOKEN` | the Theme Access token |
-| `SHOPIFY_THEME_ID` | *(optional)* the theme id to publish to |
-
-The workflow uses a locked install so deploys are reproducible:
-
-- `/.github/shopify-cli/package.json` pins `@shopify/cli@3.69.4` exact
-- `/.github/shopify-cli/package-lock.json` is checked in with integrity hashes
-- the job runs `npm ci` in that folder, verifies `npx shopify version | grep 3.69.4`, then `npx shopify theme push --path ../../shopify-theme`
-
-Local equivalent if you need to test the same path:
+Regenerate the fixture after changing `scripts/build-fixtures.js`:
 
 ```bash
-SHOPIFY_FLAG_STORE=your-store.myshopify.com \
-SHOPIFY_CLI_THEME_TOKEN=shptka_xxx \
-npx --prefix .github/shopify-cli shopify theme push --path shopify-theme --unpublished
+npm run fixtures
 ```
 
-Now **Actions → Deploy Shopify theme → Run workflow** pushes `shopify-theme/`
-to your store — pick `unpublished` to review in the theme editor first, or
-`live` to publish. Pushing a `v*` tag does the same automatically.
-
-### 4. Production env vars and everyday workflow
-
-**Storefront hardening you should know before deploying:**
-
-| Env | What it does |
-| --- | --- |
-| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Override admin credentials on boot. If `ADMIN_PASSWORD` is not set in production the seed prints a one-time password only when the stored credential is still the demo `vennix123` — it never rotates on every boot. Set `ADMIN_PASSWORD` for a stable login. |
-| `TRUST_PROXY` | Set to `1` only when behind a trusted reverse proxy (Fly, Render, Nginx). Rate limiters (`/track`, `/api/notify`, admin login, storefront login) use `socket.remoteAddress` by default and only trust `X-Forwarded-For` when `TRUST_PROXY=1`, preventing XFF bypass. |
-| `NODE_ENV=production` | Switches payments badge to LIVE, hides demo password hint, enables first-run admin password generation path. |
-
-**Cart reuse fix:** after a successful checkout the cart keeps `_lastOrderId` for idempotency while empty. If the customer adds items again, `clearCheckoutReuse()` clears the marker so a fresh order can be created instead of redirecting to the old order.
-
-```bash
-npm start                 # storefront + admin on http://localhost:3000
-npm run reset             # rebuild demo catalogue/orders/content
-npm run verify            # modules + theme + HTTP + link + browser suites
-npx shopify theme dev --path ./shopify-theme   # live preview against your store
-```
+> The fixture is a **development visual fixture**, not production data. It is
+> never written to a real Shopify store, and real-store data is never
+> overwritten by this repo.
 
 ---
 
-## Making it genuinely yours
+## 2. Connecting your Shopify store
 
-This repo ships as **Vennix** — modern clothing and active essentials, support
-`support@vennixstore.com`, free shipping over $50, Pinterest + LinkedIn + TikTok
-at `@vennixstore`, no published phone number.
+### a. Create a Storefront API token
 
-Two scripts move all of that to a different brand without you editing templates
-— they read and write `data/db.json`, and the theme picks the result up on
-export.
+In the Shopify admin of your store:
 
-```bash
-# 1. Brand identity everywhere: header word mark, page copy, journal,
-#    SEO defaults, emails, structured data, legal name.
-node scripts/format-catalog.js \
-  --brand "Northline" --suffix "Supply Co" \
-  --domain northline.co --email help@northline.co --phone "+1 512 555 0139" \
-  --address "1201 Comal St" --city Austin --province TX --zip 78702 \
-  --tiktok https://www.tiktok.com/@northline \
-  --pinterest https://www.pinterest.com/northline
+1. **Settings → Apps and sales channels → Develop apps** (enable custom app
+   development if prompted).
+2. Create an app (e.g. *vennix-storefront*).
+3. Under **Configuration → Storefront API access scopes**, grant:
+   - `unauthenticated_read_product_listings`
+   - `unauthenticated_read_product_inventory`
+   - `unauthenticated_write_checkouts`
+4. Install the app and copy the **Storefront API access token**.
 
-# 2. The same identity in the Shopify theme + shopify.theme.toml
-node scripts/format-theme.js --accent "#2F6E4F"
+Nothing else is required: the storefront reads the published catalog and
+operates carts; checkout, payments, shipping, taxes, orders and customers are
+all Shopify-hosted.
 
-# 3. Rebuild the deployment bundle
-npm run export
-```
-
-Prefer a file to a long command? Copy `brand.example.json` to `brand.json`, fill in
-your details, then run `npm run brand -- --file brand.json` followed by
-`npm run brand:theme -- --file brand.json`. Both scripts accept `--dry-run`, and
-both print every field they touch — nothing is renamed silently.
-
-Three details worth knowing:
-
-- **Socials are merged, not replaced.** Pass only the networks you actually run,
-  so a brand with no Instagram never ends up with a dead Instagram link. Pass
-  `"instagram": "none"` to delete a demo link outright.
-- **`--no-phone` clears the phone.** The storefront, the contact page, the
-  checkout sidebar and the Organization JSON-LD all skip an empty phone rather
-  than publishing a blank one.
-- **The admin login and the order-number prefix follow the brand.** `npm run brand`
-  derives the order prefix from the new name (first three letters: `VEN` for
-  Vennix) and moves the admin email onto the new domain, so `data/db.json` never
-  ships with a stale order number or a login on the old domain.
-- **Change money once.** `settings.freeShippingThreshold` drives the announcement
-  bar, the cart's free-shipping progress bar, the shipping charge itself and the
-  theme's cart drawer — they cannot contradict each other.
-
-### Bringing your real catalogue in
-
-Two sources, both supported:
+### b. Configure the environment
 
 ```bash
-# From a Shopify product export CSV
-node scripts/import-shopify-catalog.js --csv ~/Downloads/products.csv --dry-run
-node scripts/import-shopify-catalog.js --csv ~/Downloads/products.csv
-
-# Straight from the Admin API
-SHOPIFY_STORE=your-store.myshopify.com \
-SHOPIFY_ADMIN_TOKEN=shpat_xxxxxxxx \
-node scripts/import-shopify-catalog.js
+export SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
+export SHOPIFY_STOREFRONT_ACCESS_TOKEN=…
+# optional
+export SHOPIFY_PRIMARY_DOMAIN=www.yourbrand.com   # canonical domain
+export SHOPIFY_API_VERSION=2025-10
+node server.js
+# [vennix] Live mode — reading catalog and carts from your-store.myshopify.com (2025-10).
 ```
 
-The run prints a report: products and variants imported, collections created,
-and warnings for anything the source left thin (no image, zero price, empty
-description). Nothing is invented to fill the gaps — a product without images
-gets a placeholder and a warning, and ratings always start at zero.
+Or copy `.env.example` to `.env` and load it with your process manager. See
+`.env.example` for the full reference. **Never commit tokens** — `.env` is
+git-ignored.
 
-Useful flags: `--replace` swaps the catalogue instead of merging,
-`--dry-run` previews, `--keep-copy` leaves the journal and CMS pages alone.
+### c. What the storefront uses from your store, as-is
 
-### Selling the monogram add-on on Shopify
+- Published products + variants (the hidden `vennix-service`-tagged
+  monogram product is treated as the monogram fee; it is filtered from the
+  catalog but can be added as a paired cart line).
+- Collections (nav + collection pages are generated from them; a virtual
+  `sale` collection is computed from compare-at pricing).
+- Pages (`/pages/:handle`) and the blog `journal` (`/blogs/journal`).
+- Product `reviews` metafield (from any reviews app) — rendered as-is;
+  `aggregateRating` is emitted only when reviews exist.
+- Discount codes are validated by Shopify carts — the storefront never keeps
+  its own list.
 
-The demo storefront prices monogramming itself. On Shopify only **variants** can
-carry a fee, so the theme supports both honest routes and never advertises a
-charge it cannot collect:
+> The storefront **does not write to your catalog**. It never creates or
+> mutates products, prices, inventory or content.
 
-| Theme setting | What happens |
-| --- | --- |
-| **By a Monogrammed variant** (default) | Create a `Monogrammed` variant per product with the fee baked into its price. The theme swaps the cart's variant to it when the customer types their letters, and the button price updates. |
-| **As a free note on the line item** | The letters are recorded as a line-item property — visible in the cart, the order and the packing slip, but not charged. The theme drops the price claim. |
+### d. Monogramming (optional)
 
-Either way the monogram travels with the line: `Online Store → Themes → Customise
-→ Product page`. The size finder has its own toggle in the same panel, and the
-"Load more" versus numbered pagination choice lives in the collection section.
+If you sell a monogram/embroidery add-on, create a published product
+(handle `monogramming`, tag `vennix-service`, price = the fee). The storefront
+detects it and charges monograms as a real second cart line. Without it, the
+monogram UI degrades to a free-note mode and stops quoting a fee.
 
-### Back-in-stock alerts on Shopify
+### e. Checkout handoff
 
-The theme's alert posts to the **contact form** with the piece and size already
-filled in, so it arrives as a normal customer request. Shopify's own "notify me"
-requires an app; rather than ship a button that quietly does nothing, the theme
-routes the request somewhere the merchant will actually see it. Swap it for your
-app's snippet if you install one.
+- `GET/POST /checkout` → 302/303 to `cart.checkoutUrl` (Shopify-hosted).
+- `/api/buy-now` returns the checkout URL for the client.
+- Order confirmation, tracking and account pages point customers to Shopify
+  (confirmation email / `/account` on the store). `/track` explains this;
+  legacy `/orders/:number` URLs get a helpful pointer page.
 
-### Reviews
+---
 
-Seeded reviews are deliberately thin and imperfect: 11 published reviews across
-4 of 9 products (one of them 3-star and critical), reviewers never repeat across
-products, helpful counts stay in single digits, and four products start at zero.
-The homepage says so out loud in the store pulse band.
+## 3. Deploying the OS 2.0 theme
 
-When you go live, delete the seeded reviews and let real ones accumulate:
-**Admin → Reviews** to manage, or run `npm run reset` and only keep your own
-content. The storefront automatically swaps to invite-a-first-review copy for
-anything unrated, and stops emitting `aggregateRating` structured data until a
-piece has real reviews — so you never advertise ratings you do not have.
+`shopify-theme/` is a complete Online Store 2.0 theme. Deploy it with the
+Shopify CLI:
+
+```bash
+cd shopify-theme
+shopify theme dev --store your-store.myshopify.com     # preview
+shopify theme push --store your-store.myshopify.com    # upload
+```
+
+…or use the included workflow: **Actions → Deploy Shopify theme** (needs the
+`SHOPIFY_STORE`, `SHOPIFY_CLI_THEME_TOKEN`, optional `SHOPIFY_THEME_ID`
+secrets). The theme is self-contained and works without the Node storefront.
+
+**Ownership rule:** the Node storefront and the theme are two front doors to
+the same Shopify data. Don't let both render the same domain — either serve
+the storefront on your domain and keep the theme unpublished (or on a
+password-protected theme for reference), or publish the theme and retire the
+Node server.
+
+---
+
+## Production hosting notes
+
+- Bind `HOST=0.0.0.0`, put TLS termination in front, set `NODE_ENV=production`
+  (cart cookies become `Secure`) and `TRUST_PROXY=1` behind a reverse proxy.
+- `PUBLIC_SITE_DOMAIN` should match the public hostname for canonical URLs;
+  the sitemap is generated live from the Shopify catalog.
+- The catalog cache (`SHOPIFY_CACHE_TTL_MS`, default 15s) keeps page fan-out
+  cheap; carts are always read fresh.
+- Local state is limited to non-commerce leads in `data/leads.json`
+  (newsletter, contact messages, back-in-stock alerts, review submissions for
+  moderation). Mount that path on persistent storage if you need the captures
+  to survive deploys, or wire `lib/leads.js` to your own sink.
+
+---
+
+## Verification
+
+```bash
+npm install --no-save jsdom     # dev-only, for the browser click test
+npm run verify
+```
+
+Runs module load check, the Shopify data-layer suite (mock gateway), render
+check (self-boots a server), theme structure check, then boots the demo
+storefront and runs the HTTP smoke, feature, link-crawl and browser suites.
+CI runs the same pipeline on every push (`.github/workflows/verify.yml`).

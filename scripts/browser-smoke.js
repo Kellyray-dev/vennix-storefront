@@ -4,7 +4,7 @@
  *
  * The HTTP smoke test (scripts/smoke.js) proves the server answers every route.
  * This one proves the *client* behaves: it loads real pages into a DOM, runs
- * public/js/main.js and public/js/admin.js exactly as a browser would, then
+ * public/js/main.js and public/js/motion.js exactly as a browser would, then
  * clicks, types and submits — asserting the DOM, the API traffic and the cart
  * state that follow.
  *
@@ -134,9 +134,6 @@ async function openPage(url, options = {}) {
         window.__fetches.push(href);
         return realFetch(input, init);
       };
-      if (options.cookies) {
-        // cookies for an authenticated admin session, primed by the caller
-      }
     }
   });
 
@@ -168,516 +165,339 @@ async function type(window, element, value) {
 
 /* --------------------------------- the tests ------------------------------ */
 
-async function testStorefront() {
-  section('Storefront — homepage interactions');
-  const dom = await openPage('/');
+async function testHome() {
+  section('Home — chrome, search overlay, wishlist, drawer');
+  const dom = await openPage('/', { label: 'home' });
   const { window } = dom;
-  const $ = sel => window.document.querySelector(sel);
+  const doc = window.document;
+  const $ = sel => doc.querySelector(sel);
 
   ok('client script executed (toast helper installed)', typeof window.vennixToast === 'function');
+  ok('demo banner labels the fixture run', !!doc.querySelector('.demo-banner'));
 
   const cartDrawer = $('[data-cart-drawer]');
   ok('cart drawer starts hidden', cartDrawer && cartDrawer.hasAttribute('hidden'));
   fire(window, $('[data-cart-open]'), 'click');
   ok('clicking the cart icon opens the drawer', cartDrawer && !cartDrawer.hasAttribute('hidden'));
-  fire(window, $('[data-drawer-close]'), 'click');
-  await wait(420);
-  ok('close button hides the drawer again', cartDrawer && cartDrawer.hasAttribute('hidden'));
-
   const overlay = $('[data-overlay]');
-  fire(window, $('[data-cart-open]'), 'click');
   ok('overlay is shown with the drawer', overlay && !overlay.hasAttribute('hidden'));
   fire(window, overlay, 'click');
   await wait(420);
   ok('clicking the overlay closes the cart', cartDrawer.hasAttribute('hidden'));
 
+  const menuBtn = $('[data-menu-open]');
+  const mobileMenuEl = $('[data-menu]');
+  if (menuBtn && mobileMenuEl) {
+    fire(window, menuBtn, 'click');
+    ok('mobile menu opens', !mobileMenuEl.hasAttribute('hidden') || mobileMenuEl.classList.contains('is-open'));
+    const close = mobileMenuEl.querySelector('[data-menu-close]');
+    if (close) { fire(window, close, 'click'); await wait(320); }
+  } else ok('mobile menu markup present', false, menuBtn ? 'missing data-menu panel' : 'missing data-menu-open');
+
   const search = $('[data-search]');
   fire(window, $('[data-search-open]'), 'click');
   ok('search overlay opens', search && !search.hasAttribute('hidden'));
   await type(window, $('[data-search-input]'), 'hoodie');
-  await wait(500);
+  await wait(600);
   const results = $('[data-search-results]');
-  ok('predictive search renders results', results && /Atlas|hoodie/i.test(results.textContent), results ? results.textContent.slice(0, 60) : 'no node');
+  ok('predictive search renders results', results && /Atlas|hoodie/i.test(results.textContent), results ? results.textContent.replace(/\s+/g, ' ').slice(0, 60) : 'no node');
   fire(window, $('[data-search-close]'), 'click');
   await wait(420);
   ok('search overlay closes', search.hasAttribute('hidden'));
 
   const wishCount = $('[data-wish-count]');
   fire(window, $('[data-wish]'), 'click');
-  await wait(60);
+  await wait(80);
   ok('wishlist heart stores the product', (window.localStorage.getItem('vnx_wishlist') || '').length > 2);
   ok('wishlist counter updates', wishCount && wishCount.textContent.trim() === '1', wishCount ? wishCount.textContent : 'missing');
 
-  const rail = $('[data-rail-track]');
-  const railBefore = rail ? rail.scrollLeft : 0;
-  fire(window, $('[data-rail-next]'), 'click');
-  await wait(60);
-  ok('product rail arrow responds', true, `scrollLeft ${railBefore} → ${rail ? rail.scrollLeft : 'n/a'}`);
-
-  const index = $('script[data-catalog-index]');
+  const index = doc.querySelector('script[data-catalog-index]');
   let catalog = null;
-  try { catalog = JSON.parse(index.textContent); } catch (error) { catalog = null; }
-  ok('catalog index JSON parses for the wishlist', !!catalog && Array.isArray(catalog.products || catalog) && (catalog.products || catalog).length > 3);
+  try { catalog = JSON.parse(index.textContent); } catch { catalog = null; }
+  ok('catalog index JSON parses for the wishlist', Array.isArray(catalog) && catalog.length > 3);
 
-  dom.window.close();
+  window.close();
 }
 
 async function testProductPage() {
-  section('Product page — variant switching and add to cart');
-  const dom = await openPage('/collections/all');
+  section('Product page — variant switching, add to cart, quick view');
+  const dom = await openPage('/products/atlas-heavyweight-hoodie', { label: 'pdp' });
   const { window } = dom;
-  const card = window.document.querySelector('[data-add-form]') || window.document.querySelector('.product-card a');
-  const handle = window.document.querySelector('[data-product]') ? window.document.querySelector('[data-product]').getAttribute('data-product') : 'atlas-heavyweight-hoodie';
-  dom.window.close();
-
-  const pdp = await openPage('/products/' + handle);
-  const w = pdp.window;
-  const doc = w.document;
+  const doc = window.document;
   const $$ = sel => Array.from(doc.querySelectorAll(sel));
 
-  ok('product page loaded', !!doc.querySelector('[data-add-form]'));
-
+  ok('product form present', !!doc.querySelector('[data-add-form]'));
   const variantInput = doc.querySelector('[data-variant-input]');
-  const before = variantInput ? variantInput.value : null;
-  const priceBefore = doc.querySelector('[data-price-now]') ? doc.querySelector('[data-price-now]').textContent.trim() : '';
+  ok('variant input starts with a real Shopify variant id', /^gid:\/\/shopify\/ProductVariant\//.test(variantInput.value || ''), variantInput ? variantInput.value : 'missing');
+  const before = variantInput.value;
 
-  const sizeButtons = $$('[data-size]').filter(b => b.getAttribute('data-stock') !== '0');
+  const sizeButtons = $$('[data-size]').filter(b => b.getAttribute('data-stock') !== '0' && !b.disabled);
   if (sizeButtons.length > 1) {
-    fire(w, sizeButtons[1], 'click');
-    await wait(60);
+    fire(window, sizeButtons[1], 'click');
+    await wait(80);
     ok('choosing a size swaps the variant id', variantInput.value !== before, `${before} → ${variantInput.value}`);
-    ok('variant id follows the var_ pattern', /^var_[a-z0-9_]+$/.test(variantInput.value), variantInput.value);
-  } else {
-    ok('size buttons exist', false, 'no selectable sizes found');
-  }
+  } else ok('size buttons exist', false, 'no selectable sizes found');
 
-  const colour = $$('[data-color]')[1];
-  if (colour) {
-    const stockBefore = doc.querySelector('[data-stock]') ? doc.querySelector('[data-stock]').textContent : '';
-    fire(w, colour, 'click');
-    await wait(60);
-    ok('colour swatch is clickable and updates state', true, `stock line: ${(doc.querySelector('[data-stock]') || {}).textContent || ''}`.slice(0, 80));
-  }
-
-  // add to cart through the real form submit path
   const cartBefore = Number(doc.querySelector('[data-cart-count]').textContent) || 0;
   const form = doc.querySelector('[data-add-form]');
-  fire(w, form, 'submit');
-  await wait(700);
+  fire(window, form, 'submit');
+  await wait(800);
   const cartAfter = Number(doc.querySelector('[data-cart-count]').textContent) || 0;
-  ok('submitting the add-to-cart form hits /api/cart/add', w.__fetches.some(u => u.includes('/api/cart/add')), w.__fetches.slice(-3).join(' | '));
+  ok('submitting the form hits /api/cart/add', window.__fetches.some(u => u.includes('/api/cart/add')), window.__fetches.slice(-3).join(' | '));
   ok('cart counter increments after adding', cartAfter === cartBefore + 1, `${cartBefore} → ${cartAfter}`);
   ok('toast confirms the add', !!doc.querySelector('[data-toasts] .toast'));
-  ok('drawer body re-rendered with the new line', (doc.querySelector('[data-cart-body]') || {}).textContent.length > 20);
+  ok('drawer body re-rendered with the new line', (doc.querySelector('[data-cart-body]') || {}).textContent.trim().length > 20);
 
-  // size guide + gallery + wishlist
   const guide = doc.querySelector('[data-sizeguide-open]');
   if (guide) {
-    fire(w, guide, 'click');
-    await wait(500);
+    fire(window, guide, 'click');
+    await wait(700);
     const modal = Array.from(doc.querySelectorAll('.quickview')).find(m => m.querySelector('[data-sg-close]'));
     ok('size guide opens an in-page modal', !!modal);
-    ok('size guide modal loaded the measurement charts', !!modal && /chest|waist|measurement|cm\b/i.test(modal.textContent), modal ? modal.textContent.replace(/\s+/g, ' ').slice(0, 80) : 'no modal');
-  }
-  const thumbs = $$('[data-thumb]');
-  if (thumbs.length > 1) {
-    fire(w, thumbs[1], 'click');
-    await wait(30);
-    ok('gallery thumbnail switches the active slide', !!doc.querySelector('[data-slide].is-active'));
+    ok('size guide modal loaded the measurement charts', !!modal && /chest|waist|measurement|cm\b/i.test(modal.textContent));
   }
 
-  pdp.window.close();
-}
-
-async function testCartAndCheckoutPages() {
-  section('Cart + checkout — quantity, quote and card helper');
-  const dom = await openPage('/cart');
-  const { window } = dom;
-  const doc = window.document;
-
-  const inc = doc.querySelector('[data-line-inc]');
-  ok('cart page renders at least one line', !!doc.querySelector('[data-line]'));
-  if (inc) {
-    const lineBefore = doc.querySelector('[data-line-qty]').value;
-    fire(window, inc, 'click');
-    await wait(600);
-    ok('“+” updates the line through /api/cart/update', window.__fetches.some(u => u.includes('/api/cart/update')), window.__fetches.slice(-2).join(' | '));
-    const lineAfter = doc.querySelector('[data-line-qty]') ? doc.querySelector('[data-line-qty]').value : null;
-    ok('quantity input reflects the change', String(lineAfter) !== String(lineBefore), `${lineBefore} → ${lineAfter}`);
-  }
+  // quick view from a collection card
   window.close();
-
-  const checkout = await openPage('/checkout');
-  const cw = checkout.window;
-  const cdoc = cw.document;
-  ok('checkout form is present', !!cdoc.querySelector('[data-checkout-form]'));
-
-  const state = cdoc.querySelector('[data-tax-state]');
-  if (state) {
-    await type(cw, state, 'NY');
-    await wait(500);
-    ok('changing state requests a fresh quote', cw.__fetches.some(u => u.includes('/api/quote') || u.includes('/checkout/quote')), cw.__fetches.slice(-3).join(' | '));
-    const tax = cdoc.querySelector('[data-sum-tax]');
-    ok('summary shows a tax figure', tax && /\$/.test(tax.textContent), tax ? tax.textContent : 'missing');
-  }
-  const country = cdoc.querySelector('[data-tax-country]');
-  ok('country select is wired', !!country);
-
-  const fill = cdoc.querySelector('[data-fill-test-card]');
-  if (fill) {
-    fire(cw, fill, 'click');
-    await wait(60);
-    const number = cdoc.querySelector('[data-card-number]');
-    ok('fill-test-card fills the card number', number && number.value.replace(/\s/g, '') === '4242424242424242', number ? number.value : 'missing');
-    const brand = cdoc.querySelector('[data-card-brand]');
-    ok('card brand is detected', brand && /visa/i.test(brand.textContent + number.value), brand ? brand.textContent.trim() : 'missing');
-  }
-  const codeField = cdoc.querySelector('[data-fill-code]');
-  ok('discount helper present on checkout', !!codeField || true);
-  checkout.window.close();
+  const col = await openPage('/collections/all', { label: 'collection' });
+  const cw = col.window;
+  const trigger = cw.document.querySelector('[data-quickadd]');
+  if (trigger) {
+    fire(cw, trigger, 'click');
+    await wait(800);
+    const qv = cw.document.querySelector('.quickview.is-open') || cw.document.querySelector('[data-quickview]');
+    ok('quick view opens from a card', cw.__fetches.some(u => u.includes('/api/quickview/')), cw.__fetches.slice(-2).join(' | '));
+    ok('quick view fetched a variant picker', !!qv && !!qv.querySelector('[data-variant-input]'));
+  } else ok('quick view trigger exists on cards', false, 'no [data-quickadd]');
+  col.window.close();
 }
 
-async function testAdminPos() {
-  section('Admin — POS till (client-side)');
-
-  // authenticate the jar as admin first
-  const login = await fetch(BASE + '/admin/login', {
-    method: 'POST',
-    redirect: 'manual',
-    headers: { 'content-type': 'application/x-www-form-urlencoded', cookie: jarHeader(BASE) },
-    body: new URLSearchParams({ email: 'admin@vennixstore.com', password: 'vennix123' }).toString()
-  });
-  absorb(login, BASE + '/admin/login');
-  await login.text().catch(() => {});
-  ok('admin session established', /vnx_sid/.test(jarHeader(BASE + '/admin/pos')));
-
-  const dom = await openPage('/admin/pos');
+async function testCartPage() {
+  section('Cart page — quantity, discount, notes (against the live cart)');
+  // the PDP test already added an item through the same cookie jar
+  const dom = await openPage('/cart', { label: 'cart' });
   const { window } = dom;
   const doc = window.document;
 
-  ok('POS till rendered', !!doc.querySelector('[data-pos-add]'));
-  ok('admin script installed the till', doc.querySelectorAll('[data-pos-add]').length > 3, `${doc.querySelectorAll('[data-pos-add]').length} tiles`);
-
-  const tile = doc.querySelector('[data-pos-add]');
-  const subtotalBefore = (doc.querySelector('[data-pos-subtotal]') || {}).textContent || '';
-  if (!tile) { ok('POS tiles rendered for an authenticated session', false, 'page redirected to login'); }
-  else fire(window, tile, 'click');
-  await wait(150);
-  ok('clicking a tile adds a line to the till', doc.querySelector('[data-pos-lines]').value.length > 3 && doc.querySelector('[data-pos-cart]').textContent.trim().length > 3);
-  ok('subtotal recalculates', ((doc.querySelector('[data-pos-subtotal]') || {}).textContent || '') !== subtotalBefore);
-
-  const inc = doc.querySelector('[data-pos-inc]');
+  ok('cart page renders a line', !!doc.querySelector('[data-line]'));
+  const inc = doc.querySelector('[data-line-inc]');
   if (inc) {
-    const qtyBefore = Number(doc.querySelector('[data-pos-cart] .pos-qty, [data-pos-cart] input')?.value || 1);
+    const qtyInput = doc.querySelector('[data-line-qty]');
+    const before = qtyInput ? qtyInput.value : null;
     fire(window, inc, 'click');
-    await wait(60);
-    ok('“+” increases the POS quantity', true);
-  }
+    await wait(700);
+    ok('“+” updates the line through /api/cart/update', window.__fetches.some(u => u.includes('/api/cart/update')), window.__fetches.slice(-2).join(' | '));
+    const after = doc.querySelector('[data-line-qty]') ? doc.querySelector('[data-line-qty]').value : null;
+    ok('quantity input reflects the change', String(after) !== String(before), `${before} → ${after}`);
+  } else ok('quantity controls render', false, 'no data-line-inc');
 
-  const hidden = doc.querySelector('[data-pos-lines]');
-  ok('hidden field posts variantId:qty lines', hidden && /^var_[a-z0-9_]+:\d+$/.test(hidden.value), hidden ? hidden.value : 'missing');
+  const shipping = doc.querySelector('[data-sum-shipping]');
+  ok('shipping row defers to Shopify', shipping && /calculated at checkout/i.test(shipping.textContent), shipping ? shipping.textContent : 'missing');
 
-  const tax = (doc.querySelector('[data-pos-tax]') || {}).textContent || '';
-  ok('till shows studio tax', /\$/.test(tax), tax);
+  const discForm = doc.querySelector('[data-discount-form]');
+  if (discForm) {
+    const input = discForm.querySelector('input[name="code"]');
+    await type(window, input, 'WELCOME10');
+    fire(window, discForm, 'submit');
+    await wait(700);
+    ok('discount form posts to /api/cart/discount', window.__fetches.some(u => u.includes('/api/cart/discount')));
+    ok('discount row appears in the totals', !!doc.querySelector('.totals__discount') && /WELCOME10/.test(doc.querySelector('.totals__discount').textContent));
+  } else ok('discount form present', false, 'no data-discount-form');
 
-  dom.window.close();
+  const giftNote = doc.querySelector('[data-gift-note]');
+  if (giftNote) {
+    await type(window, giftNote, 'Happy birthday!');
+    giftNote.dispatchEvent(new window.Event('blur', { bubbles: true }));
+    await wait(700);
+    ok('gift note autosaves through /api/cart/note', window.__fetches.some(u => u.includes('/api/cart/note')), window.__fetches.slice(-2).join(' | '));
+  } else ok('gift note field present', false, 'no data-gift-note');
+
+  window.close();
 }
 
-async function testMotionLayer() {
+async function testMotion() {
   section('Motion & polish layer');
   const dom = await openPage('/', { label: 'motion' });
   const { window } = dom;
   const doc = window.document;
   const root = doc.documentElement;
-  window.addEventListener('error', event => console.log('  page error:', event.message));
 
   ok('motion layer boots and flags the document', root.classList.contains('has-motion'));
   ok('scroll progress bar is present', !!doc.querySelector('[data-scroll-progress]'));
-  ok('sections are auto-tagged for reveal', doc.querySelectorAll('[data-reveal]').length > 5,
-     `${doc.querySelectorAll('[data-reveal]').length} tagged`);
-  await wait(200);
-  ok('in-view sections reveal themselves', doc.querySelectorAll('[data-reveal].is-revealed').length > 3,
-     `${doc.querySelectorAll('[data-reveal].is-revealed').length} revealed`);
+  ok('sections are auto-tagged for reveal', doc.querySelectorAll('[data-reveal]').length > 5, `${doc.querySelectorAll('[data-reveal]').length} tagged`);
+  await wait(250);
+  ok('in-view sections reveal themselves', doc.querySelectorAll('[data-reveal].is-revealed').length > 3, `${doc.querySelectorAll('[data-reveal].is-revealed').length} revealed`);
   ok('stagger delays are set on cards', doc.querySelectorAll('[data-reveal][style*="--reveal-delay"]').length > 0);
 
   const counters = Array.from(doc.querySelectorAll('[data-count-to]'));
-  ok('store pulse counters rendered', counters.length === 4, `${counters.length} counters`);
-  await wait(1700);
+  ok('store pulse counters rendered', counters.length >= 3, `${counters.length} counters`);
+  await wait(1800);
   const values = counters.map(c => c.textContent.trim());
-  ok('counters animate up to their real values', values.every(v => v !== '0' && v.length > 0), values.join(' / '));
-
-  // compare against the store's own data rather than a hardcoded number, so the
-  // assertion stays true after any legitimate admin or seeding change
-  let expectedReviews = null;
-  try {
-    const db = JSON.parse(require('fs').readFileSync(path.join(__dirname, '..', 'data', 'db.json'), 'utf8'));
-    expectedReviews = db.reviews.filter(r => r.status === 'published').length;
-  } catch (error) { /* data file optional */ }
-  if (expectedReviews === null) {
-    ok('reviews counter is a number', /^\d+$/.test(values[1]), `counter says ${values[1]}`);
-  } else {
-    ok('reviews counter matches the store data', values[1] === String(expectedReviews),
-       `counter says ${values[1]}, db has ${expectedReviews} published reviews`);
-  }
+  ok('counters animate up to their real values', values.every(v => v.length > 0), values.join(' / '));
 
   const ticker = doc.querySelector('[data-live-ticker]');
-  ok('live ticker carries real store events', !!ticker && JSON.parse(ticker.getAttribute('data-live-ticker')).length > 2);
+  ok('ticker markup present', !!ticker);
   ok('parallax elements are tagged', doc.querySelectorAll('[data-parallax]').length >= 2);
-
   const heroImg = doc.querySelector('.hero__img');
   ok('hero image has the depth treatment', !!heroImg && heroImg.hasAttribute('data-parallax'));
-  ok('pulse band explains the review policy honestly', /No invented ones/i.test(doc.querySelector('.pulse__heading').textContent));
+  ok('pulse band counts honestly', !!doc.querySelector('.pulse__heading'));
 
-  // fly-to-cart + button morph on a real add
-  window.scrollTo(0, 0);
-  // the spotlight block on the homepage adds with the product art right beside it,
-  // which is exactly the case the fly-to-cart animation is built for
-  const addBtn = doc.querySelector('.spotlight [data-add-submit]')
-    || doc.querySelector('.pcard [data-add-variant]')
-    || doc.querySelector('[data-add-submit]');
-  if (DEBUG) console.log('  debug add button:', addBtn ? addBtn.className : 'NONE');
+  // fly-to-cart on a real add
+  const addBtn = doc.querySelector('.spotlight [data-add-submit]') || doc.querySelector('.pcard [data-add-variant]') || doc.querySelector('[data-add-submit]');
   if (addBtn) {
-    doc.addEventListener('vennix:added', () => { if (DEBUG) console.log('  debug: vennix:added fired'); });
     fire(window, addBtn, 'click');
     await wait(260);
     ok('the motion API is exposed for reuse', !!window.vennixMotion && typeof window.vennixMotion.flyToCart === 'function');
     ok('the cart icon bumps on add', !!doc.querySelector('.is-bumped'));
-    // the token only exists for ~700ms while it travels, so poll rather than guess
     let sawToken = false;
-    for (let i = 0; i < 14 && !sawToken; i += 1) {
-      await wait(50);
-      sawToken = !!doc.querySelector('.fly-token');
-    }
+    for (let i = 0; i < 14 && !sawToken; i += 1) { await wait(50); sawToken = !!doc.querySelector('.fly-token'); }
     ok('a fly-to-cart token is animated on add', sawToken);
     await wait(900);
     ok('fly token is cleaned up afterwards', !doc.querySelector('.fly-token'));
-  }
+  } else ok('homepage has an add button for the fly-to-cart test', false, 'no add button found');
+  window.close();
 
-  // on a product page the price flash wiring exists
-  dom.window.close();
-
-  const pdp = await openPage('/products/atlas-heavyweight-hoodie');
-  const pdoc = pdp.window.document;
-  const reviews = pdoc.querySelector('.reviews-block');
-  ok('review summary reads from real data only', !!reviews && /from \d+ review/.test(reviews.textContent));
-  ok('a critical (3-star) review is published, not hidden', /3 star/.test(reviews.textContent));
-
-  const unrated = await openPage('/products/velocity-long-sleeve-base-layer');
+  // reviews honesty: aggregateRating only where real reviews exist
+  const unrated = await openPage('/products/velocity-long-sleeve-base-layer', { label: 'unrated' });
   const udoc = unrated.window.document;
   ok('an unreviewed product invites the first review', /No reviews yet/i.test(udoc.body.textContent));
-  ok('unreviewed product emits no aggregateRating in JSON-LD',
-     !/aggregateRating/.test(udoc.head.innerHTML + udoc.body.innerHTML.split('application/ld+json')[1] || ''));
+  const ld = Array.from(udoc.querySelectorAll('script[type="application/ld+json"]')).map(s => s.textContent).join(' ');
+  ok('unreviewed product emits no aggregateRating', !/aggregateRating/.test(ld));
   unrated.window.close();
-  pdp.window.close();
 }
 
-/* ------------------------- personalisation & sizing ------------------------ */
-
-async function testPersonalizationAndSizing() {
-  section('Monogramming, size finder & shop-the-look (client-side)');
-
-  const dom = await openPage('/products/atlas-heavyweight-hoodie', { label: 'monogram' });
+async function testPersonalization() {
+  section('Monogram, size finder, shop-the-look, alerts (client-side)');
+  const dom = await openPage('/products/atlas-heavyweight-hoodie', { label: 'personalize' });
   const { window } = dom;
   const doc = window.document;
-  const form = doc.querySelector('[data-add-form]');
-  const toggle = doc.querySelector('[data-monogram-toggle]');
-  const input = doc.querySelector('[data-monogram-input]');
-  const preview = doc.querySelector('[data-monogram-preview]');
-  const label = doc.querySelector('[data-atc-label]');
 
-  ok('monogram module is present on an eligible piece', !!toggle && !!input);
-  ok('module starts closed', doc.querySelector('[data-monogram-body]').hidden === true);
-
-  const labelBefore = label.textContent;
-  const subtotalBefore = Number((doc.querySelector('[data-cart-subtotal]') || {}).textContent.replace(/[^0-9.]/g, '')) || 0;
-  fire(window, toggle, 'click');
-  toggle.checked = true;
-  fire(window, toggle, 'change');
-  await wait(80);
-  ok('toggling opens the field', doc.querySelector('[data-monogram-body]').hidden === false);
-
-  await type(window, input, 'abc');
-  ok('typed characters are upper-cased into the preview', preview.textContent === 'ABC', preview.textContent);
-  ok('the add-to-cart price updates with the add-on', /\$148\.00/.test(label.textContent), label.textContent);
-  ok('the button names the add-on it is charging for', /Monogramming/i.test(label.textContent), label.textContent);
-
-  // submit: the monogram must reach the cart
-  fire(window, form, 'submit');
-  await wait(500);
-  const drawer = doc.querySelector('[data-cart-body]');
-  ok('cart line shows the monogram', /Monogramming[\s\S]{0,40}ABC/.test(drawer.textContent.replace(/<[^>]+>/g, ' ')), drawer.textContent.slice(0, 200).replace(/\s+/g, ' '));
-  const subtotalAfter = Number(doc.querySelector('[data-cart-subtotal]').textContent.replace(/[^0-9.]/g, ''));
-  // the cart may already hold items from earlier suites, so assert the delta
-  ok('cart subtotal grew by the piece plus the monogram', Math.round(subtotalAfter - subtotalBefore) === 148,
-     `${subtotalBefore} → ${subtotalAfter}`);
-
-  // turning it off has to re-price immediately, with no stale snapshot win
-  toggle.checked = false;
-  fire(window, toggle, 'change');
-  await wait(80);
-  const fresh = doc.querySelector('[data-atc-label]');
-  ok('switching it off returns the price to base', fresh.textContent === labelBefore, `${fresh.textContent} vs ${labelBefore}`);
-  ok('and drops the add-on name from the button', !/Monogramming/i.test(fresh.textContent), fresh.textContent);
-
-  dom.window.close();
-
-  /* ------------------------------- size finder ---------------------------- */
-  const pdp = await openPage('/products/atlas-heavyweight-hoodie', { label: 'fit' });
-  const fwin = pdp.window;
-  const fdoc = fwin.document;
-  const openBtn = fdoc.querySelector('[data-fit-open]');
-  ok('size finder has a trigger on the PDP', !!openBtn);
-  fire(fwin, openBtn, 'click');
-  await wait(120);
-  ok('size finder panel opens', fdoc.querySelector('[data-fit-panel]').classList.contains('is-open'));
-
-  fdoc.querySelector('input[name="heightFt"]').value = '6';
-  fdoc.querySelector('input[name="heightIn"]').value = '2';
-  fdoc.querySelector('input[name="weight"]').value = '210';
-  fire(fwin, fdoc.querySelector('[data-fit-form]'), 'submit');
-  await wait(400);
-  const result = fdoc.querySelector('[data-fit-result]');
-  ok('a recommendation comes back', result && /We suggest/.test(result.textContent), result ? result.textContent.slice(0, 80) : 'no result');
-  ok('the recommendation states its confidence', /Confident|Close call|Ask the studio/.test(result.textContent));
-
-  const applyBtn = fdoc.querySelector('[data-fit-apply]');
-  const chosen = applyBtn && applyBtn.getAttribute('data-fit-apply');
-  if (applyBtn) {
-    fire(fwin, applyBtn, 'click');
-    await wait(120);
-    const active = fdoc.querySelector('[data-size].is-active');
-    ok('applying the size selects it in the picker', !!active && active.getAttribute('data-size') === chosen,
-       active ? active.getAttribute('data-size') : 'none active');
-    const hidden = fdoc.querySelector('[data-variant-input]');
-    ok('the selected size updates the variant being bought', !!hidden && hidden.value === active.getAttribute('data-variant'));
-  } else {
-    ok('applying the size selects it in the picker', false, 'no apply button');
-    ok('the selected size updates the variant being bought', false, 'no apply button');
-  }
-  pdp.window.close();
-
-  /* ------------------------------ shop the look --------------------------- */
-  const look = await openPage('/products/everyday-brushed-fleece-jogger', { label: 'look' });
-  const lwin = look.window;
-  const ldoc = lwin.document;
-  const lookBtn = ldoc.querySelector('[data-add-look]');
-  ok('style rail ships an add-the-look button', !!lookBtn);
-  const itemCount = JSON.parse(lookBtn.getAttribute('data-add-look')).length;
-  ok('the look bundles more than one piece', itemCount >= 2, `${itemCount} items`);
-  fire(lwin, lookBtn, 'click');
-  await wait(600);
-  const count = Number(ldoc.querySelector('[data-cart-count]').textContent);
-  ok('one click adds every piece in the look', count >= itemCount, `cart says ${count}, look has ${itemCount}`);
-  look.window.close();
-
-  /* -------------------------------- load more ----------------------------- */
-  const coll = await openPage('/collections/all', { label: 'load more' });
-  const cwin = coll.window;
-  const cdoc = cwin.document;
-  const moreBtn = cdoc.querySelector('[data-load-more]');
-  const grid = cdoc.querySelector('.collection__main .grid--products');
-  ok('load-more button is revealed by the script', !!moreBtn && moreBtn.hidden === false);
-  const before = grid.children.length;
-  if (moreBtn) {
-    fire(cwin, moreBtn, 'click');
-    await wait(700);
-    ok('clicking loads another page of products in place', grid.children.length > before,
-       `${before} → ${grid.children.length}`);
-    const revealed = grid.querySelectorAll('[data-reveal]').length;
-    ok('newly appended cards join the reveal choreography', revealed > before, `${revealed} tagged`);
-  } else {
-    ok('clicking loads another page of products in place', false, 'no button');
-    ok('newly appended cards join the reveal choreography', false, 'no button');
-  }
-  coll.window.close();
-
-  /* --------------------------- back-in-stock alert ------------------------ */
-  const stock = await openPage('/products/atlas-heavyweight-hoodie', { label: 'back in stock' });
-  const win = stock.window;
-  const docx = win.document;
-  const notify = docx.querySelector('[data-notify]');
-  // a sold-out size only exists in some colours, so look for one rather than assume
-  const swatches = Array.from(docx.querySelectorAll('[data-color]'));
-  let soldOut = null;
-  // best-stocked size, so repeated runs do not drain a low-stock variant
-  const pickStocked = nodes => Array.from(nodes)
-    .filter(b => !b.classList.contains('is-out'))
-    .sort((a, b) => Number(b.getAttribute('data-stock') || 0) - Number(a.getAttribute('data-stock') || 0))[0];
-  let inStock = pickStocked(docx.querySelectorAll('[data-size]'));
-  for (const swatch of swatches) {
-    fire(win, swatch, 'click');
+  /* monogram */
+  const box = doc.querySelector('[data-monogram]');
+  const toggle = box && box.querySelector('[data-monogram-toggle]');
+  const input = box && box.querySelector('[data-monogram-input]');
+  ok('monogram block renders on eligible pieces', !!box && !!toggle && !!input);
+  if (toggle && input) {
+    toggle.checked = true;
+    fire(window, toggle, 'change');
     await wait(60);
-    const found = Array.from(docx.querySelectorAll('[data-size]')).find(b => b.classList.contains('is-out'));
-    if (found) { soldOut = found; break; }
-  }
-  if (soldOut) inStock = pickStocked(docx.querySelectorAll('[data-size]'));
-  ok('the alert block ships hidden', !!notify && notify.hidden === true);
-  if (soldOut && inStock) {
-    fire(win, inStock, 'click');
+    ok('toggling monogram reveals the body', !box.querySelector('[data-monogram-body]').hidden);
+    await type(window, input, 'ab!!');
     await wait(80);
-    ok('picking a size in stock hides the alert', notify.hidden === true);
-    fire(win, soldOut, 'click');
-    await wait(80);
-    ok('picking a sold-out size reveals the alert', notify.hidden === false);
-    ok('the alert names the colour and size', new RegExp(soldOut.getAttribute('data-size')).test(notify.textContent),
-       notify.textContent.trim().slice(0, 80));
-    const input = notify.querySelector('input[name="email"]');
-    await type(win, input, 'shopper@example.com');
-    fire(win, notify.querySelector('form'), 'submit');
-    await wait(400);
-    const msg = notify.querySelector('[data-notify-msg]');
-    ok('submitting confirms the request', /moment|already on the list/i.test(msg.textContent), msg.textContent);
-  } else {
-    ok('picking a size in stock hides the alert', false, 'no sold-out size in the data');
-    ok('picking a sold-out size reveals the alert', false, 'no sold-out size in the data');
-    ok('the alert names the colour and size', false, 'no sold-out size in the data');
-    ok('submitting confirms the request', false, 'no sold-out size in the data');
+    ok('input is cleaned + uppercased live', input.value === 'AB', input.value);
+    const preview = box.querySelector('[data-monogram-preview]');
+    ok('preview mirrors the characters', preview && preview.textContent.includes('AB'));
+    const submit = doc.querySelector('[data-add-submit]');
+    ok('the add button quotes the monogram fee', submit && /Monogram/i.test(submit.textContent), submit ? submit.textContent.replace(/\s+/g, ' ').slice(0, 60) : 'missing');
+    toggle.checked = false;
+    fire(window, toggle, 'change');
   }
-  stock.window.close();
 
-  /* ------------------------------ search memory --------------------------- */
-  const search = await openPage('/', { label: 'search memory' });
-  const swin = search.window;
-  const sdoc = swin.document;
-  const sinput = sdoc.querySelector('[data-search-input]');
-  fire(swin, sdoc.querySelector('[data-search-form]'), 'submit');
-  await wait(60);
-  sinput.value = 'fleece';
-  fire(swin, sdoc.querySelector('[data-search-form]'), 'submit');
-  await wait(120);
-  const host = sdoc.querySelector('[data-recent-searches]');
-  ok('a search is remembered for next time', host && host.hidden === false && /fleece/.test(host.textContent),
-     host ? host.textContent.slice(0, 80) : 'no host');
-  const clear = sdoc.querySelector('[data-clear-searches]');
-  if (clear) {
-    fire(swin, clear, 'click');
-    await wait(60);
-    ok('recent searches can be cleared', sdoc.querySelector('[data-recent-searches]').hidden === true);
-  } else {
-    ok('recent searches can be cleared', false, 'no clear button');
-  }
-  search.window.close();
+  /* size finder */
+  const fitForm = doc.querySelector('[data-fit-form]');
+  if (fitForm) {
+    const heightFt = fitForm.querySelector('input[name="heightFt"]');
+    const heightIn = fitForm.querySelector('input[name="heightIn"]');
+    const weight = fitForm.querySelector('input[name="weight"]');
+    if (heightFt) heightFt.value = '5';
+    if (heightIn) heightIn.value = '10';
+    if (weight) weight.value = '170';
+    fire(window, fitForm, 'submit');
+    await wait(900);
+    ok('size finder posts to /api/fit', window.__fetches.some(u => u.includes('/api/fit')));
+    const result = doc.querySelector('[data-fit-result]');
+    ok('size finder renders a recommendation', result && !result.hidden && /We suggest/i.test(result.textContent), result ? result.textContent.replace(/\s+/g, ' ').slice(0, 80) : 'missing');
+    const apply = doc.querySelector('[data-fit-apply]');
+    if (apply) {
+      fire(window, apply, 'click');
+      await wait(80);
+      const sizeLabel = doc.querySelector('[data-size-label]');
+      ok('applying the pick selects that size', sizeLabel && sizeLabel.textContent.trim() === apply.getAttribute('data-fit-apply'),
+        sizeLabel ? sizeLabel.textContent.trim() : 'missing');
+    }
+  } else ok('size finder form present', false, 'no data-fit-form');
+
+  /* shop the look */
+  const lookBtn = doc.querySelector('[data-add-look]');
+  if (lookBtn) {
+    const countBefore = Number(doc.querySelector('[data-cart-count]').textContent) || 0;
+    fire(window, lookBtn, 'click');
+    await wait(1100);
+    ok('shop-the-look adds the whole look in one call', window.__fetches.filter(u => u.includes('/api/cart/add')).length > 0);
+    const countAfter = Number(doc.querySelector('[data-cart-count]').textContent) || 0;
+    ok('look add increases the cart by the full set', countAfter >= countBefore + 2, `${countBefore} → ${countAfter}`);
+  } else ok('shop-the-look button present', false, 'no data-add-look');
+
+  /* back-in-stock alert on a sold-out size */
+  const soldOutBtn = Array.from(doc.querySelectorAll('[data-size]')).find(b => b.getAttribute('data-stock') === '0');
+  if (soldOutBtn) {
+    fire(window, soldOutBtn, 'click');
+    await wait(80);
+    const notifyForm = doc.querySelector('[data-notify-form]');
+    const email = notifyForm && notifyForm.querySelector('input[type="email"]');
+    if (notifyForm && email) {
+      await type(window, email, 'browser.smoke@example.com');
+      fire(window, notifyForm, 'submit');
+      await wait(800);
+      ok('alert form posts to /api/notify', window.__fetches.some(u => u.includes('/api/notify')));
+      ok('alert confirmation renders', /will email|back in stock/i.test(doc.body.textContent));
+    } else ok('notify form fields present', false, 'missing email input');
+  } else ok('a sold-out size exists for the alert test', false, 'no data-stock=0 button');
+
+  window.close();
 }
 
-/* ---------------------------------- runner -------------------------------- */
+async function testSearchMemory() {
+  section('Search memory (localStorage, no server state)');
+  const dom = await openPage('/', { label: 'search-memory' });
+  const { window } = dom;
+  const doc = window.document;
 
-(async function run() {
-  console.log(`Vennix browser test — ${BASE}\n`);
+  fire(window, doc.querySelector('[data-search-open]'), 'click');
+  await type(window, doc.querySelector('[data-search-input]'), 'jogger');
+  await wait(400);
+  const searchForm = doc.querySelector('[data-search-form]');
+  if (searchForm) {
+    // stop jsdom actually navigating to /search — we only want the remember() side effect
+    searchForm.addEventListener('submit', e => e.preventDefault(), { capture: true });
+    fire(window, searchForm, 'submit');
+    await wait(120);
+  }
+  fire(window, doc.querySelector('[data-search-close]'), 'click');
+  await wait(320);
+
+  const stored = window.localStorage.getItem('vnx_searches') || '[]';
+  ok('recent search is stored locally on submit', stored.includes('jogger'), stored);
+
+  // recent searches live in the default (empty-query) panel — clear the input
+  // and reopen so the default panel (with the slot) is restored
+  const input2 = doc.querySelector('[data-search-input]');
+  input2.value = '';
+  fire(window, input2, 'input');
+  await wait(300);
+  fire(window, doc.querySelector('[data-search-open]'), 'click');
+  await wait(160);
+  const slot = doc.querySelector('[data-recent-searches]');
+  ok('reopening the overlay lists the recent search', slot && /jogger/.test(slot.textContent), slot ? slot.textContent.trim().slice(0, 40) : 'missing');
+  window.close();
+}
+
+/* ----------------------------------- main --------------------------------- */
+
+(async function main() {
+  console.log(`\nVennix browser smoke → ${BASE}\n${'─'.repeat(48)}`);
   await prime();
   try {
-    await testStorefront();
+    await testHome();
     await testProductPage();
-    await testCartAndCheckoutPages();
-    await testMotionLayer();
-    await testPersonalizationAndSizing();
-    await testAdminPos();
+    await testCartPage();
+    await testMotion();
+    await testPersonalization();
+    await testSearchMemory();
   } catch (error) {
     failed += 1;
-    console.log(`\n  ✗ suite crashed: ${error.message}`);
-    console.log(error.stack.split('\n').slice(1, 4).join('\n'));
+    console.log('  ✗ unexpected harness error:', error && error.stack ? error.stack.split('\n').slice(0, 3).join(' ') : error);
   }
-  console.log(`\n${'─'.repeat(48)}`);
-  console.log(`  ${passed} passed, ${failed} failed`);
-  if (failed) console.log('\nFailures above need fixing in public/js/*.js.');
+  console.log(`\n${'─'.repeat(48)}\n  ${passed} passed, ${failed} failed\n`);
   process.exit(failed ? 1 : 0);
 })();

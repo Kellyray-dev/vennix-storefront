@@ -158,9 +158,15 @@
 
   function openSearch() {
     if (!searchPanel) return;
+    // restore the default panel (recent searches slot) whenever it was
+    // replaced by a previous result set
+    if (searchResults && searchInput && !searchInput.value.trim() && defaultSearchHTML) {
+      searchResults.innerHTML = defaultSearchHTML;
+    }
     searchPanel.hidden = false;
     requestAnimationFrame(function () { searchPanel.classList.add('is-open'); });
     lockBody(true);
+    document.dispatchEvent(new Event('vennix:search-open'));
     if (searchInput) setTimeout(function () { searchInput.focus(); }, 120);
   }
   function closeSearch() {
@@ -237,19 +243,43 @@
     var pageSub = $('[data-sum-subtotal]'); if (pageSub) pageSub.textContent = h.subtotal || pageSub.textContent;
     var pageTotal = $('[data-sum-total]'); if (pageTotal) pageTotal.textContent = h.total || pageTotal.textContent;
     if (res.cart) {
-      var ship = $('[data-sum-shipping]');
-      if (ship) ship.textContent = res.cart.shipping === 0 ? 'Free' : fmt(res.cart.shipping);
-      var tax = $('[data-sum-tax]');
-      if (tax) tax.textContent = fmt(res.cart.tax);
+      // shipping + taxes are calculated by Shopify at checkout; only paint
+      // them if the server ever provides real numbers (null = "calculated
+      // at checkout" text stays untouched).
+      if (typeof res.cart.shipping === 'number') {
+        var ship = $('[data-sum-shipping]');
+        if (ship) ship.textContent = res.cart.shipping === 0 ? 'Free' : fmt(res.cart.shipping);
+      }
+      if (typeof res.cart.tax === 'number') {
+        var tax = $('[data-sum-tax]');
+        if (tax) tax.textContent = fmt(res.cart.tax);
+      }
       var place = $('[data-place-total]');
       if (place) place.textContent = fmt(res.cart.total);
-      $$('.totals__discount').forEach(function (row) {
-        if (res.cart.discountCode) {
-          row.hidden = false;
-          row.querySelector('dt').textContent = 'Discount · ' + res.cart.discountCode;
-          row.querySelector('dd').textContent = '−' + fmt(res.cart.discountAmount);
-        } else { row.hidden = true; }
-      });
+      if (res.cart.discountCode) {
+        var discRow = document.querySelector('.totals__discount');
+        var totals = document.querySelector('.totals');
+        if (!discRow && totals) {
+          // the page rendered without a discount — create the row in place
+          discRow = document.createElement('div');
+          discRow.className = 'totals__discount';
+          discRow.innerHTML = '<dt></dt><dd></dd>';
+          var shipRow = null;
+          $$('div', totals).forEach(function (r) {
+            var dt = r.querySelector('dt');
+            if (dt && /shipping/i.test(dt.textContent)) shipRow = r;
+          });
+          if (shipRow) totals.insertBefore(discRow, shipRow);
+          else totals.appendChild(discRow);
+        }
+        if (discRow) {
+          discRow.hidden = false;
+          discRow.querySelector('dt').textContent = 'Discount · ' + res.cart.discountCode;
+          discRow.querySelector('dd').textContent = '−' + fmt(res.cart.discountAmount);
+        }
+      } else {
+        $$('.totals__discount').forEach(function (row) { row.hidden = true; });
+      }
       paintWishCounts();
     }
   }
@@ -792,111 +822,10 @@
     if (next) next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
   });
 
-  /* -------------------------------------------------------------- checkout */
-  (function checkout() {
-    var form = $('[data-checkout-form]');
-    if (!form) return;
+  /* Checkout lives in Shopify — the storefront hands off via /checkout (302). */
 
-    function quote() {
-      var state = $('[data-tax-state]');
-      var country = $('[data-tax-country]');
-      var method = form.querySelector('[name="shippingMethod"]:checked') || $('[data-ship-radio]:checked');
-      api('/quote', {
-        province: state ? state.value : undefined,
-        country: country ? country.value : undefined,
-        shippingMethod: method ? method.value : undefined
-      }).then(function (res) {
-        if (!res.ok) return;
-        var q = res.quote;
-        $$('[data-sum-subtotal]').forEach(function (el) { el.textContent = fmt(q.subtotal); });
-        $$('[data-sum-shipping]').forEach(function (el) { el.textContent = q.shipping === 0 ? 'Free' : fmt(q.shipping); });
-        $$('[data-sum-tax]').forEach(function (el) { el.textContent = fmt(q.tax); });
-        $$('[data-tax-name]').forEach(function (el) { el.textContent = q.taxName; });
-        $$('[data-sum-total]').forEach(function (el) { el.textContent = fmt(q.total); });
-        var place = $('[data-place-total]');
-        if (place) place.textContent = fmt(q.total);
-      });
-    }
-
-    var stateSel = $('[data-tax-state]');
-    var countrySel = $('[data-tax-country]');
-    if (stateSel) stateSel.addEventListener('change', quote);
-    if (countrySel) countrySel.addEventListener('change', quote);
-    $$('[data-ship-radio]').forEach(function (radio) {
-      radio.addEventListener('change', function () {
-        $$('.ship-option').forEach(function (o) { o.classList.toggle('is-selected', o.contains(radio) && radio.checked); });
-        quote();
-      });
-    });
-
-    $$('[data-fill-test-card]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var num = form.querySelector('[data-card-number]');
-        var exp = form.querySelector('[data-card-expiry]');
-        var cvc = form.querySelector('[data-card-cvc]');
-        if (num) num.value = '4242 4242 4242 4242';
-        if (exp) exp.value = '04 / 29';
-        if (cvc) cvc.value = '123';
-        var brand = $('[data-card-brand]');
-        if (brand) brand.textContent = 'Visa · test card';
-        toast('Test card filled — scroll down and place the order.', 'ok');
-        var first = form.querySelector('[name="email"]');
-        if (first && !first.value) first.focus();
-      });
-    });
-
-    var card = form.querySelector('[data-card-number]');
-    if (card) {
-      card.addEventListener('input', function () {
-        var digits = card.value.replace(/\D/g, '').slice(0, 19);
-        card.value = digits.replace(/(.{4})/g, '$1 ').trim();
-        var brand = $('[data-card-brand]');
-        if (!brand) return;
-        var name = /^4/.test(digits) ? 'Visa' : /^5[1-5]/.test(digits) ? 'Mastercard' : /^3[47]/.test(digits) ? 'Amex' : /^6(011|5)/.test(digits) ? 'Discover' : '';
-        brand.textContent = name ? name + (digits.length >= 12 ? ' ending ' + digits.slice(-4) : '') : '';
-      });
-    }
-    var exp = form.querySelector('[data-card-expiry]');
-    if (exp) exp.addEventListener('input', function () {
-      var d = exp.value.replace(/\D/g, '').slice(0, 4);
-      exp.value = d.length > 2 ? d.slice(0, 2) + ' / ' + d.slice(2) : d;
-    });
-    var cvc = form.querySelector('[data-card-cvc]');
-    if (cvc) cvc.addEventListener('input', function () { cvc.value = cvc.value.replace(/\D/g, '').slice(0, 4); });
-
-    form.addEventListener('submit', function () {
-      var btn = form.querySelector('[data-place-order]');
-      if (btn) { btn.disabled = true; btn.innerHTML = 'Processing payment…'; }
-    });
-  })();
-
-  /* account helpers */
+  /* account helpers — order history lives in the Shopify-hosted account */
   document.addEventListener('click', function (e) {
-    var demo = e.target.closest('[data-fill-demo]');
-    if (demo) {
-      var form = demo.closest('.auth__panel').querySelector('form');
-      if (!form) return;
-      form.querySelector('[name="email"]').value = 'hannah.b@example.com';
-      form.querySelector('[name="password"]').value = 'password123';
-      toast('Demo credentials filled — press Log in.', 'ok');
-      return;
-    }
-    var saved = e.target.closest('[data-use-saved-address]');
-    if (saved) {
-      var addr = (window.__vennixAddress || []);
-      toast(addr.length ? 'Saved address applied at the top of the form.' : 'No saved address on this account.', addr.length ? 'ok' : 'error');
-      return;
-    }
-    var reorder = e.target.closest('[data-reorder]');
-    if (reorder) {
-      api('/reorder', { orderId: reorder.getAttribute('data-reorder') }).then(function (res) {
-        if (!res.ok) { toast(res.error || 'Could not reorder.', 'error'); return; }
-        paintCart(res);
-        toast(res.message || 'Added to your cart.', 'ok', '/checkout', 'Checkout');
-        openPanel($('[data-cart-drawer]'));
-      });
-      return;
-    }
     var reorderItem = e.target.closest('[data-reorder-item]');
     if (reorderItem) {
       addToCart(reorderItem.getAttribute('data-reorder-item'), 1, { button: reorderItem });
@@ -1234,8 +1163,7 @@
    * ------------------------------------------------------------------ */
   (function recentSearches() {
     var input = $('[data-search-input]');
-    var host = $('[data-recent-searches]');
-    if (!input || !host) return;
+    if (!input || !$('[data-recent-searches]')) return;
     var KEY = 'vnx_searches';
 
     function read() {
@@ -1252,6 +1180,9 @@
     }
 
     function paint() {
+      // re-query: the results container may have been re-rendered since boot
+      var host = $('[data-recent-searches]');
+      if (!host) return;
       var list = read();
       if (!list.length) { host.hidden = true; host.innerHTML = ''; return; }
       host.hidden = false;
@@ -1262,6 +1193,7 @@
 
     var form = $('[data-search-form]');
     if (form) form.addEventListener('submit', function () { remember(input.value); });
+    document.addEventListener('vennix:search-open', paint);
     document.addEventListener('click', function (e) {
       var clear = e.target.closest('[data-clear-searches]');
       if (!clear) return;
@@ -1275,5 +1207,4 @@
   paintWishCounts();
   renderWishPanel();
   renderWishGrid();
-  window.__vennixAddress = window.__vennixAddress || [];
 })();

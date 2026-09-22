@@ -1,0 +1,6197 @@
+{
+  "$schema": "shopify-storefront-fixture/1",
+  "$note": "Demo commerce data in Storefront API shape. Served by tools/mock-shopify.js when SHOPIFY_STORE_DOMAIN is not configured. A real deployment never reads this file — Shopify is the source of truth.",
+  "shop": {
+    "name": "Vennix",
+    "description": "Modern clothing & active essentials.",
+    "primaryDomain": {
+      "url": "https://vennix-demo.myshopify.com"
+    },
+    "paymentSettings": {
+      "currencyCode": "USD",
+      "acceptedCardBrands": [
+        "VISA",
+        "MASTERCARD",
+        "AMEX",
+        "DISCOVER"
+      ]
+    }
+  },
+  "products": [
+    {
+      "id": "gid://shopify/Product/1000",
+      "handle": "atlas-heavyweight-hoodie",
+      "title": "Atlas Heavyweight Hoodie",
+      "vendor": "Vennix",
+      "productType": "Hoodie",
+      "tags": [
+        "hoodie",
+        "fleece",
+        "heavyweight",
+        "bestseller",
+        "unisex-friendly",
+        "badge:bestseller"
+      ],
+      "publishedAt": "2026-07-24T01:10:06.546Z",
+      "createdAt": "2026-07-24T01:10:06.546Z",
+      "updatedAt": "2026-09-22T01:10:06.547Z",
+      "descriptionHtml": "<p>The piece that started the studio. Cut from a dense 480&nbsp;gsm loop-back fleece that's been brushed for softness on the inside and pre-shrunk so it stays true to size.</p>\n<p>Shoulders are set slightly forward for an easy drape, the hood is double-layer and holds its shape, and the ribbed cuffs and hem are knit with 5% elastane so they recover instead of stretching out.</p>",
+      "isGiftCard": false,
+      "seo": {
+        "title": "Atlas Heavyweight Hoodie — 480 gsm Fleece | Vennix",
+        "description": "A dense, brushed-back 480 gsm hoodie built for shoulder-season layering. Free shipping over $50 and 30-day returns."
+      },
+      "metafields": {
+        "tagline": "480 GSM brushed-back fleece",
+        "features": [
+          "480 gsm brushed-back cotton fleece",
+          "Double-layer hood with flat drawcords",
+          "Ribbed cuffs + hem with elastane recovery",
+          "Kangaroo pocket with hidden phone sleeve",
+          "Pre-shrunk — true to size"
+        ],
+        "materials": "78% organic cotton, 18% recycled polyester, 4% elastane",
+        "care": "Machine wash cold with like colours. Tumble dry low. Do not bleach. Warm iron if needed.",
+        "fit": "Relaxed. Model is 6'1\" / 185cm wearing a Medium.",
+        "fit_notes": "If you are between sizes and want a closer fit, size down.",
+        "weight_grams": 820,
+        "monogram": {
+          "enabled": true,
+          "placement": "Left cuff"
+        },
+        "reviews": {
+          "avg": 4.3,
+          "count": 4,
+          "list": [
+            {
+              "rating": 5,
+              "title": "Finally, a hoodie that feels expensive",
+              "body": "The weight is the thing. It hangs properly and the cuffs have not bagged out after about ten washes.",
+              "author": "Daniel R.",
+              "verified": true,
+              "helpful": 3,
+              "date": "2026-09-12T01:10:06.550Z"
+            },
+            {
+              "rating": 5,
+              "title": "Second one, sold the others",
+              "body": "Bought fog in September and charcoal in October. That should tell you everything.",
+              "author": "Priya M.",
+              "verified": true,
+              "helpful": 2,
+              "date": "2026-09-12T01:10:06.550Z"
+            },
+            {
+              "rating": 4,
+              "title": "Warm — almost too warm indoors",
+              "body": "Layer it for walks and it is perfect. Sat through a lecture in it once and regretted it.",
+              "author": "Sam O.",
+              "verified": true,
+              "helpful": 1,
+              "date": "2026-09-12T01:10:06.550Z"
+            },
+            {
+              "rating": 3,
+              "title": "Great fabric, boxy fit is not for me",
+              "body": "No complaints about the quality at all — it is just a lot of fabric through the body. Sizing down helped but the shoulders then pulled. Kept it for lounging, would try the crew next time.",
+              "author": "Marta K.",
+              "verified": true,
+              "helpful": 4,
+              "date": "2026-09-12T01:10:06.550Z"
+            }
+          ]
+        }
+      },
+      "options": [
+        {
+          "name": "Colour",
+          "values": [
+            "Fog Heather",
+            "Charcoal",
+            "Clay",
+            "Bone"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/p-atlas-hoodie.jpg",
+          "altText": "Atlas Heavyweight Hoodie flat lay in Fog Heather",
+          "width": 1000,
+          "height": 1250
+        },
+        {
+          "url": "/images/lookbook-1.jpg",
+          "altText": "Model wearing the Atlas Heavyweight Hoodie in a concrete studio",
+          "width": 1000,
+          "height": 1250
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_fog_xs",
+          "legacyId": "var_atlasheavywe_fog_xs",
+          "title": "Fog Heather / XS",
+          "sku": "VEN-AHH-FO-XS",
+          "availableForSale": false,
+          "quantityAvailable": 0,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_fog_s",
+          "legacyId": "var_atlasheavywe_fog_s",
+          "title": "Fog Heather / S",
+          "sku": "VEN-AHH-FO-S",
+          "availableForSale": true,
+          "quantityAvailable": 52,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_fog_m",
+          "legacyId": "var_atlasheavywe_fog_m",
+          "title": "Fog Heather / M",
+          "sku": "VEN-AHH-FO-M",
+          "availableForSale": true,
+          "quantityAvailable": 46,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_fog_l",
+          "legacyId": "var_atlasheavywe_fog_l",
+          "title": "Fog Heather / L",
+          "sku": "VEN-AHH-FO-L",
+          "availableForSale": true,
+          "quantityAvailable": 45,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_fog_xl",
+          "legacyId": "var_atlasheavywe_fog_xl",
+          "title": "Fog Heather / XL",
+          "sku": "VEN-AHH-FO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_fog_xxl",
+          "legacyId": "var_atlasheavywe_fog_xxl",
+          "title": "Fog Heather / XXL",
+          "sku": "VEN-AHH-FO-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 42,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_charcoal_xs",
+          "legacyId": "var_atlasheavywe_charcoal_xs",
+          "title": "Charcoal / XS",
+          "sku": "VEN-AHH-CH-XS",
+          "availableForSale": true,
+          "quantityAvailable": 54,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_charcoal_s",
+          "legacyId": "var_atlasheavywe_charcoal_s",
+          "title": "Charcoal / S",
+          "sku": "VEN-AHH-CH-S",
+          "availableForSale": true,
+          "quantityAvailable": 62,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_charcoal_m",
+          "legacyId": "var_atlasheavywe_charcoal_m",
+          "title": "Charcoal / M",
+          "sku": "VEN-AHH-CH-M",
+          "availableForSale": true,
+          "quantityAvailable": 56,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_charcoal_l",
+          "legacyId": "var_atlasheavywe_charcoal_l",
+          "title": "Charcoal / L",
+          "sku": "VEN-AHH-CH-L",
+          "availableForSale": true,
+          "quantityAvailable": 55,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_charcoal_xl",
+          "legacyId": "var_atlasheavywe_charcoal_xl",
+          "title": "Charcoal / XL",
+          "sku": "VEN-AHH-CH-XL",
+          "availableForSale": true,
+          "quantityAvailable": 47,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_charcoal_xxl",
+          "legacyId": "var_atlasheavywe_charcoal_xxl",
+          "title": "Charcoal / XXL",
+          "sku": "VEN-AHH-CH-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 61,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_clay_xs",
+          "legacyId": "var_atlasheavywe_clay_xs",
+          "title": "Clay / XS",
+          "sku": "VEN-AHH-CL-XS",
+          "availableForSale": true,
+          "quantityAvailable": 8,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_clay_s",
+          "legacyId": "var_atlasheavywe_clay_s",
+          "title": "Clay / S",
+          "sku": "VEN-AHH-CL-S",
+          "availableForSale": true,
+          "quantityAvailable": 54,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_clay_m",
+          "legacyId": "var_atlasheavywe_clay_m",
+          "title": "Clay / M",
+          "sku": "VEN-AHH-CL-M",
+          "availableForSale": true,
+          "quantityAvailable": 48,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_clay_l",
+          "legacyId": "var_atlasheavywe_clay_l",
+          "title": "Clay / L",
+          "sku": "VEN-AHH-CL-L",
+          "availableForSale": true,
+          "quantityAvailable": 47,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_clay_xl",
+          "legacyId": "var_atlasheavywe_clay_xl",
+          "title": "Clay / XL",
+          "sku": "VEN-AHH-CL-XL",
+          "availableForSale": true,
+          "quantityAvailable": 7,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_clay_xxl",
+          "legacyId": "var_atlasheavywe_clay_xxl",
+          "title": "Clay / XXL",
+          "sku": "VEN-AHH-CL-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 9,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_bone_xs",
+          "legacyId": "var_atlasheavywe_bone_xs",
+          "title": "Bone / XS",
+          "sku": "VEN-AHH-BO-XS",
+          "availableForSale": true,
+          "quantityAvailable": 2,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_bone_s",
+          "legacyId": "var_atlasheavywe_bone_s",
+          "title": "Bone / S",
+          "sku": "VEN-AHH-BO-S",
+          "availableForSale": true,
+          "quantityAvailable": 37,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_bone_m",
+          "legacyId": "var_atlasheavywe_bone_m",
+          "title": "Bone / M",
+          "sku": "VEN-AHH-BO-M",
+          "availableForSale": true,
+          "quantityAvailable": 31,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_bone_l",
+          "legacyId": "var_atlasheavywe_bone_l",
+          "title": "Bone / L",
+          "sku": "VEN-AHH-BO-L",
+          "availableForSale": true,
+          "quantityAvailable": 30,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_bone_xl",
+          "legacyId": "var_atlasheavywe_bone_xl",
+          "title": "Bone / XL",
+          "sku": "VEN-AHH-BO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 39,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_atlasheavywe_bone_xxl",
+          "legacyId": "var_atlasheavywe_bone_xxl",
+          "title": "Bone / XXL",
+          "sku": "VEN-AHH-BO-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 33,
+          "price": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "148.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-atlas-hoodie.jpg",
+            "altText": "Atlas Heavyweight Hoodie — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/1001",
+      "handle": "everyday-pima-crew-tee",
+      "title": "Everyday Pima Crew Tee",
+      "vendor": "Vennix",
+      "productType": "T-Shirt",
+      "tags": [
+        "t-shirt",
+        "pima",
+        "staple",
+        "everyday",
+        "badge:new"
+      ],
+      "publishedAt": "2026-07-29T01:10:06.546Z",
+      "createdAt": "2026-07-29T01:10:06.546Z",
+      "updatedAt": "2026-09-22T01:10:06.547Z",
+      "descriptionHtml": "<p>A tee you can buy five of. Long-staple Peruvian Pima cotton spun at 190&nbsp;gsm gives it a dry, substantial hand that holds its shape wash after wash.</p>\n<p>The collar is ribbed and double-stitched, the body is cut straight through the waist, and side seams are taped to stop twisting.</p>",
+      "isGiftCard": false,
+      "seo": {
+        "title": "Everyday Pima Crew Tee — Peruvian Cotton | Vennix",
+        "description": "A 190 gsm Peruvian Pima cotton tee with taped seams and a ribbed collar. Built to be worn daily."
+      },
+      "metafields": {
+        "tagline": "Peruvian Pima, 190 gsm",
+        "features": [
+          "Peruvian Pima cotton, 190 gsm",
+          "Ribbed collar with twin-needle stitching",
+          "Taped side seams resist twisting",
+          "Pre-shrunk and garment-washed",
+          "Bluesign® approved dyehouse"
+        ],
+        "materials": "100% Peruvian Pima cotton",
+        "care": "Machine wash cold. Tumble dry low or hang dry. Do not bleach.",
+        "fit": "Classic straight fit. Model is 6'0\" / 183cm wearing a Medium.",
+        "fit_notes": "True to size. Size up one for a boxier look.",
+        "weight_grams": 180,
+        "monogram": {
+          "enabled": true,
+          "placement": "Right chest",
+          "maxChars": 4
+        },
+        "reviews": {
+          "avg": 4,
+          "count": 2,
+          "list": [
+            {
+              "rating": 5,
+              "title": "The collar survives",
+              "body": "Every tee I own eventually goes at the collar. Two months of hard wear on this one and the ribbing is still tight.",
+              "author": "Marcus T.",
+              "verified": true,
+              "helpful": 1,
+              "date": "2026-09-11T01:10:06.550Z"
+            },
+            {
+              "rating": 3,
+              "title": "Nice cloth, sizing runs long",
+              "body": "The Pima is lovely and it is cooler than I expected. I am 5 foot 8 and the length sits below my hips, which is why it loses two stars. Exchanged for a small without any fuss though.",
+              "author": "Chloe B.",
+              "verified": true,
+              "helpful": 2,
+              "date": "2026-09-11T01:10:06.550Z"
+            }
+          ]
+        }
+      },
+      "options": [
+        {
+          "name": "Colour",
+          "values": [
+            "Bone",
+            "Ink",
+            "Fog Heather",
+            "Moss"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/p-everyday-tee.jpg",
+          "altText": "Everyday Pima Crew Tee flat lay in Bone",
+          "width": 1000,
+          "height": 1250
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_bone_xs",
+          "legacyId": "var_everydaypima_bone_xs",
+          "title": "Bone / XS",
+          "sku": "VEN-EPC-BO-XS",
+          "availableForSale": true,
+          "quantityAvailable": 43,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_bone_s",
+          "legacyId": "var_everydaypima_bone_s",
+          "title": "Bone / S",
+          "sku": "VEN-EPC-BO-S",
+          "availableForSale": true,
+          "quantityAvailable": 44,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_bone_m",
+          "legacyId": "var_everydaypima_bone_m",
+          "title": "Bone / M",
+          "sku": "VEN-EPC-BO-M",
+          "availableForSale": true,
+          "quantityAvailable": 38,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_bone_l",
+          "legacyId": "var_everydaypima_bone_l",
+          "title": "Bone / L",
+          "sku": "VEN-EPC-BO-L",
+          "availableForSale": true,
+          "quantityAvailable": 37,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_bone_xl",
+          "legacyId": "var_everydaypima_bone_xl",
+          "title": "Bone / XL",
+          "sku": "VEN-EPC-BO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 36,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_bone_xxl",
+          "legacyId": "var_everydaypima_bone_xxl",
+          "title": "Bone / XXL",
+          "sku": "VEN-EPC-BO-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 7,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_ink_xs",
+          "legacyId": "var_everydaypima_ink_xs",
+          "title": "Ink / XS",
+          "sku": "VEN-EPC-IN-XS",
+          "availableForSale": true,
+          "quantityAvailable": 4,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_ink_s",
+          "legacyId": "var_everydaypima_ink_s",
+          "title": "Ink / S",
+          "sku": "VEN-EPC-IN-S",
+          "availableForSale": true,
+          "quantityAvailable": 49,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_ink_m",
+          "legacyId": "var_everydaypima_ink_m",
+          "title": "Ink / M",
+          "sku": "VEN-EPC-IN-M",
+          "availableForSale": true,
+          "quantityAvailable": 43,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_ink_l",
+          "legacyId": "var_everydaypima_ink_l",
+          "title": "Ink / L",
+          "sku": "VEN-EPC-IN-L",
+          "availableForSale": true,
+          "quantityAvailable": 42,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_ink_xl",
+          "legacyId": "var_everydaypima_ink_xl",
+          "title": "Ink / XL",
+          "sku": "VEN-EPC-IN-XL",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_ink_xxl",
+          "legacyId": "var_everydaypima_ink_xxl",
+          "title": "Ink / XXL",
+          "sku": "VEN-EPC-IN-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 7,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_fog_xs",
+          "legacyId": "var_everydaypima_fog_xs",
+          "title": "Fog Heather / XS",
+          "sku": "VEN-EPC-FO-XS",
+          "availableForSale": true,
+          "quantityAvailable": 27,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_fog_s",
+          "legacyId": "var_everydaypima_fog_s",
+          "title": "Fog Heather / S",
+          "sku": "VEN-EPC-FO-S",
+          "availableForSale": true,
+          "quantityAvailable": 2,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_fog_m",
+          "legacyId": "var_everydaypima_fog_m",
+          "title": "Fog Heather / M",
+          "sku": "VEN-EPC-FO-M",
+          "availableForSale": true,
+          "quantityAvailable": 42,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_fog_l",
+          "legacyId": "var_everydaypima_fog_l",
+          "title": "Fog Heather / L",
+          "sku": "VEN-EPC-FO-L",
+          "availableForSale": true,
+          "quantityAvailable": 41,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_fog_xl",
+          "legacyId": "var_everydaypima_fog_xl",
+          "title": "Fog Heather / XL",
+          "sku": "VEN-EPC-FO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 60,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_fog_xxl",
+          "legacyId": "var_everydaypima_fog_xxl",
+          "title": "Fog Heather / XXL",
+          "sku": "VEN-EPC-FO-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 39,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_moss_xs",
+          "legacyId": "var_everydaypima_moss_xs",
+          "title": "Moss / XS",
+          "sku": "VEN-EPC-MO-XS",
+          "availableForSale": true,
+          "quantityAvailable": 5,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_moss_s",
+          "legacyId": "var_everydaypima_moss_s",
+          "title": "Moss / S",
+          "sku": "VEN-EPC-MO-S",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_moss_m",
+          "legacyId": "var_everydaypima_moss_m",
+          "title": "Moss / M",
+          "sku": "VEN-EPC-MO-M",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_moss_l",
+          "legacyId": "var_everydaypima_moss_l",
+          "title": "Moss / L",
+          "sku": "VEN-EPC-MO-L",
+          "availableForSale": true,
+          "quantityAvailable": 65,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_moss_xl",
+          "legacyId": "var_everydaypima_moss_xl",
+          "title": "Moss / XL",
+          "sku": "VEN-EPC-MO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 4,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaypima_moss_xxl",
+          "legacyId": "var_everydaypima_moss_xxl",
+          "title": "Moss / XXL",
+          "sku": "VEN-EPC-MO-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 30,
+          "price": {
+            "amount": "42.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-tee.jpg",
+            "altText": "Everyday Pima Crew Tee — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/1002",
+      "handle": "velocity-long-sleeve-base-layer",
+      "title": "Velocity Long-Sleeve Base Layer",
+      "vendor": "Vennix",
+      "productType": "Base Layer",
+      "tags": [
+        "base-layer",
+        "training",
+        "moisture-wicking",
+        "running",
+        "badge:sale"
+      ],
+      "publishedAt": "2026-08-03T01:10:06.546Z",
+      "createdAt": "2026-08-03T01:10:06.546Z",
+      "updatedAt": "2026-09-22T01:10:06.547Z",
+      "descriptionHtml": "<p>Engineered for the shoulder seasons when the air is cold and the pace is quick. A grid-back knit moves moisture off the skin, traps warm air in the channels and dries in minutes.</p>\n<p>Raglan sleeves remove shoulder seams under a pack, flatlock stitching prevents chafe, and the extended cuffs double as thumbholes on long runs.</p>",
+      "isGiftCard": false,
+      "seo": {
+        "title": "Velocity Long-Sleeve Base Layer — Grid-Back Knit | Vennix",
+        "description": "A breathable grid-back base layer with thumbholes and flatlock seams for cold-weather training."
+      },
+      "metafields": {
+        "tagline": "Grid-back knit, 4-way stretch",
+        "features": [
+          "Grid-back knit for moisture transport",
+          "Raglan sleeves with flatlock seams",
+          "Thumbhole cuffs and drop hem",
+          "Odour-resistant finish (no silver)",
+          "Reflective tonal logo at back neck"
+        ],
+        "materials": "88% recycled polyester, 12% elastane",
+        "care": "Machine wash cold. Do not use fabric softener. Hang dry.",
+        "fit": "Athletic. Sits close to the body. Model is 6'1\" / 185cm wearing a Medium.",
+        "fit_notes": "Size up for a relaxed layer fit.",
+        "weight_grams": 240,
+        "monogram": null,
+        "reviews": null
+      },
+      "options": [
+        {
+          "name": "Colour",
+          "values": [
+            "Ink",
+            "Slate Blue",
+            "Bone"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/p-velocity-ls.jpg",
+          "altText": "Velocity Long-Sleeve Base Layer flat lay in Ink",
+          "width": 1000,
+          "height": 1250
+        },
+        {
+          "url": "/images/lookbook-1.jpg",
+          "altText": "Model wearing Velocity base layer under a hooded layer",
+          "width": 1000,
+          "height": 1250
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_ink_xs",
+          "legacyId": "var_velocitylong_ink_xs",
+          "title": "Ink / XS",
+          "sku": "VEN-VLS-IN-XS",
+          "availableForSale": true,
+          "quantityAvailable": 44,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_ink_s",
+          "legacyId": "var_velocitylong_ink_s",
+          "title": "Ink / S",
+          "sku": "VEN-VLS-IN-S",
+          "availableForSale": true,
+          "quantityAvailable": 58,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_ink_m",
+          "legacyId": "var_velocitylong_ink_m",
+          "title": "Ink / M",
+          "sku": "VEN-VLS-IN-M",
+          "availableForSale": true,
+          "quantityAvailable": 8,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_ink_l",
+          "legacyId": "var_velocitylong_ink_l",
+          "title": "Ink / L",
+          "sku": "VEN-VLS-IN-L",
+          "availableForSale": true,
+          "quantityAvailable": 7,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_ink_xl",
+          "legacyId": "var_velocitylong_ink_xl",
+          "title": "Ink / XL",
+          "sku": "VEN-VLS-IN-XL",
+          "availableForSale": true,
+          "quantityAvailable": 37,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_ink_xxl",
+          "legacyId": "var_velocitylong_ink_xxl",
+          "title": "Ink / XXL",
+          "sku": "VEN-VLS-IN-XXL",
+          "availableForSale": false,
+          "quantityAvailable": 0,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_slate_xs",
+          "legacyId": "var_velocitylong_slate_xs",
+          "title": "Slate Blue / XS",
+          "sku": "VEN-VLS-SL-XS",
+          "availableForSale": true,
+          "quantityAvailable": 8,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Slate Blue"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Slate Blue",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_slate_s",
+          "legacyId": "var_velocitylong_slate_s",
+          "title": "Slate Blue / S",
+          "sku": "VEN-VLS-SL-S",
+          "availableForSale": true,
+          "quantityAvailable": 48,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Slate Blue"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Slate Blue",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_slate_m",
+          "legacyId": "var_velocitylong_slate_m",
+          "title": "Slate Blue / M",
+          "sku": "VEN-VLS-SL-M",
+          "availableForSale": true,
+          "quantityAvailable": 42,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Slate Blue"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Slate Blue",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_slate_l",
+          "legacyId": "var_velocitylong_slate_l",
+          "title": "Slate Blue / L",
+          "sku": "VEN-VLS-SL-L",
+          "availableForSale": true,
+          "quantityAvailable": 41,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Slate Blue"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Slate Blue",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_slate_xl",
+          "legacyId": "var_velocitylong_slate_xl",
+          "title": "Slate Blue / XL",
+          "sku": "VEN-VLS-SL-XL",
+          "availableForSale": true,
+          "quantityAvailable": 1,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Slate Blue"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Slate Blue",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_slate_xxl",
+          "legacyId": "var_velocitylong_slate_xxl",
+          "title": "Slate Blue / XXL",
+          "sku": "VEN-VLS-SL-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 9,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Slate Blue"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Slate Blue",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_bone_xs",
+          "legacyId": "var_velocitylong_bone_xs",
+          "title": "Bone / XS",
+          "sku": "VEN-VLS-BO-XS",
+          "availableForSale": true,
+          "quantityAvailable": 64,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_bone_s",
+          "legacyId": "var_velocitylong_bone_s",
+          "title": "Bone / S",
+          "sku": "VEN-VLS-BO-S",
+          "availableForSale": true,
+          "quantityAvailable": 8,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_bone_m",
+          "legacyId": "var_velocitylong_bone_m",
+          "title": "Bone / M",
+          "sku": "VEN-VLS-BO-M",
+          "availableForSale": true,
+          "quantityAvailable": 8,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_bone_l",
+          "legacyId": "var_velocitylong_bone_l",
+          "title": "Bone / L",
+          "sku": "VEN-VLS-BO-L",
+          "availableForSale": true,
+          "quantityAvailable": 7,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_bone_xl",
+          "legacyId": "var_velocitylong_bone_xl",
+          "title": "Bone / XL",
+          "sku": "VEN-VLS-BO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 57,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_velocitylong_bone_xxl",
+          "legacyId": "var_velocitylong_bone_xxl",
+          "title": "Bone / XXL",
+          "sku": "VEN-VLS-BO-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 5,
+          "price": {
+            "amount": "88.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-velocity-ls.jpg",
+            "altText": "Velocity Long-Sleeve Base Layer — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/1003",
+      "handle": "kinetic-7-inch-training-short",
+      "title": "Kinetic 7\" Training Short",
+      "vendor": "Vennix",
+      "productType": "Shorts",
+      "tags": [
+        "shorts",
+        "training",
+        "gym",
+        "ripstop"
+      ],
+      "publishedAt": "2026-08-08T01:10:06.546Z",
+      "createdAt": "2026-08-08T01:10:06.546Z",
+      "updatedAt": "2026-09-22T01:10:06.547Z",
+      "descriptionHtml": "<p>A do-everything training short with a 7&Prime; inseam that clears the knee. The shell is a matte ripstop with mechanical stretch, so it survives sprints, sled pushes and the wash.</p>\n<p>A gusseted crotch and laser-cut vents at the back waist keep you moving. Zip pocket at the right hip for keys and cards; unlined so you can layer your own base.</p>",
+      "isGiftCard": false,
+      "seo": {
+        "title": "Kinetic 7\" Training Short — Ripstop Stretch | Vennix",
+        "description": "A 7-inch unlined training short in matte ripstop stretch with a zip pocket and laser-cut vents."
+      },
+      "metafields": {
+        "tagline": "Unlined, ripstop stretch",
+        "features": [
+          "7\" inseam, unlined",
+          "Matte ripstop with mechanical stretch",
+          "Zip secure pocket + internal key loop",
+          "Laser-cut rear vents",
+          "Flat drawcord that stays tied"
+        ],
+        "materials": "94% recycled nylon, 6% elastane",
+        "care": "Machine wash cold. Tumble dry low. Do not iron.",
+        "fit": "Regular. Mid-rise, straight through the leg.",
+        "fit_notes": "True to size. Size down for a shorter, closer fit.",
+        "weight_grams": 210,
+        "monogram": null,
+        "reviews": null
+      },
+      "options": [
+        {
+          "name": "Colour",
+          "values": [
+            "Charcoal",
+            "Ink",
+            "Moss"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/p-kinetic-short.jpg",
+          "altText": "Kinetic 7 inch Training Short flat lay in Charcoal",
+          "width": 1000,
+          "height": 1250
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_charcoal_xs",
+          "legacyId": "var_kinetic7inch_charcoal_xs",
+          "title": "Charcoal / XS",
+          "sku": "VEN-KIT-CH-XS",
+          "availableForSale": true,
+          "quantityAvailable": 34,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_charcoal_s",
+          "legacyId": "var_kinetic7inch_charcoal_s",
+          "title": "Charcoal / S",
+          "sku": "VEN-KIT-CH-S",
+          "availableForSale": true,
+          "quantityAvailable": 4,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_charcoal_m",
+          "legacyId": "var_kinetic7inch_charcoal_m",
+          "title": "Charcoal / M",
+          "sku": "VEN-KIT-CH-M",
+          "availableForSale": true,
+          "quantityAvailable": 4,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_charcoal_l",
+          "legacyId": "var_kinetic7inch_charcoal_l",
+          "title": "Charcoal / L",
+          "sku": "VEN-KIT-CH-L",
+          "availableForSale": true,
+          "quantityAvailable": 9,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_charcoal_xl",
+          "legacyId": "var_kinetic7inch_charcoal_xl",
+          "title": "Charcoal / XL",
+          "sku": "VEN-KIT-CH-XL",
+          "availableForSale": true,
+          "quantityAvailable": 27,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_charcoal_xxl",
+          "legacyId": "var_kinetic7inch_charcoal_xxl",
+          "title": "Charcoal / XXL",
+          "sku": "VEN-KIT-CH-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 6,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_ink_xs",
+          "legacyId": "var_kinetic7inch_ink_xs",
+          "title": "Ink / XS",
+          "sku": "VEN-KIT-IN-XS",
+          "availableForSale": true,
+          "quantityAvailable": 33,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_ink_s",
+          "legacyId": "var_kinetic7inch_ink_s",
+          "title": "Ink / S",
+          "sku": "VEN-KIT-IN-S",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_ink_m",
+          "legacyId": "var_kinetic7inch_ink_m",
+          "title": "Ink / M",
+          "sku": "VEN-KIT-IN-M",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_ink_l",
+          "legacyId": "var_kinetic7inch_ink_l",
+          "title": "Ink / L",
+          "sku": "VEN-KIT-IN-L",
+          "availableForSale": true,
+          "quantityAvailable": 45,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_ink_xl",
+          "legacyId": "var_kinetic7inch_ink_xl",
+          "title": "Ink / XL",
+          "sku": "VEN-KIT-IN-XL",
+          "availableForSale": true,
+          "quantityAvailable": 26,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_ink_xxl",
+          "legacyId": "var_kinetic7inch_ink_xxl",
+          "title": "Ink / XXL",
+          "sku": "VEN-KIT-IN-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 61,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_moss_xs",
+          "legacyId": "var_kinetic7inch_moss_xs",
+          "title": "Moss / XS",
+          "sku": "VEN-KIT-MO-XS",
+          "availableForSale": true,
+          "quantityAvailable": 36,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_moss_s",
+          "legacyId": "var_kinetic7inch_moss_s",
+          "title": "Moss / S",
+          "sku": "VEN-KIT-MO-S",
+          "availableForSale": true,
+          "quantityAvailable": 58,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_moss_m",
+          "legacyId": "var_kinetic7inch_moss_m",
+          "title": "Moss / M",
+          "sku": "VEN-KIT-MO-M",
+          "availableForSale": true,
+          "quantityAvailable": 4,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_moss_l",
+          "legacyId": "var_kinetic7inch_moss_l",
+          "title": "Moss / L",
+          "sku": "VEN-KIT-MO-L",
+          "availableForSale": true,
+          "quantityAvailable": 9,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_moss_xl",
+          "legacyId": "var_kinetic7inch_moss_xl",
+          "title": "Moss / XL",
+          "sku": "VEN-KIT-MO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 29,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_kinetic7inch_moss_xxl",
+          "legacyId": "var_kinetic7inch_moss_xxl",
+          "title": "Moss / XXL",
+          "sku": "VEN-KIT-MO-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "68.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-kinetic-short.jpg",
+            "altText": "Kinetic 7\" Training Short — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/1004",
+      "handle": "everyday-brushed-fleece-jogger",
+      "title": "Everyday Brushed Fleece Jogger",
+      "vendor": "Vennix",
+      "productType": "Joggers",
+      "tags": [
+        "joggers",
+        "fleece",
+        "loungewear",
+        "tapered",
+        "badge:sale"
+      ],
+      "publishedAt": "2026-08-13T01:10:06.546Z",
+      "createdAt": "2026-08-13T01:10:06.546Z",
+      "updatedAt": "2026-09-22T01:10:06.547Z",
+      "descriptionHtml": "<p>The jogger that behaves like a trouser. A 400&nbsp;gsm brushed fleece body tapers through the calf into a 2&times;2 ribbed cuff, so it stacks cleanly over trainers without ballooning at the ankle.</p>\n<p>Deep side pockets are lined in jersey, there's a hidden zip pocket at the back right, and the flat drawcord sits flush under a belt if you need to look presentable.</p>",
+      "isGiftCard": false,
+      "seo": {
+        "title": "Everyday Brushed Fleece Jogger — 400 gsm | Vennix",
+        "description": "A tapered 400 gsm brushed fleece jogger with a clean ribbed cuff and hidden rear zip pocket."
+      },
+      "metafields": {
+        "tagline": "Tapered, 400 gsm fleece",
+        "features": [
+          "400 gsm brushed fleece",
+          "Tapered leg with 2×2 ribbed cuff",
+          "Lined pockets + hidden rear zip",
+          "Flat drawcord, flush waistband",
+          "Gusseted for full range of motion"
+        ],
+        "materials": "72% organic cotton, 24% recycled polyester, 4% elastane",
+        "care": "Machine wash cold inside out. Tumble dry low.",
+        "fit": "Tapered regular. Model is 6'1\" / 185cm wearing a Medium.",
+        "fit_notes": "If you prefer a roomier leg, size up one.",
+        "weight_grams": 620,
+        "monogram": {
+          "enabled": true,
+          "placement": "Left hip"
+        },
+        "reviews": {
+          "avg": 5,
+          "count": 2,
+          "list": [
+            {
+              "rating": 5,
+              "title": "Wear them most days",
+              "body": "The taper is right — comfortable without looking like pyjamas. Pockets sit high enough that things do not fall out.",
+              "author": "Nadia S.",
+              "verified": true,
+              "helpful": 1,
+              "date": "2026-09-08T01:10:06.550Z"
+            },
+            {
+              "rating": 5,
+              "title": "Bought in the Brooklyn studio",
+              "body": "Tried them on in person and walked out wearing them. The fleece is noticeably denser than the high street version I had before.",
+              "author": "Jo T.",
+              "verified": true,
+              "helpful": 0,
+              "date": "2026-09-08T01:10:06.550Z"
+            }
+          ]
+        }
+      },
+      "options": [
+        {
+          "name": "Colour",
+          "values": [
+            "Clay",
+            "Charcoal",
+            "Fog Heather",
+            "Ink"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/p-everyday-jogger.jpg",
+          "altText": "Everyday Brushed Fleece Jogger flat lay in Clay",
+          "width": 1000,
+          "height": 1250
+        },
+        {
+          "url": "/images/lookbook-1.jpg",
+          "altText": "Model wearing the Everyday Brushed Fleece Jogger",
+          "width": 1000,
+          "height": 1250
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_clay_xs",
+          "legacyId": "var_everydaybrus_clay_xs",
+          "title": "Clay / XS",
+          "sku": "VEN-EBF-CL-XS",
+          "availableForSale": true,
+          "quantityAvailable": 35,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_clay_s",
+          "legacyId": "var_everydaybrus_clay_s",
+          "title": "Clay / S",
+          "sku": "VEN-EBF-CL-S",
+          "availableForSale": true,
+          "quantityAvailable": 64,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_clay_m",
+          "legacyId": "var_everydaybrus_clay_m",
+          "title": "Clay / M",
+          "sku": "VEN-EBF-CL-M",
+          "availableForSale": true,
+          "quantityAvailable": 58,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_clay_l",
+          "legacyId": "var_everydaybrus_clay_l",
+          "title": "Clay / L",
+          "sku": "VEN-EBF-CL-L",
+          "availableForSale": true,
+          "quantityAvailable": 57,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_clay_xl",
+          "legacyId": "var_everydaybrus_clay_xl",
+          "title": "Clay / XL",
+          "sku": "VEN-EBF-CL-XL",
+          "availableForSale": true,
+          "quantityAvailable": 28,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_clay_xxl",
+          "legacyId": "var_everydaybrus_clay_xxl",
+          "title": "Clay / XXL",
+          "sku": "VEN-EBF-CL-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 31,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_charcoal_xs",
+          "legacyId": "var_everydaybrus_charcoal_xs",
+          "title": "Charcoal / XS",
+          "sku": "VEN-EBF-CH-XS",
+          "availableForSale": true,
+          "quantityAvailable": 56,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_charcoal_s",
+          "legacyId": "var_everydaybrus_charcoal_s",
+          "title": "Charcoal / S",
+          "sku": "VEN-EBF-CH-S",
+          "availableForSale": true,
+          "quantityAvailable": 8,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_charcoal_m",
+          "legacyId": "var_everydaybrus_charcoal_m",
+          "title": "Charcoal / M",
+          "sku": "VEN-EBF-CH-M",
+          "availableForSale": true,
+          "quantityAvailable": 8,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_charcoal_l",
+          "legacyId": "var_everydaybrus_charcoal_l",
+          "title": "Charcoal / L",
+          "sku": "VEN-EBF-CH-L",
+          "availableForSale": true,
+          "quantityAvailable": 7,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_charcoal_xl",
+          "legacyId": "var_everydaybrus_charcoal_xl",
+          "title": "Charcoal / XL",
+          "sku": "VEN-EBF-CH-XL",
+          "availableForSale": true,
+          "quantityAvailable": 49,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_charcoal_xxl",
+          "legacyId": "var_everydaybrus_charcoal_xxl",
+          "title": "Charcoal / XXL",
+          "sku": "VEN-EBF-CH-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 7,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_fog_xs",
+          "legacyId": "var_everydaybrus_fog_xs",
+          "title": "Fog Heather / XS",
+          "sku": "VEN-EBF-FO-XS",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_fog_s",
+          "legacyId": "var_everydaybrus_fog_s",
+          "title": "Fog Heather / S",
+          "sku": "VEN-EBF-FO-S",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_fog_m",
+          "legacyId": "var_everydaybrus_fog_m",
+          "title": "Fog Heather / M",
+          "sku": "VEN-EBF-FO-M",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_fog_l",
+          "legacyId": "var_everydaybrus_fog_l",
+          "title": "Fog Heather / L",
+          "sku": "VEN-EBF-FO-L",
+          "availableForSale": true,
+          "quantityAvailable": 2,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_fog_xl",
+          "legacyId": "var_everydaybrus_fog_xl",
+          "title": "Fog Heather / XL",
+          "sku": "VEN-EBF-FO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 63,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_fog_xxl",
+          "legacyId": "var_everydaybrus_fog_xxl",
+          "title": "Fog Heather / XXL",
+          "sku": "VEN-EBF-FO-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 5,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Fog Heather"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Fog Heather",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_ink_xs",
+          "legacyId": "var_everydaybrus_ink_xs",
+          "title": "Ink / XS",
+          "sku": "VEN-EBF-IN-XS",
+          "availableForSale": true,
+          "quantityAvailable": 63,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_ink_s",
+          "legacyId": "var_everydaybrus_ink_s",
+          "title": "Ink / S",
+          "sku": "VEN-EBF-IN-S",
+          "availableForSale": true,
+          "quantityAvailable": 44,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_ink_m",
+          "legacyId": "var_everydaybrus_ink_m",
+          "title": "Ink / M",
+          "sku": "VEN-EBF-IN-M",
+          "availableForSale": true,
+          "quantityAvailable": 38,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_ink_l",
+          "legacyId": "var_everydaybrus_ink_l",
+          "title": "Ink / L",
+          "sku": "VEN-EBF-IN-L",
+          "availableForSale": true,
+          "quantityAvailable": 37,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_ink_xl",
+          "legacyId": "var_everydaybrus_ink_xl",
+          "title": "Ink / XL",
+          "sku": "VEN-EBF-IN-XL",
+          "availableForSale": true,
+          "quantityAvailable": 56,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_everydaybrus_ink_xxl",
+          "legacyId": "var_everydaybrus_ink_xxl",
+          "title": "Ink / XXL",
+          "sku": "VEN-EBF-IN-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 51,
+          "price": {
+            "amount": "108.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "128.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-everyday-jogger.jpg",
+            "altText": "Everyday Brushed Fleece Jogger — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/1005",
+      "handle": "summit-packable-windbreaker",
+      "title": "Summit Packable Windbreaker",
+      "vendor": "Vennix",
+      "productType": "Jacket",
+      "tags": [
+        "jacket",
+        "windbreaker",
+        "packable",
+        "running",
+        "water-resistant",
+        "badge:new"
+      ],
+      "publishedAt": "2026-08-18T01:10:06.546Z",
+      "createdAt": "2026-08-18T01:10:06.546Z",
+      "updatedAt": "2026-09-22T01:10:06.547Z",
+      "descriptionHtml": "<p>A 96&nbsp;gram shell that folds into its own chest pocket and disappears into a running belt. The ripstop face sheds light rain and blocks wind without the boil-in-the-bag feeling.</p>\n<p>Underarm vents open the moment you pick up pace, the hood is elasticated and helmet-compatible, and the drop hem keeps spray off your back. Fully taped shoulder seams.</p>",
+      "isGiftCard": false,
+      "seo": {
+        "title": "Summit Packable Windbreaker — 96g Ripstop Shell | Vennix",
+        "description": "A 96 gram packable windbreaker with PFC-free DWR, laser vents and reflective trim."
+      },
+      "metafields": {
+        "tagline": "Packs into its own pocket",
+        "features": [
+          "96 g — packs into chest pocket",
+          "10k/10k ripstop with DWR finish",
+          "Elasticated hood with rear cinch",
+          "Underarm laser vents",
+          "Reflective trim at cuffs and back hem"
+        ],
+        "materials": "100% recycled nylon with PFC-free DWR",
+        "care": "Machine wash cold on gentle. Do not bleach. Tumble dry low to reactivate DWR.",
+        "fit": "Regular with room to layer. Model is 5'10\" / 178cm wearing a Small.",
+        "fit_notes": "Size up if layering over a hoodie.",
+        "weight_grams": 96,
+        "monogram": null,
+        "reviews": null
+      },
+      "options": [
+        {
+          "name": "Colour",
+          "values": [
+            "Clay",
+            "Storm",
+            "Ink"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL",
+            "XXL"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/p-summit-windbreaker.jpg",
+          "altText": "Summit Packable Windbreaker flat lay in Clay",
+          "width": 1000,
+          "height": 1250
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_clay_xs",
+          "legacyId": "var_summitpackab_clay_xs",
+          "title": "Clay / XS",
+          "sku": "VEN-SPW-CL-XS",
+          "availableForSale": true,
+          "quantityAvailable": 57,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_clay_s",
+          "legacyId": "var_summitpackab_clay_s",
+          "title": "Clay / S",
+          "sku": "VEN-SPW-CL-S",
+          "availableForSale": true,
+          "quantityAvailable": 32,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_clay_m",
+          "legacyId": "var_summitpackab_clay_m",
+          "title": "Clay / M",
+          "sku": "VEN-SPW-CL-M",
+          "availableForSale": true,
+          "quantityAvailable": 26,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_clay_l",
+          "legacyId": "var_summitpackab_clay_l",
+          "title": "Clay / L",
+          "sku": "VEN-SPW-CL-L",
+          "availableForSale": true,
+          "quantityAvailable": 65,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_clay_xl",
+          "legacyId": "var_summitpackab_clay_xl",
+          "title": "Clay / XL",
+          "sku": "VEN-SPW-CL-XL",
+          "availableForSale": true,
+          "quantityAvailable": 50,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_clay_xxl",
+          "legacyId": "var_summitpackab_clay_xxl",
+          "title": "Clay / XXL",
+          "sku": "VEN-SPW-CL-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 65,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_storm_xs",
+          "legacyId": "var_summitpackab_storm_xs",
+          "title": "Storm / XS",
+          "sku": "VEN-SPW-ST-XS",
+          "availableForSale": true,
+          "quantityAvailable": 46,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Storm"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Storm",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_storm_s",
+          "legacyId": "var_summitpackab_storm_s",
+          "title": "Storm / S",
+          "sku": "VEN-SPW-ST-S",
+          "availableForSale": true,
+          "quantityAvailable": 48,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Storm"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Storm",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_storm_m",
+          "legacyId": "var_summitpackab_storm_m",
+          "title": "Storm / M",
+          "sku": "VEN-SPW-ST-M",
+          "availableForSale": true,
+          "quantityAvailable": 42,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Storm"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Storm",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_storm_l",
+          "legacyId": "var_summitpackab_storm_l",
+          "title": "Storm / L",
+          "sku": "VEN-SPW-ST-L",
+          "availableForSale": true,
+          "quantityAvailable": 41,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Storm"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Storm",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_storm_xl",
+          "legacyId": "var_summitpackab_storm_xl",
+          "title": "Storm / XL",
+          "sku": "VEN-SPW-ST-XL",
+          "availableForSale": true,
+          "quantityAvailable": 39,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Storm"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Storm",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_storm_xxl",
+          "legacyId": "var_summitpackab_storm_xxl",
+          "title": "Storm / XXL",
+          "sku": "VEN-SPW-ST-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Storm"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Storm",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_ink_xs",
+          "legacyId": "var_summitpackab_ink_xs",
+          "title": "Ink / XS",
+          "sku": "VEN-SPW-IN-XS",
+          "availableForSale": true,
+          "quantityAvailable": 31,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_ink_s",
+          "legacyId": "var_summitpackab_ink_s",
+          "title": "Ink / S",
+          "sku": "VEN-SPW-IN-S",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_ink_m",
+          "legacyId": "var_summitpackab_ink_m",
+          "title": "Ink / M",
+          "sku": "VEN-SPW-IN-M",
+          "availableForSale": true,
+          "quantityAvailable": 3,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_ink_l",
+          "legacyId": "var_summitpackab_ink_l",
+          "title": "Ink / L",
+          "sku": "VEN-SPW-IN-L",
+          "availableForSale": true,
+          "quantityAvailable": 2,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_ink_xl",
+          "legacyId": "var_summitpackab_ink_xl",
+          "title": "Ink / XL",
+          "sku": "VEN-SPW-IN-XL",
+          "availableForSale": true,
+          "quantityAvailable": 64,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_summitpackab_ink_xxl",
+          "legacyId": "var_summitpackab_ink_xxl",
+          "title": "Ink / XXL",
+          "sku": "VEN-SPW-IN-XXL",
+          "availableForSale": true,
+          "quantityAvailable": 33,
+          "price": {
+            "amount": "168.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XXL"
+            }
+          ],
+          "image": {
+            "url": "/images/p-summit-windbreaker.jpg",
+            "altText": "Summit Packable Windbreaker — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/1006",
+      "handle": "flow-high-rise-legging-28",
+      "title": "Flow High-Rise Legging 28\"",
+      "vendor": "Vennix",
+      "productType": "Leggings",
+      "tags": [
+        "leggings",
+        "training",
+        "yoga",
+        "high-rise",
+        "squat-proof",
+        "badge:bestseller",
+        "badge:sale"
+      ],
+      "publishedAt": "2026-08-23T01:10:06.546Z",
+      "createdAt": "2026-08-23T01:10:06.546Z",
+      "updatedAt": "2026-09-22T01:10:06.547Z",
+      "descriptionHtml": "<p>A 28&Prime; inseam legging with a wide, double-layer waistband that stays put through burpees and never rolls. The knit is opaque at full stretch — tested, not claimed.</p>\n<p>Four-way compression with a brushed interior, bonded seams that sit flat against the skin, and a hidden waistband pocket sized for a phone or a key.</p>",
+      "isGiftCard": false,
+      "seo": {
+        "title": "Flow High-Rise Legging 28\" — Squat-Proof Compression | Vennix",
+        "description": "A 28-inch high-rise legging in opaque four-way compression knit with bonded seams and a hidden pocket."
+      },
+      "metafields": {
+        "tagline": "Buttery compression, squat-proof",
+        "features": [
+          "28\" inseam, 4-way compression knit",
+          "Opaque at full stretch — squat tested",
+          "Double-layer contoured waistband",
+          "Bonded flat seams and gusset",
+          "Hidden waistband pocket"
+        ],
+        "materials": "76% recycled nylon, 24% elastane",
+        "care": "Machine wash cold with like colours. Hang dry. No fabric softener.",
+        "fit": "Compressive high-rise. Model is 5'9\" / 175cm wearing a Small.",
+        "fit_notes": "Between sizes? Size up for a less compressive feel.",
+        "weight_grams": 260,
+        "monogram": null,
+        "reviews": {
+          "avg": 4.5,
+          "count": 2,
+          "list": [
+            {
+              "rating": 5,
+              "title": "Genuinely squat-proof",
+              "body": "Tested it properly in the studio. No sheerness under load and the waistband does not roll down mid-set.",
+              "author": "Hannah B.",
+              "verified": true,
+              "helpful": 2,
+              "date": "2026-09-06T01:10:06.552Z"
+            },
+            {
+              "rating": 4,
+              "title": "Snug for the first wear",
+              "body": "Takes a session or two to settle. After that they have been my default pair for lifting.",
+              "author": "Rachel V.",
+              "verified": true,
+              "helpful": 0,
+              "date": "2026-09-06T01:10:06.552Z"
+            }
+          ]
+        }
+      },
+      "options": [
+        {
+          "name": "Colour",
+          "values": [
+            "Charcoal",
+            "Ink",
+            "Moss"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/lookbook-2.jpg",
+          "altText": "Model wearing Flow High-Rise Leggings during a morning stretch session",
+          "width": 1000,
+          "height": 1250
+        },
+        {
+          "url": "/images/p-velocity-ls.jpg",
+          "altText": "Flow legging in Ink shown with a Vennix base layer",
+          "width": 1000,
+          "height": 1250
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_charcoal_xs",
+          "legacyId": "var_flowhighrise_charcoal_xs",
+          "title": "Charcoal / XS",
+          "sku": "VEN-FHR-CH-XS",
+          "availableForSale": false,
+          "quantityAvailable": 0,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_charcoal_s",
+          "legacyId": "var_flowhighrise_charcoal_s",
+          "title": "Charcoal / S",
+          "sku": "VEN-FHR-CH-S",
+          "availableForSale": true,
+          "quantityAvailable": 29,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_charcoal_m",
+          "legacyId": "var_flowhighrise_charcoal_m",
+          "title": "Charcoal / M",
+          "sku": "VEN-FHR-CH-M",
+          "availableForSale": true,
+          "quantityAvailable": 63,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_charcoal_l",
+          "legacyId": "var_flowhighrise_charcoal_l",
+          "title": "Charcoal / L",
+          "sku": "VEN-FHR-CH-L",
+          "availableForSale": true,
+          "quantityAvailable": 62,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_charcoal_xl",
+          "legacyId": "var_flowhighrise_charcoal_xl",
+          "title": "Charcoal / XL",
+          "sku": "VEN-FHR-CH-XL",
+          "availableForSale": true,
+          "quantityAvailable": 48,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Charcoal"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Charcoal",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_ink_xs",
+          "legacyId": "var_flowhighrise_ink_xs",
+          "title": "Ink / XS",
+          "sku": "VEN-FHR-IN-XS",
+          "availableForSale": true,
+          "quantityAvailable": 41,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_ink_s",
+          "legacyId": "var_flowhighrise_ink_s",
+          "title": "Ink / S",
+          "sku": "VEN-FHR-IN-S",
+          "availableForSale": true,
+          "quantityAvailable": 34,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_ink_m",
+          "legacyId": "var_flowhighrise_ink_m",
+          "title": "Ink / M",
+          "sku": "VEN-FHR-IN-M",
+          "availableForSale": true,
+          "quantityAvailable": 28,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_ink_l",
+          "legacyId": "var_flowhighrise_ink_l",
+          "title": "Ink / L",
+          "sku": "VEN-FHR-IN-L",
+          "availableForSale": true,
+          "quantityAvailable": 27,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_ink_xl",
+          "legacyId": "var_flowhighrise_ink_xl",
+          "title": "Ink / XL",
+          "sku": "VEN-FHR-IN-XL",
+          "availableForSale": true,
+          "quantityAvailable": 34,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_moss_xs",
+          "legacyId": "var_flowhighrise_moss_xs",
+          "title": "Moss / XS",
+          "sku": "VEN-FHR-MO-XS",
+          "availableForSale": true,
+          "quantityAvailable": 6,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_moss_s",
+          "legacyId": "var_flowhighrise_moss_s",
+          "title": "Moss / S",
+          "sku": "VEN-FHR-MO-S",
+          "availableForSale": true,
+          "quantityAvailable": 53,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_moss_m",
+          "legacyId": "var_flowhighrise_moss_m",
+          "title": "Moss / M",
+          "sku": "VEN-FHR-MO-M",
+          "availableForSale": true,
+          "quantityAvailable": 47,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_moss_l",
+          "legacyId": "var_flowhighrise_moss_l",
+          "title": "Moss / L",
+          "sku": "VEN-FHR-MO-L",
+          "availableForSale": true,
+          "quantityAvailable": 46,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_flowhighrise_moss_xl",
+          "legacyId": "var_flowhighrise_moss_xl",
+          "title": "Moss / XL",
+          "sku": "VEN-FHR-MO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 5,
+          "price": {
+            "amount": "98.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": {
+            "amount": "118.00",
+            "currencyCode": "USD"
+          },
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Moss"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Flow High-Rise Legging 28\" — Moss",
+            "width": 1000,
+            "height": 1250
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/1007",
+      "handle": "ribbed-seamless-sports-bra",
+      "title": "Ribbed Seamless Sports Bra",
+      "vendor": "Vennix",
+      "productType": "Sports Bra",
+      "tags": [
+        "bra",
+        "seamless",
+        "yoga",
+        "medium-support"
+      ],
+      "publishedAt": "2026-08-28T01:10:06.546Z",
+      "createdAt": "2026-08-28T01:10:06.546Z",
+      "updatedAt": "2026-09-22T01:10:06.547Z",
+      "descriptionHtml": "<p>Knitted in one piece on a circular loom, so there is not a single seam against your ribs. The rib structure gives medium support with a soft, second-skin feel and the band is double-knit to stay flat.</p>\n<p>Removable cups are included and shaped (not folded), and the neckline is cut a little higher so you can wear it alone to class.</p>",
+      "isGiftCard": false,
+      "seo": {
+        "title": "Ribbed Seamless Sports Bra — Medium Support | Vennix",
+        "description": "A seamless circular-knit sports bra with medium support, a flat double-knit band and removable cups."
+      },
+      "metafields": {
+        "tagline": "Medium support, seamless knit",
+        "features": [
+          "Seamless circular-knit construction",
+          "Medium support, medium impact",
+          "Double-knit band that stays flat",
+          "Includes one pair of shaped removable cups",
+          "Machine washable in a mesh bag"
+        ],
+        "materials": "62% recycled nylon, 30% polyester, 8% elastane",
+        "care": "Machine wash cold in a mesh bag. Hang dry.",
+        "fit": "Fitted. Model is 5'9\" / 175cm wearing a Small.",
+        "fit_notes": "For high-impact training, size down for extra hold.",
+        "weight_grams": 130,
+        "monogram": null,
+        "reviews": {
+          "avg": 4,
+          "count": 1,
+          "list": [
+            {
+              "rating": 4,
+              "title": "Good medium support, no chafing",
+              "body": "Perfect for yoga and lifting. I would not take it on a long run — go up a support level for that.",
+              "author": "Mei L.",
+              "verified": true,
+              "helpful": 1,
+              "date": "2026-09-05T01:10:06.552Z"
+            }
+          ]
+        }
+      },
+      "options": [
+        {
+          "name": "Colour",
+          "values": [
+            "Ink",
+            "Bone",
+            "Clay"
+          ]
+        },
+        {
+          "name": "Size",
+          "values": [
+            "XS",
+            "S",
+            "M",
+            "L",
+            "XL"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/lookbook-2.jpg",
+          "altText": "Model wearing the Ribbed Seamless Sports Bra",
+          "width": 1000,
+          "height": 1250
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_ink_xs",
+          "legacyId": "var_ribbedseamle_ink_xs",
+          "title": "Ink / XS",
+          "sku": "VEN-RSS-IN-XS",
+          "availableForSale": true,
+          "quantityAvailable": 41,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_ink_s",
+          "legacyId": "var_ribbedseamle_ink_s",
+          "title": "Ink / S",
+          "sku": "VEN-RSS-IN-S",
+          "availableForSale": true,
+          "quantityAvailable": 44,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_ink_m",
+          "legacyId": "var_ribbedseamle_ink_m",
+          "title": "Ink / M",
+          "sku": "VEN-RSS-IN-M",
+          "availableForSale": true,
+          "quantityAvailable": 38,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_ink_l",
+          "legacyId": "var_ribbedseamle_ink_l",
+          "title": "Ink / L",
+          "sku": "VEN-RSS-IN-L",
+          "availableForSale": true,
+          "quantityAvailable": 37,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_ink_xl",
+          "legacyId": "var_ribbedseamle_ink_xl",
+          "title": "Ink / XL",
+          "sku": "VEN-RSS-IN-XL",
+          "availableForSale": true,
+          "quantityAvailable": 34,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Ink"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Ink",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_bone_xs",
+          "legacyId": "var_ribbedseamle_bone_xs",
+          "title": "Bone / XS",
+          "sku": "VEN-RSS-BO-XS",
+          "availableForSale": true,
+          "quantityAvailable": 39,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_bone_s",
+          "legacyId": "var_ribbedseamle_bone_s",
+          "title": "Bone / S",
+          "sku": "VEN-RSS-BO-S",
+          "availableForSale": true,
+          "quantityAvailable": 65,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_bone_m",
+          "legacyId": "var_ribbedseamle_bone_m",
+          "title": "Bone / M",
+          "sku": "VEN-RSS-BO-M",
+          "availableForSale": true,
+          "quantityAvailable": 59,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_bone_l",
+          "legacyId": "var_ribbedseamle_bone_l",
+          "title": "Bone / L",
+          "sku": "VEN-RSS-BO-L",
+          "availableForSale": true,
+          "quantityAvailable": 58,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_bone_xl",
+          "legacyId": "var_ribbedseamle_bone_xl",
+          "title": "Bone / XL",
+          "sku": "VEN-RSS-BO-XL",
+          "availableForSale": true,
+          "quantityAvailable": 32,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Bone"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Bone",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_clay_xs",
+          "legacyId": "var_ribbedseamle_clay_xs",
+          "title": "Clay / XS",
+          "sku": "VEN-RSS-CL-XS",
+          "availableForSale": true,
+          "quantityAvailable": 32,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XS"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_clay_s",
+          "legacyId": "var_ribbedseamle_clay_s",
+          "title": "Clay / S",
+          "sku": "VEN-RSS-CL-S",
+          "availableForSale": true,
+          "quantityAvailable": 8,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "S"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_clay_m",
+          "legacyId": "var_ribbedseamle_clay_m",
+          "title": "Clay / M",
+          "sku": "VEN-RSS-CL-M",
+          "availableForSale": true,
+          "quantityAvailable": 2,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "M"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_clay_l",
+          "legacyId": "var_ribbedseamle_clay_l",
+          "title": "Clay / L",
+          "sku": "VEN-RSS-CL-L",
+          "availableForSale": true,
+          "quantityAvailable": 1,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "L"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_ribbedseamle_clay_xl",
+          "legacyId": "var_ribbedseamle_clay_xl",
+          "title": "Clay / XL",
+          "sku": "VEN-RSS-CL-XL",
+          "availableForSale": true,
+          "quantityAvailable": 65,
+          "price": {
+            "amount": "62.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Colour",
+              "value": "Clay"
+            },
+            {
+              "name": "Size",
+              "value": "XL"
+            }
+          ],
+          "image": {
+            "url": "/images/lookbook-2.jpg",
+            "altText": "Ribbed Seamless Sports Bra — Clay",
+            "width": 1000,
+            "height": 1250
+          }
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/1900",
+      "handle": "monogramming",
+      "title": "Monogramming",
+      "vendor": "Vennix",
+      "productType": "Service",
+      "tags": [
+        "vennix-service",
+        "personalization"
+      ],
+      "publishedAt": "2026-07-24T01:10:06.552Z",
+      "createdAt": "2026-07-24T01:10:06.552Z",
+      "updatedAt": "2026-09-17T01:10:06.552Z",
+      "descriptionHtml": "<p>Three characters, stitched in the Brooklyn studio. Added to your order alongside the piece you are personalising.</p>",
+      "isGiftCard": false,
+      "seo": {
+        "title": "Monogramming | Vennix",
+        "description": "Three stitched characters, added in the Brooklyn studio."
+      },
+      "metafields": {
+        "tagline": "Three stitched characters",
+        "features": [
+          "Stitched in-house",
+          "2–3 days added to dispatch"
+        ],
+        "materials": "",
+        "care": "",
+        "fit": "",
+        "fit_notes": "",
+        "weight_grams": 0,
+        "monogram": null,
+        "reviews": null
+      },
+      "options": [
+        {
+          "name": "Style",
+          "values": [
+            "Studio stitch"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/p-atlas-hoodie.jpg",
+          "altText": "Monogram stitching detail",
+          "width": 1000,
+          "height": 1250
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_monogram_fee",
+          "legacyId": "var_monogram_fee",
+          "title": "Studio stitch",
+          "sku": "VEN-MONO-01",
+          "availableForSale": true,
+          "quantityAvailable": 9999,
+          "price": {
+            "amount": "20.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Style",
+              "value": "Studio stitch"
+            }
+          ],
+          "image": null
+        }
+      ]
+    },
+    {
+      "id": "gid://shopify/Product/1901",
+      "handle": "gift-card",
+      "title": "Vennix Gift Card",
+      "vendor": "Vennix",
+      "productType": "Gift Card",
+      "tags": [
+        "gift",
+        "digital"
+      ],
+      "publishedAt": "2026-07-26T01:10:06.552Z",
+      "createdAt": "2026-07-26T01:10:06.552Z",
+      "updatedAt": "2026-09-17T01:10:06.552Z",
+      "descriptionHtml": "<p>A Vennix gift card, delivered by email within minutes of checkout. No expiry, no fees, and it works on everything in the range — including sale pieces.</p>",
+      "isGiftCard": true,
+      "seo": {
+        "title": "Vennix Gift Card — Digital Delivery | Vennix",
+        "description": "A digital Vennix gift card delivered by email within minutes. No expiry, valid on everything including sale."
+      },
+      "metafields": {
+        "tagline": "Delivered by email within minutes",
+        "features": [
+          "Delivered by email within minutes",
+          "No expiry date and no fees",
+          "Valid on everything, including sale"
+        ],
+        "materials": "",
+        "care": "",
+        "fit": "",
+        "fit_notes": "",
+        "weight_grams": 0,
+        "monogram": null,
+        "reviews": null
+      },
+      "options": [
+        {
+          "name": "Denomination",
+          "values": [
+            "$50",
+            "$100",
+            "$200"
+          ]
+        }
+      ],
+      "images": [
+        {
+          "url": "/images/gift-card.svg",
+          "altText": "Vennix digital gift card",
+          "width": 1000,
+          "height": 625
+        }
+      ],
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/var_gift_5000",
+          "legacyId": "var_gift_5000",
+          "title": "$50",
+          "sku": "VEN-GIFT-50",
+          "availableForSale": true,
+          "quantityAvailable": 9999,
+          "price": {
+            "amount": "50.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Denomination",
+              "value": "$50"
+            }
+          ],
+          "image": null
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_gift_10000",
+          "legacyId": "var_gift_10000",
+          "title": "$100",
+          "sku": "VEN-GIFT-100",
+          "availableForSale": true,
+          "quantityAvailable": 9999,
+          "price": {
+            "amount": "100.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Denomination",
+              "value": "$100"
+            }
+          ],
+          "image": null
+        },
+        {
+          "id": "gid://shopify/ProductVariant/var_gift_20000",
+          "legacyId": "var_gift_20000",
+          "title": "$200",
+          "sku": "VEN-GIFT-200",
+          "availableForSale": true,
+          "quantityAvailable": 9999,
+          "price": {
+            "amount": "200.00",
+            "currencyCode": "USD"
+          },
+          "compareAtPrice": null,
+          "selectedOptions": [
+            {
+              "name": "Denomination",
+              "value": "$200"
+            }
+          ],
+          "image": null
+        }
+      ]
+    }
+  ],
+  "collections": [
+    {
+      "id": "gid://shopify/Collection/2000",
+      "handle": "women",
+      "title": "Women's",
+      "description": "Leggings, bras and layers cut for training days and everything after.",
+      "image": {
+        "url": "/images/lookbook-2.jpg",
+        "altText": "Women's",
+        "width": 1600,
+        "height": 600
+      },
+      "seo": {
+        "title": "Women's | Vennix",
+        "description": "Leggings, bras and layers cut for training days and everything after."
+      },
+      "productHandles": [
+        "flow-high-rise-legging-28",
+        "ribbed-seamless-sports-bra",
+        "summit-packable-windbreaker"
+      ]
+    },
+    {
+      "id": "gid://shopify/Collection/2001",
+      "handle": "men",
+      "title": "Men's",
+      "description": "Heavyweight fleece, technical layers and bottoms built to be lived in.",
+      "image": {
+        "url": "/images/p-atlas-hoodie.jpg",
+        "altText": "Men's",
+        "width": 1600,
+        "height": 600
+      },
+      "seo": {
+        "title": "Men's | Vennix",
+        "description": "Heavyweight fleece, technical layers and bottoms built to be lived in."
+      },
+      "productHandles": [
+        "atlas-heavyweight-hoodie",
+        "everyday-pima-crew-tee",
+        "velocity-long-sleeve-base-layer",
+        "kinetic-7-inch-training-short",
+        "everyday-brushed-fleece-jogger",
+        "summit-packable-windbreaker"
+      ]
+    },
+    {
+      "id": "gid://shopify/Collection/2002",
+      "handle": "active",
+      "title": "Active",
+      "description": "Technical pieces tested at pace — wicking knits, packable shells, compression.",
+      "image": {
+        "url": "/images/lookbook-2.jpg",
+        "altText": "Active",
+        "width": 1600,
+        "height": 600
+      },
+      "seo": {
+        "title": "Active | Vennix",
+        "description": "Technical pieces tested at pace — wicking knits, packable shells, compression."
+      },
+      "productHandles": [
+        "velocity-long-sleeve-base-layer",
+        "kinetic-7-inch-training-short",
+        "summit-packable-windbreaker",
+        "flow-high-rise-legging-28",
+        "ribbed-seamless-sports-bra"
+      ]
+    },
+    {
+      "id": "gid://shopify/Collection/2003",
+      "handle": "essentials",
+      "title": "Everyday Essentials",
+      "description": "The pieces you reach for without thinking. Heavyweights, in a fixed palette.",
+      "image": {
+        "url": "/images/p-everyday-tee.jpg",
+        "altText": "Everyday Essentials",
+        "width": 1600,
+        "height": 600
+      },
+      "seo": {
+        "title": "Everyday Essentials | Vennix",
+        "description": "The pieces you reach for without thinking. Heavyweights, in a fixed palette."
+      },
+      "productHandles": [
+        "atlas-heavyweight-hoodie",
+        "everyday-pima-crew-tee",
+        "everyday-brushed-fleece-jogger"
+      ]
+    },
+    {
+      "id": "gid://shopify/Collection/2004",
+      "handle": "new-in",
+      "title": "New In",
+      "description": "The newest additions to Capsule 01, straight off the loom.",
+      "image": {
+        "url": "/images/p-summit-windbreaker.jpg",
+        "altText": "New In",
+        "width": 1600,
+        "height": 600
+      },
+      "seo": {
+        "title": "New In | Vennix",
+        "description": "The newest additions to Capsule 01, straight off the loom."
+      },
+      "productHandles": [
+        "atlas-heavyweight-hoodie",
+        "everyday-pima-crew-tee",
+        "kinetic-7-inch-training-short",
+        "summit-packable-windbreaker",
+        "ribbed-seamless-sports-bra"
+      ]
+    },
+    {
+      "id": "gid://shopify/Collection/2005",
+      "handle": "bestsellers",
+      "title": "Bestsellers",
+      "description": "What our customers keep coming back for.",
+      "image": {
+        "url": "/images/p-atlas-hoodie.jpg",
+        "altText": "Bestsellers",
+        "width": 1600,
+        "height": 600
+      },
+      "seo": {
+        "title": "Bestsellers | Vennix",
+        "description": "What our customers keep coming back for."
+      },
+      "productHandles": [
+        "atlas-heavyweight-hoodie",
+        "flow-high-rise-legging-28",
+        "everyday-brushed-fleece-jogger",
+        "velocity-long-sleeve-base-layer"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "id": "gid://shopify/Page/3000",
+      "handle": "about",
+      "title": "About Vennix",
+      "body": "<h2>We make a small range, deliberately.</h2>\n<p>Vennix was founded in 2019 by two people who were tired of choosing between gym clothes that performed and clothes that looked like they belonged in the rest of your life. We build one capsule at a time: eight to twelve styles, made properly, in a fixed palette.</p>\n<h3>What that means in practice</h3>\n<ul>\n<li><strong>Small runs.</strong> We produce in 300-unit batches so we can fix problems instead of reproducing them.</li>\n<li><strong>Named mills.</strong> Portugal for fleece and knits, Vietnam for technical shells. Every mill is audited annually and listed on the care label.</li>\n<li><strong>Real testing.</strong> 30 wearers in Brooklyn, Chicago and Portland test each style for 60 days before it is released.</li>\n<li><strong>Repairs, not replacements.</strong> Send it back and we fix it. Free for the first two years.</li>\n</ul>\n<h3>The studio</h3>\n<p>44 Wythe Avenue, Brooklyn — open Thursday to Sunday, 11am to 6pm. Run club leaves at 6:30am on Tuesdays.</p>",
+      "seo": {
+        "title": "About Vennix — A studio in Brooklyn",
+        "description": "Vennix makes a small, deliberate range of training and everyday essentials. Designed in Brooklyn, made in Portugal and Vietnam."
+      },
+      "createdAt": "2026-05-25T01:10:06.552Z",
+      "updatedAt": "2026-08-23T01:10:06.552Z"
+    },
+    {
+      "id": "gid://shopify/Page/3001",
+      "handle": "sustainability",
+      "title": "Sustainability",
+      "body": "<h2>Fewer, better, for longer.</h2>\n<p>The most sustainable garment is the one you keep wearing. That belief shapes every decision we make — from the mills we name to the packaging we refuse to use.</p>\n<h3>Materials</h3>\n<ul>\n<li><strong>GOTS-certified organic cotton</strong> in every fleece and jersey style. No conventional cotton, ever.</li>\n<li><strong>Recycled nylon and polyester</strong> (GRS-certified) in shells and linings — 62% recycled content across the technical range.</li>\n<li><strong>Traceable merino</strong> from a single non-mulesed flock in Victoria, Australia.</li>\n<li><strong>Low-impact dyes</strong> in a closed-loop water system at our Portuguese mill — 84% of water recaptured.</li>\n</ul>\n<h3>Making</h3>\n<p>We produce in 300-unit batches across two audited partners (Portugal for knits and fleece, Vietnam for shells). Both are visited twice a year, publish wage floors above the local living wage, and hold SA8000 and WRAP Gold certification.</p>\n<h3>Shipping and packaging</h3>\n<p>Orders ship plastic-free in FSC-certified mailers or recycled cardboard, and every delivery is carbon-offset through a verified reforestation programme in the Catskills. Returns labels are paper, not plastic.</p>\n<h3>Repairs, resale, recycling</h3>\n<p>Free repairs for two years on every piece. Send anything worn out back to the studio and we will repair it, resell it through Vennix Revive, or shred it into insulation — you get 15% off your next order either way.</p>\n<h3>Where we are honest</h3>\n<p>We are not carbon-neutral as a business yet, and we do not claim to be. Our 2026 target is a 40% reduction in absolute emissions against a 2023 baseline, audited externally and published on this page every January.</p>",
+      "seo": {
+        "title": "Sustainability & Materials | Vennix",
+        "description": "How Vennix builds responsibly: GOTS-certified cotton, recycled nylon shells, small-batch runs, plastic-free shipping and a free repair programme."
+      },
+      "createdAt": "2026-05-25T01:10:06.552Z",
+      "updatedAt": "2026-08-23T01:10:06.552Z"
+    },
+    {
+      "id": "gid://shopify/Page/3002",
+      "handle": "faq",
+      "title": "Help & FAQ",
+      "body": "<p>Answers to the questions our support team gets most. Still stuck? <a href=\"/contact\">Write to us</a> — a human replies within one business day.</p>",
+      "seo": {
+        "title": "Help & FAQ | Vennix",
+        "description": "Shipping, returns, sizing, care instructions and warranty information for Vennix orders."
+      },
+      "createdAt": "2026-05-25T01:10:06.552Z",
+      "updatedAt": "2026-08-23T01:10:06.552Z"
+    },
+    {
+      "id": "gid://shopify/Page/3003",
+      "handle": "shipping-returns",
+      "title": "Shipping & Returns",
+      "body": "<h3>Shipping</h3>\n<ul>\n<li><strong>Standard — $6.95</strong>, free on orders over $50. 4–6 business days, tracked.</li>\n<li><strong>Express — $14.95.</strong> 2–3 business days when ordered before 2pm ET.</li>\n<li><strong>Overnight — $24.95.</strong> Next business day on orders placed before 2pm ET.</li>\n<li><strong>Studio pickup — free.</strong> 44 Wythe Avenue, Brooklyn. Ready in two hours.</li>\n<li><strong>International.</strong> Canada and UK ship with DDP (duties prepaid). Other regions are calculated at checkout.</li>\n</ul>\n<h3>Returns and exchanges</h3>\n<p>You have 30 days from delivery. Items must be unworn with tags attached — try them on indoors, keep the hangtag on until you are sure. Start a return from your <a href=\"/account\">order history</a> and we email a prepaid label the same day.</p>\n<ul><li>Refunds land on the original payment method within 3–5 business days of us receiving the parcel.</li><li>Exchanges ship the day your return is scanned by the carrier, so you are not waiting twice.</li><li>Final sale and personal-care items are not returnable — noted on the product page.</li></ul>\n<h3>Warranty</h3>\n<p>Every Vennix piece carries a two-year defect warranty and free repair service. Seams, zips, elastics and prints are covered. Normal wear is not a defect, but we will still fix it for a small fee rather than have you replace it.</p>",
+      "seo": {
+        "title": "Shipping & Returns | Vennix",
+        "description": "Free standard shipping over $50, 30-day returns, and free exchanges on all Vennix orders in the US."
+      },
+      "createdAt": "2026-05-25T01:10:06.552Z",
+      "updatedAt": "2026-08-23T01:10:06.552Z"
+    },
+    {
+      "id": "gid://shopify/Page/3004",
+      "handle": "size-guide",
+      "title": "Size Guide",
+      "body": "<p>Measure over light clothing, keep the tape level and snug but not tight. If you fall between two sizes, size up for layers and size down for compression pieces.</p>",
+      "seo": {
+        "title": "Size Guide | Vennix",
+        "description": "Measurements for Vennix tops, bottoms and accessories, plus fit guidance from our product team."
+      },
+      "createdAt": "2026-05-25T01:10:06.552Z",
+      "updatedAt": "2026-08-23T01:10:06.552Z"
+    },
+    {
+      "id": "gid://shopify/Page/3005",
+      "handle": "privacy",
+      "title": "Privacy Policy",
+      "body": "<p>Last updated Mon Jan 12 2026.</p>\n<h3>What we collect</h3><p>Order details, contact information, and — if you create an account — a hashed password we cannot read. Payment details are tokenised; we never store full card numbers.</p>\n<h3>How we use it</h3><p>To fulfil orders, provide support, prevent fraud, and (only with your consent) send marketing emails. We do not sell personal data.</p>\n<h3>Your rights</h3><p>You can request an export or deletion of your data at any time by writing to privacy@vennixstore.com. We respond within 30 days.</p>\n<h3>Cookies</h3><p>We use a single first-party session cookie to keep your cart and login. Analytics are aggregated and cookieless.</p>",
+      "seo": {
+        "title": "Privacy Policy | Vennix",
+        "description": "How Vennix collects, uses and protects your personal information."
+      },
+      "createdAt": "2026-05-25T01:10:06.552Z",
+      "updatedAt": "2026-08-23T01:10:06.552Z"
+    },
+    {
+      "id": "gid://shopify/Page/3006",
+      "handle": "terms",
+      "title": "Terms of Service",
+      "body": "<h3>Orders</h3><p>An order is a request to buy. It is accepted when we send the confirmation email. If an item is out of stock we will contact you and refund it in full.</p>\n<h3>Pricing</h3><p>All prices are in USD and exclude sales tax, which is calculated at checkout based on your shipping address. We reserve the right to correct obvious pricing errors before shipping.</p>\n<h3>Warranty and liability</h3><p>Our liability is limited to the value of the goods purchased. Nothing here limits your statutory rights.</p>\n<h3>Governing law</h3><p>These terms are governed by the laws of the State of New York.</p>",
+      "seo": {
+        "title": "Terms of Service | Vennix",
+        "description": "The terms that govern purchases and use of vennixstore.com."
+      },
+      "createdAt": "2026-05-25T01:10:06.552Z",
+      "updatedAt": "2026-08-23T01:10:06.552Z"
+    },
+    {
+      "id": "gid://shopify/Page/3007",
+      "handle": "accessibility",
+      "title": "Accessibility",
+      "body": "<p>We build to <strong>WCAG 2.2 level AA</strong>. That means full keyboard operation, visible focus states, 4.5:1 text contrast, reduced-motion support and screen-reader-labelled controls for the cart drawer, menus and checkout.</p>\n<p>Found a barrier? Email access@vennixstore.com with the page and what happened — we treat accessibility bugs as production bugs and aim to fix them within five business days.</p>",
+      "seo": {
+        "title": "Accessibility Statement | Vennix",
+        "description": "Our commitment to WCAG 2.2 AA conformance across the Vennix storefront."
+      },
+      "createdAt": "2026-05-25T01:10:06.552Z",
+      "updatedAt": "2026-08-23T01:10:06.552Z"
+    },
+    {
+      "id": "gid://shopify/Page/3008",
+      "handle": "contact",
+      "title": "Contact",
+      "body": "<p>Average reply time: <strong>one business day</strong>, Mon–Fri 9am–5pm EST. For order questions include your order number, which starts with VEN-.</p>",
+      "seo": {
+        "title": "Contact Vennix",
+        "description": "Reach the Vennix support team — we reply within one business day, Mon–Fri 9am–5pm EST."
+      },
+      "createdAt": "2026-05-25T01:10:06.552Z",
+      "updatedAt": "2026-08-23T01:10:06.552Z"
+    }
+  ],
+  "blog": {
+    "handle": "journal",
+    "title": "The Journal",
+    "articles": [
+      {
+        "id": "gid://shopify/Article/4000",
+        "handle": "why-we-chose-480-gsm",
+        "title": "Why we chose 480 gsm (and why most brands won't)",
+        "excerpt": "Heavy fleece costs more, shrinks more and takes longer to knit. It is also the only way to make a hoodie that survives five winters.",
+        "body": "<p>Fabric weight is the first place a product gets cheapened, because nobody can tell in a photo. 280&nbsp;gsm fleece photographs identically to 480&nbsp;gsm fleece. It is only after two months of washing that the difference becomes obvious — the light stuff pills, the cuffs stretch out, and the whole garment starts to look like a sleeping bag.</p>\n<h3>Heavier yarn costs us 34% more</h3><p>Our mill in Portugal knits the Atlas body on a slower loom. Slower means fewer metres per hour, which means a higher per-unit price. We also brush the back after knitting, which adds a pass and a failure mode: brush too hard and you weaken the loop structure.</p>\n<h3>Pre-shrunk, not post-regret</h3><p>Heavy cotton shrinks. We wash every panel before cutting, so what you order is what you own in a year. That step alone adds six days to production.</p>\n<h3>What that buys you</h3><ul><li>A hood that still stands up after a season</li><li>Cuffs that recover instead of flaring</li><li>No pilling at the pocket edges</li></ul><p>We would rather make one hoodie properly than three that quietly fall apart. That is the entire brief.</p>",
+        "image": {
+          "url": "/images/blog-1.jpg",
+          "altText": "Why we chose 480 gsm (and why most brands won't)",
+          "width": 1200,
+          "height": 800
+        },
+        "author": {
+          "name": "Iris Nakamura, Head of Product"
+        },
+        "tags": [
+          "Materials",
+          "Studio"
+        ],
+        "readMinutes": 6,
+        "publishedAt": "2026-09-13T01:10:06.546Z"
+      },
+      {
+        "id": "gid://shopify/Article/4001",
+        "handle": "capsule-01-design-notes",
+        "title": "Capsule 01: the design notes",
+        "excerpt": "Eight styles, one colour story, and a rule that every piece had to work with every other piece in the range.",
+        "body": "<p>Capsule 01 started with a constraint: eight styles, and any two of them have to look intentional together. That ruled out the usual approach of designing hero pieces and filling the gaps with whatever was left over.</p>\n<h3>The colour story</h3><p>Bone, Fog Heather, Charcoal, Ink, Clay, Moss. Three neutrals, two earths and one deep green. Every piece ships in at least three of them and the palette does not shift between categories — the legging charcoal is the hoodie charcoal.</p>\n<h3>Fit language</h3><p>Tops sit relaxed through the body with a defined shoulder. Bottoms taper. Layers run true with room for a base layer underneath. Once that grammar is fixed, mixing pieces stops being a styling exercise and starts being obvious.</p>",
+        "image": {
+          "url": "/images/lookbook-2.jpg",
+          "altText": "Capsule 01: the design notes",
+          "width": 1200,
+          "height": 800
+        },
+        "author": {
+          "name": "Design Studio"
+        },
+        "tags": [
+          "Design",
+          "Lookbook"
+        ],
+        "readMinutes": 4,
+        "publishedAt": "2026-09-01T01:10:06.546Z"
+      },
+      {
+        "id": "gid://shopify/Article/4002",
+        "handle": "training-at-dawn",
+        "title": "Training at dawn: a winter layering guide",
+        "excerpt": "What to wear at 5°C when you leave the house in the dark and finish in daylight, from our coaching partners in Brooklyn.",
+        "body": "<p>The hardest part of a winter session is that conditions change while you are out. You leave at 4°C and come back at 9°C, and the layer you needed at the start is a liability at the end.</p>\n<h3>The three-layer rule</h3><p>Base layer against the skin to move sweat. A shell or mid-layer for wind and light rain. Nothing insulating that you cannot remove or pack into a pocket. The Summit Packable exists because a 96&nbsp;gram shell you can fold into your waistband beats a jacket you leave at home.</p>\n<h3>Hands and head first</h3><p>If your hands are cold you will cut the session short. Thumbhole cuffs buy you ten degrees of perceived warmth for almost no weight.</p>",
+        "image": {
+          "url": "/images/lookbook-1.jpg",
+          "altText": "Training at dawn: a winter layering guide",
+          "width": 1200,
+          "height": 800
+        },
+        "author": {
+          "name": "Vennix Run Club"
+        },
+        "tags": [
+          "Training",
+          "Guides"
+        ],
+        "readMinutes": 5,
+        "publishedAt": "2026-08-19T01:10:06.546Z"
+      }
+    ]
+  },
+  "discountCodes": {
+    "WELCOME10": {
+      "type": "percent",
+      "value": 10,
+      "minSubtotalCents": 0
+    },
+    "FREESHIP": {
+      "type": "shipping",
+      "value": 0,
+      "minSubtotalCents": 5000
+    },
+    "CAPSULE20": {
+      "type": "percent",
+      "value": 20,
+      "minSubtotalCents": 15000
+    }
+  },
+  "faqs": [
+    {
+      "q": "When will my order ship?",
+      "a": "Orders placed before 2pm ET ship the same business day from our Brooklyn warehouse. You will get a tracking link by email the moment the label scans.",
+      "group": "Shipping"
+    },
+    {
+      "q": "How do returns work?",
+      "a": "You have 30 days from delivery. Start a return from your account order history and we email a prepaid label the same day. Refunds hit your original payment method within 3–5 business days of arrival.",
+      "group": "Shipping"
+    },
+    {
+      "q": "Do you ship internationally?",
+      "a": "Yes. Canada and the UK ship duties-prepaid (DDP). Elsewhere, duties and taxes are shown at checkout so there are no surprise fees at the door.",
+      "group": "Shipping"
+    },
+    {
+      "q": "What if I am between sizes?",
+      "a": "Size up for layers, size down for compression pieces like the Flow Legging. Every product page carries a fit note from the product team, and exchanges are always free.",
+      "group": "Sizing"
+    },
+    {
+      "q": "How should I wash technical pieces?",
+      "a": "Cold wash with like colours, no fabric softener (it clogs the wicking channels), and hang dry where you can. Details are on the care label inside every garment.",
+      "group": "Sizing"
+    },
+    {
+      "q": "What payment methods do you take?",
+      "a": "All major cards, Shop Pay, Apple Pay, Google Pay and Vennix gift cards. We also offer 4 interest-free payments through Shop Pay Installments on orders over $50.",
+      "group": "Payment"
+    },
+    {
+      "q": "Is my payment information safe?",
+      "a": "Yes. Card details are tokenised by our payment provider and never touch our servers. We are PCI-DSS SAQ-A compliant and every connection is TLS 1.3.",
+      "group": "Payment"
+    },
+    {
+      "q": "Do you really repair garments?",
+      "a": "We do. Two years of free repairs on seams, zips and elastics. Email repairs@vennixstore.com with a photo and your order number.",
+      "group": "Product"
+    },
+    {
+      "q": "How do I track my order?",
+      "a": "Use the tracking link in your shipping email, or enter your order number and email on our track order page. No account needed.",
+      "group": "Product"
+    }
+  ],
+  "sizeCharts": {
+    "tops": {
+      "label": "Tops, jackets & hoodies",
+      "columns": [
+        "Size",
+        "Chest (in)",
+        "Chest (cm)",
+        "Body length (in)",
+        "Sleeve (in)"
+      ],
+      "rows": [
+        [
+          "XS",
+          "34–36",
+          "86–91",
+          "26.5",
+          "32"
+        ],
+        [
+          "S",
+          "36–38",
+          "91–97",
+          "27.5",
+          "33"
+        ],
+        [
+          "M",
+          "38–40",
+          "97–102",
+          "28.5",
+          "34"
+        ],
+        [
+          "L",
+          "40–42.5",
+          "102–108",
+          "29.5",
+          "35"
+        ],
+        [
+          "XL",
+          "42.5–45",
+          "108–114",
+          "30.5",
+          "36"
+        ],
+        [
+          "XXL",
+          "45–48",
+          "114–122",
+          "31.5",
+          "37"
+        ]
+      ]
+    },
+    "bottoms": {
+      "label": "Joggers, shorts & leggings",
+      "columns": [
+        "Size",
+        "Waist (in)",
+        "Waist (cm)",
+        "Hip (in)",
+        "Inseam (in)"
+      ],
+      "rows": [
+        [
+          "XS",
+          "26–28",
+          "66–71",
+          "34–36",
+          "27"
+        ],
+        [
+          "S",
+          "28–30",
+          "71–76",
+          "36–38",
+          "28"
+        ],
+        [
+          "M",
+          "30–32",
+          "76–81",
+          "38–40",
+          "29"
+        ],
+        [
+          "L",
+          "32–34.5",
+          "81–88",
+          "40–42",
+          "30"
+        ],
+        [
+          "XL",
+          "34.5–37",
+          "88–94",
+          "42–44",
+          "31"
+        ],
+        [
+          "XXL",
+          "37–40",
+          "94–102",
+          "44–46",
+          "32"
+        ]
+      ]
+    }
+  }
+}
