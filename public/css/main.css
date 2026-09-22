@@ -1446,3 +1446,10 @@ body > main { animation: shell-in 560ms var(--ease-out-expo) both; animation-del
 @media (max-width: 560px) {
   .notify__form { grid-template-columns: 1fr; }
 }
+
+/* ---- demo-mode labelling (only rendered when no Shopify store is connected) */
+.demo-banner {
+  background: #fdf3d8; color: #5c4a12; border-bottom: 1px solid #e8d49a;
+  font-size: 13px; line-height: 1.5; padding: 8px 20px; text-align: center;
+}
+.demo-banner strong { font-weight: 700; }

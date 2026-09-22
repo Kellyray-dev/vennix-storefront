@@ -430,7 +430,7 @@ const PAGE_DEFS = [
 <li><strong>International.</strong> Canada and UK ship with DDP (duties prepaid). Other regions are calculated at checkout.</li>
 </ul>
 <h3>Returns and exchanges</h3>
-<p>You have 30 days from delivery. Items must be unworn with tags attached — try them on indoors, keep the hangtag on until you are sure. Start a return from your <a href="/account/orders">order history</a> and we email a prepaid label the same day.</p>
+<p>You have 30 days from delivery. Items must be unworn with tags attached — try them on indoors, keep the hangtag on until you are sure. Start a return from your <a href="/account">order history</a> and we email a prepaid label the same day.</p>
 <ul><li>Refunds land on the original payment method within 3–5 business days of us receiving the parcel.</li><li>Exchanges ship the day your return is scanned by the carrier, so you are not waiting twice.</li><li>Final sale and personal-care items are not returnable — noted on the product page.</li></ul>
 <h3>Warranty</h3>
 <p>Every Vennix piece carries a two-year defect warranty and free repair service. Seams, zips, elastics and prints are covered. Normal wear is not a defect, but we will still fix it for a small fee rather than have you replace it.</p>`
@@ -946,4 +946,4 @@ function ensureSeeded() {
   return store.getDb();
 }
 
-module.exports = { seed, ensureSeeded, PRODUCT_DEFS, PAGE_DEFS, FAQ_DEFS, REVIEW_DEFS, SIZE_CHARTS };
+module.exports = { seed, ensureSeeded, seedProducts, PRODUCT_DEFS, PAGE_DEFS, POST_DEFS, FAQ_DEFS, REVIEW_DEFS, SIZE_CHARTS, COLORS };

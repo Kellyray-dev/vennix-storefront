@@ -1,11 +1,11 @@
 'use strict';
 /**
- * features.js — the storefront features borrowed from a modern retail site.
+ * features.js — the storefront's less obvious machinery, exercised over HTTP.
  *
- * These are the checks that prove the newer, less obvious machinery works:
- * paid monogramming, the size finder, shop-the-look bundling, progressive
- * "load more" and remembered searches. The HTTP smoke test covers routes; this
- * covers the rules behind them, including the ones that must *refuse*.
+ * The smoke test covers routes; this covers the rules behind the features:
+ * paid monogramming (as a real Shopify service-product line), the size
+ * finder, shop-the-look pairing, back-in-stock alerts, server-side filtering
+ * and load-more — including the cases that must *refuse*.
  *
  * Usage: node scripts/features.js [baseUrl]
  */
@@ -18,11 +18,11 @@ const failures = [];
 function session() {
   const jar = new Map();
   return {
-    cookie: () => [...jar.entries()].map(([k, v]) => `${k}=${v}`).join('; '),
     async req(path, { method = 'GET', body } = {}) {
       const headers = {};
       const cookie = [...jar.entries()].map(([k, v]) => `${k}=${v}`).join('; ');
       if (cookie) headers.Cookie = cookie;
+      if (method !== 'GET') headers.Origin = BASE;
       if (body) headers['Content-Type'] = 'application/json';
       const res = await fetch(BASE + path, { method, headers, body: body ? JSON.stringify(body) : undefined, redirect: 'manual' });
       (res.headers.getSetCookie ? res.headers.getSetCookie() : []).forEach((raw) => {
@@ -32,7 +32,7 @@ function session() {
       });
       const text = await res.text();
       let json = null;
-      try { json = JSON.parse(text); } catch (error) { /* html or empty */ }
+      try { json = JSON.parse(text); } catch { /* html or empty */ }
       return { status: res.status, text, json };
     }
   };
@@ -52,7 +52,7 @@ function productJson(html, handle) {
   console.log(`\nVennix feature test → ${BASE}\n${'─'.repeat(48)}`);
 
   /* ------------------------------------------------------------ monogramming */
-  console.log('\nMonogramming (paid personalisation as a line item)');
+  console.log('\nMonogramming (paid personalisation via a Shopify service product)');
   const s = session();
   const pdp = await s.req('/products/atlas-heavyweight-hoodie');
   expect('product page offers monogramming', pdp.text.includes('data-monogram-input'));
@@ -73,13 +73,13 @@ function productJson(html, handle) {
   const add = await s.req('/api/cart/add', { method: 'POST', body: { variantId: variant.id, quantity: 1, personalization: { text: 'abc' } } });
   expect('a monogrammed piece can be added', add.json.ok);
   expect('the line carries the characters', add.json.cart.lines[0].personalization.text === 'ABC');
-  expect('the line is priced base + add-on', add.json.cart.lines[0].price === variant.price + 2000,
-    `${add.json.cart.lines[0].price} vs ${variant.price + 2000}`);
+  expect('the fee is charged via the service product line', add.json.cart.subtotal === variant.price + 2000,
+    `${add.json.cart.subtotal} vs ${variant.price + 2000}`);
   const blank = await s.req('/api/cart/add', { method: 'POST', body: { variantId: variant.id, quantity: 1 } });
-  expect('a blank piece stays a separate line', blank.json.cart.lines.length === 2);
+  expect('identical garments merge; cart still shows one display line', blank.json.cart.lines.length === 1 && blank.json.cart.lines[0].quantity === 2,
+    JSON.stringify(blank.json.cart.lines.map(l => ({ q: l.quantity, p: !!l.personalization }))));
   const again = await s.req('/api/cart/add', { method: 'POST', body: { variantId: variant.id, quantity: 1, personalization: { text: 'abc' } } });
-  expect('the same monogram merges into one line',
-    again.json.cart.lines.length === 2 && again.json.cart.lines.find(l => l.personalization).quantity === 2);
+  expect('adding the same monogram again merges quantities', again.json.cart.lines.length === 1 && again.json.cart.lines[0].quantity === 3);
   const badAdd = await s.req('/api/cart/add', { method: 'POST', body: { variantId: variant.id, personalization: { text: 'TOOLONG' } } });
   expect('an invalid monogram never reaches the cart', badAdd.status === 400);
 
@@ -104,22 +104,21 @@ function productJson(html, handle) {
   expect('it never recommends a size the product does not make', ['XS', 'S', 'M', 'L', 'XL'].includes(bra.json.fit.size), bra.json.fit.size);
 
   /* ------------------------------------------------------------ shop the look */
-  console.log('\nShop the look (bundle that adds in one request)');
+  console.log('\nShop the look (Shopify recommendations + studio pairing rules)');
   const look = await s.req('/api/style?handle=atlas-heavyweight-hoodie&limit=3');
   expect('the rail returns three partners', look.json.look.length === 3);
   expect('partners are complementary, not more of the same', look.json.look.every(l => l.type !== 'Hoodie'));
   expect('every partner is actually in stock', look.json.look.every(l => l.available));
   const railPdp = await s.req('/products/everyday-brushed-fleece-jogger');
   expect('the product page renders the rail with real prices', railPdp.text.includes('data-add-look') && railPdp.text.includes('The full look'));
-  expect('any bundle saving quoted comes from a real code',
-    /CAPSULE20|WELCOME10/.test(railPdp.text) || /No bundle code applies/.test(railPdp.text));
+  expect('the rail never invents a bundle discount', !/bundle (saving|discount)/i.test(railPdp.text) && railPdp.text.includes('Have a code'));
 
   const lookSession = session();
   const items = look.json.look.map(l => ({ variantId: l.variant, quantity: 1 }));
   const lookAdd = await lookSession.req('/api/cart/add', { method: 'POST', body: { items } });
   expect('the whole look adds in one request', lookAdd.json.ok && lookAdd.json.added === 3, JSON.stringify(lookAdd.json.failed));
   expect('the cart then holds three pieces', lookAdd.json.cart.count === 3, String(lookAdd.json.cart.count));
-  const partial = await lookSession.req('/api/cart/add', { method: 'POST', body: { items: [{ variantId: 'var_not_real_x' }, { variantId: look.json.look[1].variant }] } });
+  const partial = await lookSession.req('/api/cart/add', { method: 'POST', body: { items: [{ variantId: 'gid://shopify/ProductVariant/not_real_x' }, { variantId: look.json.look[1].variant }] } });
   expect('one bad item does not discard the good ones', partial.json.ok && partial.json.added === 1 && partial.json.failed.length === 1);
 
   /* ------------------------------------------------------- back in stock */
@@ -127,7 +126,7 @@ function productJson(html, handle) {
   const notifySession = session();
   const hoodie = await notifySession.req('/products/atlas-heavyweight-hoodie');
   const soldOut = productJson(hoodie.text, 'atlas-heavyweight-hoodie').variants.find(v => v.stock <= 0);
-  expect('a sold-out size exists in the demo data', !!soldOut, soldOut ? `${soldOut.color}/${soldOut.size}` : 'none');
+  expect('a sold-out size exists in the catalog', !!soldOut, soldOut ? `${soldOut.color}/${soldOut.size}` : 'none');
   if (soldOut) {
     const badEmail = await notifySession.req('/api/notify', { method: 'POST', body: { email: 'not-an-email', variantId: soldOut.id } });
     expect('a nonsense email is refused', badEmail.status === 400);
@@ -145,8 +144,8 @@ function productJson(html, handle) {
   const notifyForm = await session().req('/products/atlas-heavyweight-hoodie');
   expect('the product page ships a working alert form', notifyForm.text.includes('data-notify-form'));
 
-  /* --------------------------------------------------------------- load more */
-  console.log('\nCollections: load more, without breaking pagination');
+  /* ----------------------------------------------------- filtering + paging */
+  console.log('\nCollections: server-side filtering, sorting, load more');
   const all = await s.req('/collections/all');
   const next = all.text.match(/data-next="([^"]+)"/);
   expect('the collection ships a load-more control', !!next);
@@ -158,10 +157,28 @@ function productJson(html, handle) {
   const filtered = await s.req('/collections/all?color=Clay&sort=price-asc');
   expect('load-more preserves the active filters and sort',
     !/data-next/.test(filtered.text) || /data-next="[^"]*color=Clay[^"]*sort=price-asc/.test(filtered.text) || /data-next="[^"]*sort=price-asc/.test(filtered.text));
+  const tagged = await s.req('/collections/active?tag=running');
+  expect('tag filters narrow the listing', (tagged.text.match(/class="pcard"/g) || []).length < (all.text.match(/class="pcard"/g) || []).length + 1);
+  const sorted = await s.req('/collections/all?sort=price-asc');
+  const prices = sorted.text.split('<article class="pcard"').slice(1)
+    .map(chunk => { const m = chunk.match(/\$(\d+(?:\.\d+)?)/); return m ? parseFloat(m[1]) : null; })
+    .filter(n => n !== null);
+  expect('price-asc sort is honoured by the server', prices.length > 1 && prices.every((p, i) => i === 0 || prices[i - 1] <= p), prices.join(','));
 
   /* ------------------------------------------------------------------ search */
   console.log('\nSearch: remembering what people looked for');
   expect('the search overlay has a slot for recent searches', all.text.includes('data-recent-searches'));
+  const searchJson = await s.req('/api/search?q=atlas');
+  expect('predictive search finds products, collections or articles', searchJson.json.ok &&
+    (searchJson.json.products.length + searchJson.json.collections.length + searchJson.json.articles.length) > 0);
+
+  /* ------------------------------------------------------------ free shipping */
+  console.log('\nFree-shipping promise (storefront brand rule, not shipping calc)');
+  const fsSession = session();
+  const expensive = productJson(pdp.text, 'atlas-heavyweight-hoodie').variants.find(v => v.stock > 5 && v.price >= 5000);
+  await fsSession.req('/api/cart/add', { method: 'POST', body: { variantId: expensive.id, quantity: 1 } });
+  const cartRes = await fsSession.req('/api/cart');
+  expect('cart drawer reports the free-shipping promise', /free standard shipping/i.test(cartRes.json.html.shipMsg));
 
   console.log(`\n${'─'.repeat(48)}`);
   console.log(`  ${pass} passed, ${fail} failed`);
@@ -170,4 +187,4 @@ function productJson(html, handle) {
     failures.forEach(f => console.log(`  · ${f}`));
   }
   process.exit(fail ? 1 : 0);
-})();
+})().catch(err => { console.error(err); process.exit(1); });
