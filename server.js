@@ -7,27 +7,37 @@
  *     carts, discounts, checkout and orders all live in Shopify and are read
  *     through lib/shopify (Storefront API via lib/shopify/catalog + cart-api).
  *   - This server renders the editorial storefront UI and hands checkout off
- *     to Shopify's hosted checkout (GET/POST /checkout → 302/303).
+ *     to Shopify's hosted checkout (GET/POST /checkout → 302/303, allowlisted).
  *   - Local persistence is limited to non-commerce leads (newsletter, contact
  *     messages, back-in-stock alerts, review submissions) in lib/leads.
  *
  * Demo mode: when SHOPIFY_STORE_DOMAIN is not configured, an in-process mock
  * Shopify gateway (tools/mock-shopify) serves the committed fixture through
- * the exact same GraphQL code path, clearly labelled in the UI.
+ * the exact same GraphQL code path, clearly labelled in the UI. Demo mode is
+ * impossible in production (NODE_ENV=production) unless VENNIX_ALLOW_DEMO=1,
+ * and impossible while a real store is configured — see lib/shopify/config.js.
  */
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const { URL } = require('url');
 
+// Load .env / .env.local first so real credentials can live outside git.
+require('./lib/env').loadEnv({ cwd: __dirname, quiet: process.env.NODE_ENV === 'test' });
+
 const settings = require('./lib/settings');
 const leads = require('./lib/leads');
 const cartLib = require('./lib/cart');
 const layout = require('./lib/layout');
 const api = require('./lib/api');
+const security = require('./lib/security');
+const compress = require('./lib/compress');
+const statusPage = require('./lib/pages/status');
 const catalog = require('./lib/shopify/catalog');
 const client = require('./lib/shopify/client');
 const shopifyConfig = require('./lib/shopify/config');
+const { preflight, formatPreflight } = require('./lib/shopify/preflight');
+const locks = require('./lib/locks');
 const { makeLimiter } = require('./lib/ratelimit');
 
 const home = require('./lib/pages/home');
@@ -42,6 +52,7 @@ const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || '0.0.0.0';
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const limiter = makeLimiter();
+const startedAt = Date.now();
 let DEMO_MODE = false;
 let gateway = null;
 
@@ -54,49 +65,131 @@ const MIME = {
   '.xml': 'application/xml; charset=utf-8', '.map': 'application/json'
 };
 
-function sendHtml(res, html, status = 200, extraHeaders = {}) {
-  const body = Buffer.from(html);
-  res.writeHead(status, {
-    'Content-Type': 'text/html; charset=utf-8',
-    'Content-Length': body.length,
-    'X-Content-Type-Options': 'nosniff',
-    'X-Frame-Options': 'DENY',
-    'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
-    ...extraHeaders
-  });
-  res.end(body);
+/** Pick an encoding the client offered, for a body worth compressing. */
+function pickEncoding(req, contentType, size) {
+  if (!req || process.env.COMPRESSION_OFF === '1') return 'identity';
+  if (size < compress.MIN_BYTES) return 'identity';
+  if (!compress.isCompressible(contentType)) return 'identity';
+  return compress.chooseEncoding(req.headers['accept-encoding']);
 }
 
-function sendJson(res, obj, status = 200) {
-  const body = Buffer.from(JSON.stringify(obj));
+async function sendHtml(req, res, html, status = 200, extraHeaders = {}) {
+  const raw = Buffer.from(html);
+  const encoding = pickEncoding(req, 'text/html; charset=utf-8', raw.length);
+  let body = raw;
+  if (encoding !== 'identity') {
+    try { body = await compress.compressBuffer(raw, encoding); } catch { body = raw; }
+  }
+  const headers = security.securityHeaders({
+    req,
+    extra: {
+      'Content-Type': 'text/html; charset=utf-8',
+      // Cart state is per-visitor and the CSP nonce is per-request: never a
+      // shared-cache response.
+      'Cache-Control': 'private, no-store',
+      'Vary': 'Cookie, Accept-Encoding',
+      'Content-Length': body.length,
+      ...(encoding !== 'identity' ? { 'Content-Encoding': encoding } : {}),
+      ...extraHeaders
+    }
+  });
+  res.writeHead(status, headers);
+  res.end(req.method === 'HEAD' ? undefined : body);
+}
+
+async function sendJson(req, res, obj, status = 200) {
+  const raw = Buffer.from(JSON.stringify(obj));
+  const contentType = 'application/json; charset=utf-8';
+  const encoding = pickEncoding(req, contentType, raw.length);
+  let body = raw;
+  if (encoding !== 'identity') {
+    try { body = await compress.compressBuffer(raw, encoding); } catch { body = raw; }
+  }
   res.writeHead(status, {
-    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Type': contentType,
     'Content-Length': body.length,
     'Cache-Control': 'no-store',
+    'Vary': 'Cookie, Accept-Encoding',
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'X-Frame-Options': 'DENY'
+    'X-Frame-Options': 'DENY',
+    ...(encoding !== 'identity' ? { 'Content-Encoding': encoding } : {})
   });
-  res.end(body);
+  res.end(req.method === 'HEAD' ? undefined : body);
 }
 
 function redirect(res, location, status = 302) {
-  res.writeHead(status, { Location: location });
+  res.writeHead(status, {
+    Location: location,
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+    'Referrer-Policy': 'strict-origin-when-cross-origin'
+  });
   res.end();
 }
 
-function sendFile(res, filePath, { cache = false } = {}) {
-  fs.stat(filePath, (err, stat) => {
-    if (err || !stat.isFile()) { res.writeHead(404); res.end('Not found'); return; }
-    const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, {
-      'Content-Type': MIME[ext] || 'application/octet-stream',
-      'Content-Length': stat.size,
-      'Cache-Control': cache ? 'public, max-age=86400' : 'no-cache'
-    });
-    fs.createReadStream(filePath).pipe(res);
+function notModified(res, etag, cacheControl) {
+  res.writeHead(304, {
+    'Cache-Control': cacheControl,
+    'ETag': etag,
+    'Vary': 'Accept-Encoding'
   });
+  res.end();
+}
+
+/**
+ * Static assets: weak ETag (size + mtime), conditional 304s, brotli/gzip, and
+ * honest cache lifetimes. CSS/JS revalidate quickly (so a deploy is visible in
+ * minutes, not a day); images are immutable enough to cache for a week.
+ */
+async function sendFile(req, res, filePath, { longCache = false } = {}) {
+  let stat;
+  try { stat = await fs.promises.stat(filePath); } catch { res.writeHead(404); res.end('Not found'); return; }
+  if (!stat.isFile()) { res.writeHead(404); res.end('Not found'); return; }
+
+  const ext = path.extname(filePath).toLowerCase();
+  const contentType = MIME[ext] || 'application/octet-stream';
+  const etag = `"${stat.size.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}"`;
+  const cacheControl = longCache ? 'public, max-age=604800, must-revalidate' : 'public, max-age=300, must-revalidate';
+
+  if (req.headers['if-none-match'] === etag) return notModified(res, etag, cacheControl);
+
+  const encoding = pickEncoding(req, contentType, stat.size);
+  const headers = {
+    'Content-Type': contentType,
+    'Cache-Control': cacheControl,
+    'ETag': etag,
+    'Vary': 'Accept-Encoding',
+    'X-Content-Type-Options': 'nosniff'
+  };
+
+  if (encoding === 'identity') {
+    headers['Content-Length'] = stat.size;
+    res.writeHead(200, headers);
+    if (req.method === 'HEAD') return res.end();
+    fs.createReadStream(filePath).pipe(res);
+    return;
+  }
+
+  const key = compress.cacheKey(filePath, stat, encoding);
+  const cached = compress.cachedBody(key);
+  let body = cached;
+  if (!body) {
+    try {
+      body = await compress.compressBuffer(await fs.promises.readFile(filePath), encoding);
+      compress.storeBody(key, body);
+    } catch {
+      headers['Content-Length'] = stat.size;
+      res.writeHead(200, headers);
+      if (req.method === 'HEAD') return res.end();
+      fs.createReadStream(filePath).pipe(res);
+      return;
+    }
+  }
+  headers['Content-Length'] = body.length;
+  headers['Content-Encoding'] = encoding;
+  res.writeHead(200, headers);
+  res.end(req.method === 'HEAD' ? undefined : body);
 }
 
 function parseBody(req, limit = 128 * 1024) {
@@ -129,8 +222,9 @@ function parseBody(req, limit = 128 * 1024) {
 
 /**
  * CSRF defense for state-changing requests: Origin/Referer must match the
- * request's Host. SameSite=Lax cookies already blunt form-submit CSRF in
- * modern browsers; this adds defense-in-depth.
+ * request's Host, and — when the visitor holds the vnx_csrf cookie (every
+ * browser session does) — the X-CSRF-Token header must echo it. SameSite=Lax
+ * cookies blunt form-submit CSRF in modern browsers; this is defense-in-depth.
  */
 function sameOrigin(req) {
   const host = (req.headers.host || '').split(':')[0].toLowerCase();
@@ -146,12 +240,22 @@ function sameOrigin(req) {
   return true; // curl / non-browser clients without these headers
 }
 
+function refuse(res, status, message) {
+  res.writeHead(status, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' });
+  res.end(message);
+}
+
+/** Pages that must never be indexed (cart, checkout, internal search, account). */
+function noindexFor(pathname) {
+  return /^\/(search|cart|checkout|track|account)(\/|$)/.test(pathname);
+}
+
 /* -------------------------------- context --------------------------------- */
 
 async function makeCtx(req, res, url, query) {
   const [chrome, cart] = await Promise.all([
     layout.prepareChrome(),
-    cartLib.getDisplayCartFor(req)
+    cartLib.getDisplayCartFor(req, res)
   ]);
   return {
     req, res, url, query,
@@ -187,9 +291,10 @@ async function renderPage(ctx, page) {
     chrome: ctx.chrome,
     navActive: navActiveFor(ctx.url.pathname),
     upsellProducts,
-    demo: DEMO_MODE
+    demo: DEMO_MODE,
+    robots: page.robots || (noindexFor(ctx.url.pathname) ? 'noindex,follow' : '')
   });
-  sendHtml(ctx.res, html, page.status || 200);
+  await sendHtml(ctx.req, ctx.res, html, page.status || 200);
 }
 
 async function notFound(ctx) {
@@ -198,19 +303,23 @@ async function notFound(ctx) {
     title: page.title, description: page.description, canonical: page.canonical,
     jsonLd: [], bodyClass: page.bodyClass, content: page.content,
     settings: ctx.settings, cart: ctx.cart, chrome: ctx.chrome, navActive: '', upsellProducts: [],
-    demo: DEMO_MODE
+    demo: DEMO_MODE, robots: 'noindex,follow'
   });
-  sendHtml(ctx.res, html, 404);
+  await sendHtml(ctx.req, ctx.res, html, 404);
 }
 
+/**
+ * Failure pages. A Shopify outage is not a 500: shoppers get a branded pause
+ * screen with Retry-After, and nothing internal is echoed.
+ */
 async function serverError(ctx, err) {
-  console.error('[server] render error', ctx.url.pathname, err);
+  const isShopify = err && (err.name === 'ShopifyError' || /storefront api|shopify/i.test(err.message || ''));
+  console.error('[server] render error', ctx.url && ctx.url.pathname, isShopify ? '(shopify)' : '', err && err.message);
+  if (!isShopify) console.error(err);
+  const page = isShopify ? statusPage.unavailable({ retryAfter: 30 }) : statusPage.error();
   try {
-    sendHtml(ctx.res, `<!doctype html><html lang="en"><head><title>Server error</title></head>
-      <body style="font-family:system-ui;max-width:640px;margin:10vh auto;padding:0 20px">
-      <h1>Something went wrong</h1>
-      <p>The storefront could not render this page. Our team can see the issue —
-      try again in a moment, or <a href="/">go back home</a>.</p></body></html>`, 500);
+    const headers = page.retryAfter ? { 'Retry-After': String(page.retryAfter) } : {};
+    await sendHtml(ctx.req, ctx.res, page.html, page.status, headers);
   } catch { /* response already gone */ }
 }
 
@@ -232,15 +341,14 @@ async function sitemapXml() {
     url(`${base}/gift-cards`, undefined, 0.7),
     ...pages.map(p => url(`${base}/pages/${p.handle}`, p.updatedAt, 0.4)),
     url(`${base}/blogs/journal`, undefined, 0.6),
-    ...articles.map(a => url(`${base}/blogs/journal/${a.handle}`, a.publishedAt, 0.5)),
-    url(`${base}/track`, undefined, 0.3)
-  ];
+    ...articles.map(a => url(`${base}/blogs/journal/${a.handle}`, a.publishedAt, 0.5))
+  ].filter(Boolean);
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${rows.join('\n')}\n</urlset>\n`;
 }
 
 function robotsTxt() {
   const cfg = settings.get();
-  return `User-agent: *\nAllow: /\nDisallow: /checkout\nDisallow: /api/\nSitemap: https://${cfg.domain}/sitemap.xml\n`;
+  return `User-agent: *\nAllow: /\nDisallow: /checkout\nDisallow: /cart\nDisallow: /account\nDisallow: /api/\nSitemap: https://${cfg.domain}/sitemap.xml\n`;
 }
 
 /* --------------------------------- routing --------------------------------- */
@@ -248,28 +356,57 @@ function robotsTxt() {
 async function handle(req, res, url, query) {
   const pathname = url.pathname.replace(/\/+$/, '') || '/';
   const method = req.method.toUpperCase();
+  const isFormPost = String(req.headers['content-type'] || '').includes('application/x-www-form-urlencoded');
 
   // static assets
   if (pathname.startsWith('/css/') || pathname.startsWith('/js/') || pathname.startsWith('/images/') || pathname === '/favicon.svg' || pathname === '/apple-touch-icon.png') {
     const safe = path.normalize(pathname).replace(/^(\.\.[/\\])+/, '');
-    return sendFile(res, path.join(PUBLIC_DIR, safe), { cache: pathname.startsWith('/images/') || pathname.startsWith('/css/') || pathname.startsWith('/js/') });
+    const filePath = path.join(PUBLIC_DIR, safe);
+    if (!filePath.startsWith(PUBLIC_DIR)) return refuse(res, 400, 'Bad request');
+    return sendFile(req, res, filePath, { longCache: pathname.startsWith('/images/') });
   }
-  if (pathname === '/robots.txt') { res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end(robotsTxt()); }
-  if (pathname === '/healthz') return sendJson(res, { ok: true, demo: DEMO_MODE });
+  if (pathname === '/robots.txt') {
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=3600' });
+    return res.end(robotsTxt());
+  }
+  if (pathname === '/healthz') return sendJson(req, res, healthPayload());
+  if (method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Allow': 'GET, HEAD, POST, OPTIONS',
+      'Content-Length': 0,
+      'Cache-Control': 'no-store',
+      'X-Content-Type-Options': 'nosniff'
+    });
+    return res.end();
+  }
 
-  const ctx = await makeCtx(req, res, url, query);
+  // Global per-IP request limit (blunt, protects the Node process itself).
+  if (!limiter.allow(req, 'requests', { windowMs: 60_000, max: 900 })) {
+    res.writeHead(429, { 'Content-Type': 'text/plain; charset=utf-8', 'Retry-After': '60', 'Cache-Control': 'no-store' });
+    return res.end('Too many requests — slow down a moment.');
+  }
+
+  // Every browser session gets a CSRF token to echo back on writes.
+  security.ensureCsrfCookie(req, res, { secure: security.isSecure(req) });
 
   // CSRF defense for all state-changing requests
   if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
     if (!sameOrigin(req)) {
-      res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
-      return res.end('Cross-origin request blocked.');
+      return refuse(res, 403, 'Cross-origin request blocked.');
     }
-    if (!limiter.allow(req, 'writes', { windowMs: 10_000, max: 60 })) {
-      res.writeHead(429, { 'Content-Type': 'text/plain; charset=utf-8' });
+    // Form-encoded posts are verified in the handler (the token is a form field).
+    if (!isFormPost) {
+      const check = security.verifyCsrf(req);
+      if (!check.ok) return refuse(res, 403, 'CSRF token missing or invalid.');
+    }
+    if (!limiter.allow(req, 'writes', { windowMs: 10_000, max: 120 })) {
+      res.writeHead(429, { 'Content-Type': 'text/plain; charset=utf-8', 'Retry-After': '10', 'Cache-Control': 'no-store' });
       return res.end('Too many requests — slow down a moment.');
     }
   }
+
+
+  const ctx = await makeCtx(req, res, url, query);
 
   // JSON API
   if (pathname === '/api' || pathname.startsWith('/api/')) {
@@ -278,7 +415,7 @@ async function handle(req, res, url, query) {
 
   // legacy admin surface is retired — Shopify admin is the only one
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
-    return sendHtml(res, `<!doctype html><html lang="en"><head><title>Admin</title></head>
+    return sendHtml(req, res, `<!doctype html><html lang="en"><head><title>Admin</title></head>
       <body style="font-family:system-ui;max-width:640px;margin:10vh auto;padding:0 20px">
       <h1>Products and orders live in Shopify</h1>
       <p>The custom Vennix admin was retired in the Shopify migration. Manage the
@@ -305,6 +442,8 @@ async function handle(req, res, url, query) {
   if (pathname === '/pages/contact' && method === 'POST') {
     const body = await parseBody(req);
     const values = body || {};
+    const csrf = security.verifyCsrf(req, values[security.CSRF_FIELD]);
+    if (!csrf.ok) return refuse(res, 403, 'Your session expired — reload the page and try again.');
     const required = ['name', 'email', 'message'];
     let error = '';
     for (const f of required) if (!String(values[f] || '').trim()) error = 'Please complete all required fields.';
@@ -389,14 +528,32 @@ async function handle(req, res, url, query) {
     }
 
     if (seg[0] === 'sitemap.xml') {
-      res.writeHead(200, { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'no-cache' });
-      return res.end(await sitemapXml());
+      const xml = await sitemapXml();
+      res.writeHead(200, { 'Content-Type': 'application/xml; charset=utf-8', 'Cache-Control': 'public, max-age=600' });
+      return res.end(xml);
     }
 
     return notFound(ctx);
   } catch (err) {
     return serverError(ctx, err);
   }
+}
+
+function healthPayload() {
+  let cfg = null;
+  try { cfg = shopifyConfig.getConfig(); } catch (err) { /* config errors are surfaced at boot */ }
+  return {
+    ok: true,
+    demo: DEMO_MODE,
+    mode: DEMO_MODE ? 'demo' : 'live',
+    apiVersion: cfg ? cfg.version : shopifyConfig.DEFAULT_API_VERSION,
+    // the domain is not a secret; the token never appears in any response
+    store: cfg && cfg.domain ? cfg.domain : null,
+    uptimeSeconds: Math.round((Date.now() - startedAt) / 1000),
+    cache: catalog.cacheStats(),
+    shopify: client.getMetrics(),
+    locks: locks.stats()
+  };
 }
 
 /* ---------------------------------- boot ----------------------------------- */
@@ -410,10 +567,20 @@ async function boot() {
     gateway = await startMockGateway({ port: 0 });
     client.setEndpoint(gateway.url);
     console.log('[vennix] DEMO MODE — no SHOPIFY_STORE_DOMAIN configured.');
-    console.log('[vennix] Mock Shopify gateway on ephemeral port; using fixture catalog.');
+    console.log('[vennix] Mock Shopify gateway on an ephemeral port; using the committed fixture catalog.');
     console.log('[vennix] Set SHOPIFY_STORE_DOMAIN + SHOPIFY_STOREFRONT_ACCESS_TOKEN to go live.');
   } else {
-    console.log(`[vennix] Live mode — reading catalog and carts from ${cfg.domain} (${cfg.apiVersion}).`);
+    console.log(`[vennix] Live mode — catalog and carts come from ${cfg.domain} (Storefront API ${cfg.version}).`);
+    const result = await preflight();
+    if (result.checks && result.checks.length) {
+      console.log('[vennix] Connection preflight:');
+      console.log(formatPreflight(result));
+    }
+    if (!result.ok) {
+      console.error('\n[vennix] Shopify connection failed — refusing to start a storefront that cannot sell.');
+      console.error('[vennix] Fix the credentials above (see docs/SETUP.md) and restart.');
+      process.exit(1);
+    }
   }
 
   // Warm the catalog cache so the first page does not pay for it.
@@ -423,11 +590,19 @@ async function boot() {
     let url;
     try { url = new URL(req.url, `http://${req.headers.host || 'localhost'}`); } catch { res.writeHead(400); return res.end('Bad request'); }
     const query = Object.fromEntries(url.searchParams.entries());
-    handle(req, res, url, query).catch(err => serverError({ url, res, cart: { lines: [] }, chrome: { products: [], collections: [] }, settings: settings.get() }, err));
+    const nonce = security.newNonce();
+    security.runWithRequest({ req, res, nonce, startedAt: Date.now() }, () => {
+      handle(req, res, url, query).catch(err => serverError({ req, res, url, cart: { lines: [] }, chrome: { products: [], collections: [] }, settings: settings.get() }, err));
+    });
   });
 
+  server.keepAliveTimeout = 65000;
+  server.headersTimeout = 70000;
+  server.requestTimeout = 30000;
+
   server.listen(PORT, HOST, () => {
-    console.log(`[vennix] Storefront listening on http://${HOST}:${PORT}`);
+    const bound = (server.address() && server.address().port) || PORT;
+    console.log(`[vennix] Storefront listening on http://${HOST}:${bound}`);
     if (process.env.RENDER_EXTERNAL_URL) console.log(`[vennix] Preview: ${process.env.RENDER_EXTERNAL_URL}`);
   });
 
@@ -444,7 +619,7 @@ async function boot() {
 }
 
 boot().catch(err => {
-  console.error('[vennix] failed to boot:', err);
+  console.error('[vennix] failed to boot:', err && err.message ? err.message : err);
   process.exit(1);
 });
 

@@ -1,4 +1,5 @@
 'use strict';
+const { DEFAULT_API_VERSION } = require('../../lib/shopify/config');
 /**
  * mock-shopify gateway — a Storefront-API-compatible demo store.
  *
@@ -90,7 +91,13 @@ function shapeProduct(state, product) {
   };
 }
 
-function cartCost(state, cart) {
+/**
+ * Merchandise subtotal, the discount total, and the 2026-07 discount
+ * application objects that explain it. Mirrors Shopify: `cost.subtotalAmount`
+ * is the post-discount subtotal, and `discountApplications` carries the
+ * authoritative per-application allocation totals.
+ */
+function cartDiscounts(state, cart) {
   let subtotal = 0;
   for (const line of cart.lines) {
     const entry = state.variantIndex.get(line.merchandiseId);
@@ -98,29 +105,77 @@ function cartCost(state, cart) {
     subtotal += cents(entry.variant.price) * line.quantity;
   }
   let discount = 0;
-  const codes = [];
+  const apps = [];
   for (const code of cart.discountCodes) {
     const def = state.fixture.discountCodes[code];
-    if (!def) { codes.push({ code, applicable: false }); continue; }
-    if (subtotal < def.minSubtotalCents) { codes.push({ code, applicable: false }); continue; }
-    if (def.type === 'percent') discount += Math.round(subtotal * def.value / 100);
+    if (!def) continue;
+    if (subtotal < def.minSubtotalCents) continue;
+    if (def.type === 'percent') {
+      const amount = Math.round(subtotal * def.value / 100);
+      discount += amount;
+      apps.push({
+        __typename: 'CartCodeDiscountApplication',
+        allocationMethod: 'ACROSS',
+        targetType: 'LINE_ITEM',
+        totalAllocatedAmount: money(amount)
+      });
+    }
     // 'shipping' codes only affect shipping, which is calculated in Shopify's
-    // checkout — they still count as applicable on the cart.
-    codes.push({ code, applicable: true });
+    // checkout — they still count as applicable on the cart, and they are the
+    // reason a client must exclude SHIPPING_LINE allocations from a merchandise
+    // discount total.
+    else if (def.type === 'shipping') {
+      apps.push({
+        __typename: 'CartCodeDiscountApplication',
+        allocationMethod: 'EACH',
+        targetType: 'SHIPPING_LINE',
+        totalAllocatedAmount: money(0)
+      });
+    }
   }
+  return { subtotal, discount: Math.min(discount, subtotal), apps };
+}
+
+function cartCost(state, cart) {
+  const { subtotal, discount, apps } = cartDiscounts(state, cart);
   const total = Math.max(0, subtotal - discount);
   return {
     // Shopify's cost.subtotalAmount is the post-discount subtotal
     subtotalAmount: money(total),
     totalAmount: money(total),
     totalTaxAmount: money(0),
-    checkoutChargeAmount: money(total)
+    checkoutChargeAmount: money(total),
+    apps,
+    lineDiscount: discount,
+    lineSubtotal: subtotal
   };
 }
 
 function money(cents) { return { amount: (cents / 100).toFixed(2), currencyCode: 'USD' }; }
 
+/** Deterministic, Liquid-style view key derived from the line's own identity. */
+function viewKeyFor(line) {
+  return crypto.createHash('sha256').update(String(line.id)).digest('hex').slice(0, 32);
+}
+
+/** 2026-07: a line may be addressed by either its id or its viewKey. */
+function findLine(cart, ref) {
+  if (!ref) return null;
+  if (ref.id) return cart.lines.find(l => l.id === ref.id) || null;
+  if (ref.viewKey) return cart.lines.find(l => viewKeyFor(l) === ref.viewKey) || null;
+  return null;
+}
+
 function serializeCart(state, cart) {
+  const cost = cartCost(state, cart);
+  // Spread the merchandise discount across the lines by value, the way Shopify
+  // allocates an order-level discount — enough for the storefront to show a
+  // truthful per-line figure without pretending to be Shopify's allocator.
+  const lineValues = cart.lines.map(line => {
+    const entry = state.variantIndex.get(line.merchandiseId);
+    return entry ? cents(entry.variant.price) * line.quantity : 0;
+  });
+  const lineSubtotal = lineValues.reduce((s, v) => s + v, 0) || 0;
   return {
     id: cart.id,
     checkoutUrl: cart.checkoutUrl,
@@ -129,16 +184,29 @@ function serializeCart(state, cart) {
     attributes: cart.attributes || [],
     buyerIdentity: { email: cart.email || null },
     discountCodes: cartDiscountCodes(state, cart),
+    discountApplications: { nodes: cost.apps },
     lines: {
-      nodes: cart.lines.map(line => {
+      nodes: cart.lines.map((line, i) => {
         const entry = state.variantIndex.get(line.merchandiseId);
         if (!entry) return null;
         const v = liveVariant(state, entry.variant);
+        const lineValue = lineValues[i];
+        const lineDiscount = lineSubtotal > 0
+          ? Math.round(cost.lineDiscount * (lineValue / lineSubtotal))
+          : 0;
         return {
           id: line.id,
+          // 2026-07: stable identifier also accepted by cartLinesUpdate /
+          // cartLinesRemove, and the same value Liquid exposes as view_key.
+          viewKey: viewKeyFor(line),
           quantity: line.quantity,
           attributes: line.attributes || [],
-          cost: { totalAmount: money(cents(entry.variant.price) * line.quantity) },
+          cost: { totalAmount: money(lineValue - lineDiscount) },
+          discountAllocations: lineDiscount > 0 ? [{
+            __typename: 'CartCodeDiscountAllocation',
+            targetType: 'LINE_ITEM',
+            discountedAmount: money(lineDiscount)
+          }] : [],
           merchandise: {
             __typename: 'ProductVariant',
             ...v,
@@ -155,7 +223,7 @@ function serializeCart(state, cart) {
         };
       }).filter(Boolean)
     },
-    cost: cartCost(state, cart)
+    cost
   };
 }
 
@@ -296,7 +364,9 @@ function handleOperation(state, operation, body) {
       const token = crypto.randomBytes(16).toString('base64url');
       const cart = {
         id: `gid://shopify/Cart/${token}`,
-        checkoutUrl: `https://${state.fixture.checkoutDomain || 'checkout.vennix-demo.example'}/checkouts/cn/${token}`,
+        // Same shape as a real cart: a Shopify-hosted checkout URL. The storefront
+        // allowlists checkout hosts, so the demo gateway must look like Shopify too.
+        checkoutUrl: `https://${state.fixture.checkoutDomain || 'vennix-demo.myshopify.com'}/cart/c/${token}`,
         lines: [],
         discountCodes: [],
         note: input.note || '',
@@ -337,7 +407,7 @@ function handleOperation(state, operation, body) {
       const cart = state.carts.get(vars.cartId);
       if (!cart) return { cartLinesUpdate: { cart: null, userErrors: [{ field: ['cartId'], message: 'Cart not found.' }] } };
       for (const upd of vars.lines || []) {
-        const line = cart.lines.find(l => l.id === upd.id);
+        const line = findLine(cart, upd);
         if (!line) return { cartLinesUpdate: { cart: serializeCart(state, cart), userErrors: [{ field: ['id'], message: 'That line is no longer in the cart.' }] } };
         const entry = state.variantIndex.get(line.merchandiseId);
         const currentHeld = line.quantity;
@@ -354,8 +424,12 @@ function handleOperation(state, operation, body) {
     case 'CartLinesRemove': {
       const cart = state.carts.get(vars.cartId);
       if (!cart) return { cartLinesRemove: { cart: null, userErrors: [{ field: ['cartId'], message: 'Cart not found.' }] } };
-      for (const id of vars.lineIds || []) {
-        const idx = cart.lines.findIndex(l => l.id === id);
+      // 2026-07: cartLinesRemove takes either lineIds or viewKeys.
+      const refs = (vars.lineIds || []).map(id => ({ id }))
+        .concat((vars.viewKeys || []).map(viewKey => ({ viewKey })));
+      for (const ref of refs) {
+        const line = findLine(cart, ref);
+        const idx = line ? cart.lines.indexOf(line) : -1;
         if (idx > -1) {
           const line = cart.lines[idx];
           state.inventory.set(line.merchandiseId, (state.inventory.get(line.merchandiseId) || 0) + line.quantity);
@@ -443,7 +517,7 @@ function startMockGateway({ port = 0, host = '127.0.0.1' } = {}) {
     server.listen(port, host, () => {
       const addr = server.address();
       resolve({
-        url: `http://${host}:${addr.port}/api/2025-10/graphql.json`,
+        url: `http://${host}:${addr.port}/api/${(process.env.SHOPIFY_API_VERSION || DEFAULT_API_VERSION).trim()}/graphql.json`,
         port: addr.port,
         state,
         close: () => new Promise(r => server.close(r))
