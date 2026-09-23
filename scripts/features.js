@@ -9,19 +9,25 @@
  *
  * Usage: node scripts/features.js [baseUrl]
  */
-const BASE = (process.argv[2] || 'http://127.0.0.1:3000').replace(/\/$/, '');
+const { ensureBase } = require('./helpers');
+let BASE = '';
+let stopServer = null;
 
 let pass = 0, fail = 0;
 const failures = [];
 
 /** A cookie-jar session, because cart behaviour is per-session. */
-function session() {
+function session(userAgent) {
   const jar = new Map();
   return {
     async req(path, { method = 'GET', body } = {}) {
-      const headers = {};
+      const headers = { 'User-Agent': userAgent };
       const cookie = [...jar.entries()].map(([k, v]) => `${k}=${v}`).join('; ');
-      if (cookie) headers.Cookie = cookie;
+      if (cookie) {
+        headers.Cookie = cookie;
+        const csrf = jar.get('vnx_csrf');
+        if (csrf) headers['X-CSRF-Token'] = csrf;
+      }
       if (method !== 'GET') headers.Origin = BASE;
       if (body) headers['Content-Type'] = 'application/json';
       const res = await fetch(BASE + path, { method, headers, body: body ? JSON.stringify(body) : undefined, redirect: 'manual' });
@@ -44,16 +50,21 @@ function expect(label, condition, detail = '') {
 }
 
 function productJson(html, handle) {
-  const match = html.match(new RegExp(`data-product-json="${handle}">([\\s\\S]*?)</script>`));
+  const match = html.match(new RegExp(`<script[^>]*data-product-json="${handle}"[^>]*>([\\s\\S]*?)</script>`));
   return match ? JSON.parse(match[1]) : null;
 }
 
+let RUNTIME_BASE = null;
 (async function run() {
+  const host = await ensureBase(process.argv[2]);
+  BASE = host.base;
+  stopServer = host.stop;
+  RUNTIME_BASE = BASE;
   console.log(`\nVennix feature test → ${BASE}\n${'─'.repeat(48)}`);
 
   /* ------------------------------------------------------------ monogramming */
   console.log('\nMonogramming (paid personalisation via a Shopify service product)');
-  const s = session();
+  const s = session('vennix-features/monogram');
   const pdp = await s.req('/products/atlas-heavyweight-hoodie');
   expect('product page offers monogramming', pdp.text.includes('data-monogram-input'));
   expect('the add-on price is stated up front', pdp.text.includes('+$20.00'));
@@ -113,7 +124,7 @@ function productJson(html, handle) {
   expect('the product page renders the rail with real prices', railPdp.text.includes('data-add-look') && railPdp.text.includes('The full look'));
   expect('the rail never invents a bundle discount', !/bundle (saving|discount)/i.test(railPdp.text) && railPdp.text.includes('Have a code'));
 
-  const lookSession = session();
+  const lookSession = session('vennix-features/look');
   const items = look.json.look.map(l => ({ variantId: l.variant, quantity: 1 }));
   const lookAdd = await lookSession.req('/api/cart/add', { method: 'POST', body: { items } });
   expect('the whole look adds in one request', lookAdd.json.ok && lookAdd.json.added === 3, JSON.stringify(lookAdd.json.failed));
@@ -123,7 +134,7 @@ function productJson(html, handle) {
 
   /* ------------------------------------------------------- back in stock */
   console.log('\nBack-in-stock alerts (every promise is actionable)');
-  const notifySession = session();
+  const notifySession = session('vennix-features/notify');
   const hoodie = await notifySession.req('/products/atlas-heavyweight-hoodie');
   const soldOut = productJson(hoodie.text, 'atlas-heavyweight-hoodie').variants.find(v => v.stock <= 0);
   expect('a sold-out size exists in the catalog', !!soldOut, soldOut ? `${soldOut.color}/${soldOut.size}` : 'none');
@@ -141,7 +152,7 @@ function productJson(html, handle) {
     // enumeration): both responses must look identical to an attacker.
     expect('asking twice returns a confirmation (no email enumeration)', dupe.json.ok && /will email/.test(dupe.json.message) && !/already/i.test(dupe.json.message));
   }
-  const notifyForm = await session().req('/products/atlas-heavyweight-hoodie');
+  const notifyForm = await session('vennix-features/notify-form').req('/products/atlas-heavyweight-hoodie');
   expect('the product page ships a working alert form', notifyForm.text.includes('data-notify-form'));
 
   /* ----------------------------------------------------- filtering + paging */
@@ -174,12 +185,13 @@ function productJson(html, handle) {
 
   /* ------------------------------------------------------------ free shipping */
   console.log('\nFree-shipping promise (storefront brand rule, not shipping calc)');
-  const fsSession = session();
+  const fsSession = session('vennix-features/collections');
   const expensive = productJson(pdp.text, 'atlas-heavyweight-hoodie').variants.find(v => v.stock > 5 && v.price >= 5000);
   await fsSession.req('/api/cart/add', { method: 'POST', body: { variantId: expensive.id, quantity: 1 } });
   const cartRes = await fsSession.req('/api/cart');
   expect('cart drawer reports the free-shipping promise', /free standard shipping/i.test(cartRes.json.html.shipMsg));
 
+  if (stopServer) await stopServer();
   console.log(`\n${'─'.repeat(48)}`);
   console.log(`  ${pass} passed, ${fail} failed`);
   if (fail) {

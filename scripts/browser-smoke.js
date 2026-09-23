@@ -41,7 +41,9 @@ function makeConsole(label) {
   return vc;
 }
 
-const BASE = (process.argv[2] || 'http://127.0.0.1:3000').replace(/\/$/, '');
+const { ensureBase } = require('./helpers');
+let BASE = (process.argv[2] || '').replace(/\/$/, '');
+let stopServer = null;
 
 /* ------------------------------- test harness ----------------------------- */
 
@@ -485,6 +487,9 @@ async function testSearchMemory() {
 /* ----------------------------------- main --------------------------------- */
 
 (async function main() {
+  const host = await ensureBase(BASE || process.env.BASE_URL);
+  BASE = host.base;
+  stopServer = host.stop;
   console.log(`\nVennix browser smoke → ${BASE}\n${'─'.repeat(48)}`);
   await prime();
   try {
@@ -498,6 +503,7 @@ async function testSearchMemory() {
     failed += 1;
     console.log('  ✗ unexpected harness error:', error && error.stack ? error.stack.split('\n').slice(0, 3).join(' ') : error);
   }
+  if (stopServer) await stopServer();
   console.log(`\n${'─'.repeat(48)}\n  ${passed} passed, ${failed} failed\n`);
   process.exit(failed ? 1 : 0);
 })();

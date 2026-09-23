@@ -9,14 +9,43 @@
  *
  * Usage: node scripts/smoke.js [baseUrl]
  */
-const BASE = (process.argv[2] || 'http://127.0.0.1:3000').replace(/\/$/, '');
+const { ensureBase } = require('./helpers');
 
 let pass = 0, fail = 0;
 const failures = [];
+let BASE = null;
+let stopServer = null;
+
+// A distinct user agent per run: the server keys short-lived cart memory on
+// ip + user agent, and test suites must not inherit each other's carts.
+const RUN_ID = `vennix-smoke/${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+/** Raw HTTP GET: fetch() transparently decompresses, so compression needs a socket. */
+function rawGet(path, { acceptEncoding = 'identity' } = {}) {
+  return new Promise((resolve, reject) => {
+    const url = new URL(BASE + path);
+    const request = require('http').request({
+      hostname: url.hostname, port: url.port || 80, path: url.pathname + url.search,
+      headers: { 'Accept-Encoding': acceptEncoding, 'User-Agent': RUN_ID }
+    }, (response) => {
+      const chunks = [];
+      let bytes = 0;
+      response.on('data', c => { chunks.push(c); bytes += c.length; });
+      response.on('end', () => resolve({ status: response.statusCode, headers: response.headers, bytes, body: Buffer.concat(chunks) }));
+    });
+    request.on('error', reject);
+    request.end();
+  });
+}
 
 async function req(path, { method = 'GET', body, cookie, form, redirect = 'manual' } = {}) {
-  const headers = {};
-  if (cookie) headers.Cookie = cookie;
+  const headers = { 'User-Agent': RUN_ID };
+  if (cookie) {
+    headers.Cookie = cookie;
+    // mirror the browser: when a vnx_csrf cookie exists, the POST echoes it
+    const csrf = /(?:^|; )vnx_csrf=([^;]+)/.exec(cookie);
+    if (csrf) headers['X-CSRF-Token'] = decodeURIComponent(csrf[1]);
+  }
   if (method !== 'GET') headers.Origin = BASE;
   let payload;
   if (form) {
@@ -40,6 +69,9 @@ function expect(label, condition, detail = '') {
 }
 
 (async function run() {
+  const host = await ensureBase(process.argv[2]);
+  BASE = host.base;
+  stopServer = host.stop;
   console.log(`\nVennix smoke test → ${BASE}\n${'─'.repeat(48)}`);
 
   /* ------------------------------------------------------ storefront pages */
@@ -81,7 +113,7 @@ function expect(label, condition, detail = '') {
   expect('GET /api/quickview returns variant picker html', quick.json && quick.json.ok && quick.json.html.includes('data-add-form'));
 
   const pdp = await req('/products/atlas-heavyweight-hoodie', { cookie });
-  const match = pdp.text.match(/data-product-json="atlas-heavyweight-hoodie">([\s\S]*?)<\/script>/);
+  const match = pdp.text.match(/data-product-json="atlas-heavyweight-hoodie"[^>]*>([\s\S]*?)<\/script>/);
   const data = JSON.parse(match[1]);
   const variant = data.variants.find(v => v.stock > 5);
   expect('in-stock variant discovered from PDP', !!variant);
@@ -94,8 +126,9 @@ function expect(label, condition, detail = '') {
 
   const add = await req('/api/cart/add', { method: 'POST', cookie, body: { variantId: variant.id, quantity: 1 } });
   expect('POST /api/cart/add adds a line', add.json && add.json.ok && add.json.cart.count === 1, JSON.stringify(add.json || {}).slice(0, 160));
-  cookie = (add.setCookie.find(c => c.startsWith('vnx_cart=')) || '').split(';')[0];
-  expect('cart id stored in HttpOnly cookie on first add', !!cookie && /httponly/i.test(add.setCookie.find(c => c.startsWith('vnx_cart=')) || ''), add.setCookie.join(' '));
+  const cartSetCookie = add.setCookie.find(c => c.startsWith('vnx_cart=')) || '';
+  cookie = (cartSetCookie || '').split(';')[0];
+  expect('cart id stored in HttpOnly cookie on first add', !!cookie && /httponly/i.test(cartSetCookie), add.setCookie.join(' '));
   expect('cart html fragments returned', !!(add.json.html && add.json.html.drawer && add.json.html.count));
   expect('monogrammed flag false for plain add', add.json.monogrammed === false);
 
@@ -171,7 +204,102 @@ function expect(label, condition, detail = '') {
   const sitemap = await req('/sitemap.xml');
   expect('sitemap lists products and pages', sitemap.text.includes('/products/') && sitemap.text.includes('/pages/') && sitemap.text.includes('/collections/'));
 
+  /* ------------------------------------------------- security hardening */
+  console.log('\nContent-Security-Policy');
+  const cspHeader = resp.headers.get('content-security-policy') || resp.headers.get('content-security-policy-report-only') || '';
+  expect('a CSP is emitted', !!cspHeader, cspHeader.slice(0, 60));
+  const nonceMatch = /'nonce-([^']+)'/.exec(cspHeader);
+  expect('the CSP carries a per-request nonce', !!nonceMatch);
+  const nonce = nonceMatch ? nonceMatch[1] : '';
+  expect('the nonce is unique per response',
+    nonce !== ((/nonce-([^']+)'/.exec((await fetch(BASE + '/')).headers.get('content-security-policy') || '') || [])[1] || nonce));
+  const freshHome = await fetch(BASE + '/', { headers: { 'User-Agent': RUN_ID } });
+  const freshHtml = await freshHome.text();
+  const freshNonce = (/nonce-([^']+)'/.exec(freshHome.headers.get('content-security-policy') || '') || [])[1] || '';
+  const inlineScripts = [...freshHtml.matchAll(/<script(?![^>]*\bsrc=)[^>]*>/gi)].map(m => m[0]);
+  expect(`every inline <script> is nonced (${inlineScripts.length} on the home page)`,
+    inlineScripts.length > 0 && inlineScripts.every(t => t.includes('nonce="')),
+    inlineScripts.filter(t => !t.includes('nonce="')).join(' ').slice(0, 120));
+  expect('the nonce in the page matches the nonce in that response\'s header',
+    !!freshNonce && inlineScripts.every(t => t.includes(`nonce="${freshNonce}"`)));
+  expect('the policy forbids framing, plugins and off-origin forms',
+    /frame-ancestors 'none'/.test(cspHeader) && /object-src 'none'/.test(cspHeader) && /form-action 'self'/.test(cspHeader));
+
+  console.log('\nCSRF (double-submit token)');
+  const csrfCookie = (await fetch(BASE + '/')).headers.getSetCookie().find(c => c.startsWith('vnx_csrf=')) || '';
+  const token = (csrfCookie.split(';')[0] || '').split('=')[1] || '';
+  expect('a CSRF cookie is minted for the session', /^[a-f0-9]{64}$/.test(token), csrfCookie.slice(0, 40));
+  const noToken = await fetch(BASE + '/api/cart', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Origin: BASE, Cookie: `vnx_csrf=${token}` }
+  });
+  expect('a POST without the token header is refused', noToken.status === 403, String(noToken.status));
+  const withToken = await fetch(BASE + '/api/cart', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Origin: BASE, Cookie: `vnx_csrf=${token}`, 'X-CSRF-Token': token }
+  });
+  expect('the same POST with the token is accepted', withToken.status !== 403, String(withToken.status));
+  const contactPage = await req('/pages/contact');
+  expect('the contact form carries a CSRF field', contactPage.text.includes('name="_csrf"'));
+
+  console.log('\nRate limiting');
+  const flood = [];
+  for (let i = 0; i < 9; i++) {
+    flood.push(await fetch(BASE + '/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Origin: BASE, 'User-Agent': RUN_ID },
+      body: JSON.stringify({ email: `flood-${i}@example.com` })
+    }));
+  }
+  const limited = flood.find(r => r.status === 429);
+  expect('a flood of submissions is throttled', !!limited, `statuses ${flood.map(r => r.status).join(',')}`);
+  expect('the 429 says when to retry', !!limited && !!limited.headers.get('retry-after'), limited && String(limited.headers.get('retry-after')));
+
+  console.log('\nOutput encoding (XSS)');
+  const payload = '<script>window.__xss=1</script>" onmouseover="alert(1)';
+  const reflected = await req('/search?q=' + encodeURIComponent(payload));
+  expect('a reflected search term cannot inject markup',
+    !reflected.text.includes('<script>window.__xss=1</script>') && !/ onmouseover="alert\(1\)/.test(reflected.text));
+  const xssPost = await fetch(BASE + '/api/contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Origin: BASE, 'User-Agent': RUN_ID },
+    body: JSON.stringify({ name: payload, email: 'xss@example.com', message: payload })
+  });
+  const xssBody = await xssPost.text();
+  expect('stored payloads are stored escaped, never echoed raw', !xssBody.includes('<script>window.__xss=1</script>'));
+
+  console.log('\nCookies');
+  const cartCookie = cartSetCookie;
+  expect('the cart cookie is HttpOnly', /httponly/i.test(cartCookie), cartCookie.slice(0, 60));
+  expect('the cart cookie is SameSite=Lax', /samesite=lax/i.test(cartCookie));
+  expect('the CSRF cookie is readable by page JS (double-submit needs it)', !/httponly/i.test(csrfCookie));
+
+  console.log('\nPerformance + caching');
+  const brRes = await rawGet('/', { acceptEncoding: 'br' });
+  const gzRes = await rawGet('/', { acceptEncoding: 'gzip' });
+  const plainRes = await rawGet('/', { acceptEncoding: 'identity' });
+  expect('HTML is brotli-compressed on the wire',
+    brRes.headers['content-encoding'] === 'br' && brRes.bytes < plainRes.bytes / 3,
+    `${plainRes.bytes} → ${brRes.bytes} bytes`);
+  expect('gzip is offered to clients without brotli',
+    gzRes.headers['content-encoding'] === 'gzip' && gzRes.bytes < plainRes.bytes / 2,
+    `${plainRes.bytes} → ${gzRes.bytes} bytes`);
+  expect('compressed responses vary on Accept-Encoding', /accept-encoding/i.test(String(brRes.headers.vary)));
+  expect('HTML is not shared-cache content', /private|no-store/.test(String(plainRes.headers['cache-control']) || ''));
+  const cssRes = await fetch(BASE + '/css/main.css', { headers: { 'User-Agent': RUN_ID } });
+  const etag = cssRes.headers.get('etag');
+  expect('static assets carry an ETag', !!etag, String(etag));
+  const condRes = await fetch(BASE + '/css/main.css', { headers: { 'If-None-Match': etag || '', 'User-Agent': RUN_ID } });
+  expect('a conditional request answers 304', condRes.status === 304, String(condRes.status));
+
+  console.log('\nSEO hygiene');
+  const searchPage = await req('/search?q=hoodie');
+  expect('internal search results are noindex', /name="robots"[^>]*noindex/i.test(searchPage.text));
+  const cartIndex = await req('/cart');
+  expect('the cart is noindex', /name="robots"[^>]*noindex/i.test(cartIndex.text));
+  expect('the home page is indexable and canonical',
+    /<link rel="canonical" href="https:\/\//.test(home.text) && !/name="robots"[^>]*noindex/i.test(home.text));
+
   /* -------------------------------------------------------------- summary */
+  if (stopServer) await stopServer();
   console.log(`\n${'─'.repeat(48)}\n  ${pass} passed, ${fail} failed\n`);
   if (failures.length) {
     console.log('Failures:');

@@ -10,7 +10,7 @@ jobs:
   verify:
     name: Storefront, Shopify data layer, theme and end-to-end checks
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
@@ -32,21 +32,22 @@ jobs:
       - name: Shopify data layer tests
         run: npm run test:shopify
 
+      # Configuration sanity: mode, API version, proxy/CSP expectations,
+      # repository metadata, legacy isolation.
+      - name: Configuration doctor
+        run: npm run doctor
+
+      # Nothing that ships may hold a credential, and no response may echo one.
+      - name: Secret scan (static + runtime)
+        run: npm run secrets
+
       - name: Theme structure check
         run: npm run theme:check
 
-      # boots the app on a spare port (demo mode → mock gateway + fixture)
-      # and renders every page shape
+      # Every one of these boots its own throwaway server on an ephemeral
+      # port, so order does not matter and state cannot leak between them.
       - name: Render check
         run: npm run check:render
-
-      - name: Start the storefront
-        run: |
-          node server.js > server.log 2>&1 &
-          for i in $(seq 1 30); do
-            node -e "fetch('http://127.0.0.1:3000/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))" && break
-            sleep 1
-          done
 
       - name: HTTP end-to-end suite
         run: npm run smoke
@@ -57,9 +58,31 @@ jobs:
       - name: Dead-link crawl
         run: npm run links
 
+      - name: Accessibility check
+        run: npm run a11y
+
       - name: Browser click test
         run: npm run browser:test
 
-      - name: Server log on failure
-        if: failure()
-        run: tail -80 server.log
+  verify-live:
+    name: Live Shopify verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Runs only when real store credentials are configured as repository
+    # secrets: SHOPIFY_STORE_DOMAIN and SHOPIFY_STOREFRONT_ACCESS_TOKEN.
+    if: ${{ github.event_name != 'pull_request' && secrets.SHOPIFY_STORE_DOMAIN != '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify against the live store
+        env:
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_STOREFRONT_ACCESS_TOKEN: ${{ secrets.SHOPIFY_STOREFRONT_ACCESS_TOKEN }}
+          SHOPIFY_PRIMARY_DOMAIN: ${{ secrets.SHOPIFY_PRIMARY_DOMAIN }}
+          VENNIX_LIVE_DISCOUNT_CODE: ${{ secrets.VENNIX_LIVE_DISCOUNT_CODE }}
+        run: npm run verify:live
