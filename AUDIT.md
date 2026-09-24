@@ -180,6 +180,11 @@ Verified by: `scripts/test-shopify.js` (allowlist unit tests),
   inherit each other's carts.
 - Cached stock can be up to `SHOPIFY_CACHE_TTL_MS` (15 s) old on a product
   page; the cart and checkout always re-check with Shopify.
+- Whether an oversell is refused at add time is the store's own inventory
+  policy, not our code: Shopify rejects the line when a variant is set to
+  *deny* overselling, and accepts it (reconciling at checkout) when it is set
+  to continue selling. `npm run verify:live` reports which behaviour the store
+  has instead of asserting one.
 
 Verified by: `scripts/test-shopify.js` (concurrency, session-key isolation),
 `scripts/verify-live.js` (oversell refused, sold-out refused).
@@ -226,13 +231,16 @@ Verified by: `scripts/test-shopify.js` (error codes, retryability),
 documents are checked against the store's own introspection, so a renamed field
 or dropped argument fails the run instead of failing at checkout).
 
-**Pinned-document drift is a real risk** — a version bump can drop a field or an
-argument. 2026-07 alone removed `types` from `Product.media`, renamed
-`Article.body` to `contentHtml` (and deprecated `Article.author` in favour of
-`authorV2`), and `Cart.discountApplications` is a plain list, not a connection —
-no `first`, no `nodes`. Normalizers keep the storefront's own field names
-(`body`, `author`) so templates never change when Shopify renames something.
-Three guards:
+**Pinned-document drift is a real risk** — a version bump can drop a field, drop
+an argument, or tighten nullability. 2026-07 alone removed `types` from
+`Product.media`, renamed `Article.body` to `contentHtml` (and deprecated
+`Article.author` in favour of `authorV2`), made `Cart.discountApplications` a
+plain list rather than a connection (no `first`, no `nodes`), and made
+`cartNoteUpdate(note:)` and `cartDiscountCodesUpdate(discountCodes:)` non-null —
+a nullable variable for a non-null argument is rejected with *"Nullability
+mismatch"* before the mutation runs. Normalizers keep the storefront's own field
+names (`body`, `author`) so templates never change when Shopify renames
+something. Guards:
 `scripts/verify-live.js` §3 introspects the live schema, and
 `scripts/test-shopify.js` both greps the documents for known-rejected arguments
 and unit-tests the conformance checker against stubbed schemas.

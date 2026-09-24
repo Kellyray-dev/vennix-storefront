@@ -114,13 +114,19 @@ const ROOT = path.join(__dirname, '..');
       check.missingFields.length === 0, check.missingFields.join(', '));
     ok('every argument the pinned documents send is accepted by the live schema',
       check.missingArgs.length === 0, check.missingArgs.join(', '));
+    ok('every mutation argument has a compatible nullability',
+      check.nullability.length === 0, check.nullability.join('; '));
     const gone = schemaCheck.deprecatedStillPresent(check.types);
     if (gone.length) {
-      soft(`deprecated field(s) still present: ${gone.join(', ')}`, false,
-        'removed from this API version — the code already tolerates its absence');
-    } else {
-      ok('the deprecated CartCost.totalTaxAmount still exists (and is optional anyway)', true);
+      soft(`deprecated field(s) gone: ${gone.join(', ')}`, false,
+        'no longer in this API version — the code already tolerates its absence');
     }
+    const inUse = schemaCheck.deprecatedInUse(check.deprecated);
+    if (inUse.length) {
+      soft(`deprecated field(s) still in use: ${inUse.join(', ')}`, false,
+        'still returned, but plan for removal before the next version bump');
+    }
+    if (!gone.length && !inUse.length) ok('no deprecated field is in play', true);
   }
 
   /* ------------------------------------------------------- 4. catalogue */
@@ -169,7 +175,10 @@ const ROOT = path.join(__dirname, '..');
   const pages = await catalog.getPages();
   soft('Shopify pages load', pages.length > 0, `${pages.length} pages`);
   const articles = await catalog.getArticles();
-  soft('journal articles load', articles.length > 0, `${articles.length} articles`);
+  const journalHandle = require('../settings').get().journalHandle || 'journal';
+  soft('journal articles load', articles.length > 0,
+    articles.length ? `${articles.length} articles`
+      : `0 articles — the store has no blog at handle "${journalHandle}". Set journalHandle in config/storefront.json if your blog is called something else, or publish an article to prove this path.`);
   if (articles.length) {
     const first = articles[0];
     // 2026-07: Article.body does not exist — if this is empty, the body is
@@ -197,8 +206,18 @@ const ROOT = path.join(__dirname, '..');
   ok('cartLinesUpdate changes quantity', updated.ok && updated.cart.lines[0].quantity === 2,
     updated.ok ? `qty ${updated.cart.lines[0].quantity}` : updated.error);
 
+  // Shopify refuses an oversell only when the variant's inventory policy says
+  // so; stores that allow "continue selling when out of stock" accept it and
+  // reconcile at checkout instead. Either answer is correct for that store, so
+  // this reports rather than fails — and puts the line back either way.
   const oversell = await cartApi.addLines(cartId, [{ merchandiseId: inStock.id, quantity: 9999 }]);
-  ok('overselling is refused by Shopify inventory', !oversell.ok, oversell.ok ? '' : String(oversell.error).slice(0, 90));
+  if (oversell.ok) {
+    soft('overselling is refused by Shopify inventory', false,
+      `Shopify accepted 9999 of a variant with ${inStock.stock} available — this store's inventory policy allows overselling, so checkout reconciles it instead of the cart refusing. Turn off "continue selling when out of stock" on the variant if you want this refused at add.`);
+    await cartApi.updateLines(cartId, [{ id: line.id, quantity: 2 }]).catch(() => {});
+  } else {
+    ok('overselling is refused by Shopify inventory', true, String(oversell.error).slice(0, 90));
+  }
 
   if (soldOut) {
     const refused = await cartApi.addLines(cartId, [{ merchandiseId: soldOut.id, quantity: 1 }]);

@@ -274,42 +274,106 @@ function expect(label, condition, detail = '') {
     schemaCheck.TYPES.every(t => schemaCheck.INTROSPECTION_QUERY.includes(`__type(name: "${t}")`)));
   expect('the introspection query is a single named operation',
     /^query\s+VennixSchemaCheck\s*\{/.test(schemaCheck.INTROSPECTION_QUERY.trim()));
+  expect('deprecated fields are introspected, not hidden',
+    schemaCheck.INTROSPECTION_QUERY.includes('fields(includeDeprecated: true)'));
 
-  // A schema shaped exactly like the Storefront API's introspection answer,
-  // with every field and argument the pinned documents use.
-  const goodSchema = {
-    QueryRoot: { products: ['first', 'after'], product: ['handle'], collections: ['first'], collection: ['handle'], search: ['query', 'first', 'types'], productRecommendations: ['productId'], pages: ['first'], blog: ['handle'] },
-    Product: { media: ['first', 'last', 'reverse', 'sortKey'], variants: ['first'], metafields: ['identifiers'], seo: [], featuredImage: [] },
-    ProductVariant: { image: [], selectedOptions: [] },
-    Cart: { lines: ['first'], discountApplications: [], discountCodes: [], attributes: [] },
-    CartLine: { discountAllocations: ['lineLevelOnly'], cost: [] },
-    CartCost: { subtotalAmount: [], totalAmount: [], totalTaxAmount: [], checkoutChargeAmount: [] },
-    Blog: { articles: ['first'] },
-    Article: { contentHtml: [], content: [], excerpt: [], authorV2: [], image: [], tags: [] },
-    Page: { body: [], seo: [] },
-    Shop: { paymentSettings: [], primaryDomain: [] }
+  // GraphQL type syntax -> the nested shape introspection returns.
+  const parseType = (t) => {
+    let type = String(t);
+    let nonNull = false;
+    if (type.endsWith('!')) { nonNull = true; type = type.slice(0, -1); }
+    if (type.startsWith('[')) {
+      const inner = parseType(type.slice(1, -1));
+      return nonNull ? { kind: 'NON_NULL', ofType: { kind: 'LIST', ofType: inner } } : { kind: 'LIST', ofType: inner };
+    }
+    const named = { kind: 'SCALAR', name: type };
+    return nonNull ? { kind: 'NON_NULL', ofType: named } : named;
   };
-  const stubGql = (types, { fail = false, empty = false } = {}) => async () => {
+  expect('the test helper round-trips GraphQL types',
+    schemaCheck.typeString(parseType('[String!]!')) === '[String!]!'
+    && schemaCheck.typeString(parseType('[ID!]')) === '[ID!]'
+    && schemaCheck.typeString(parseType('String!')) === 'String!');
+
+  // A schema shaped like the Storefront API's introspection answer, with every
+  // field and argument the pinned documents use.
+  const goodSchema = {
+    QueryRoot: {
+      products: { first: 'Int', after: 'String' }, product: { handle: 'String!' },
+      collections: { first: 'Int' }, collection: { handle: 'String!' },
+      search: { query: 'String!', first: 'Int', types: '[SearchType!]' },
+      productRecommendations: { productId: 'ID!' }, pages: { first: 'Int' }, blog: { handle: 'String!' }
+    },
+    Mutation: {
+      cartCreate: { input: 'CartInput!' },
+      cartLinesAdd: { cartId: 'ID!', lines: '[CartLineInput!]!' },
+      cartLinesUpdate: { cartId: 'ID!', lines: '[CartLineUpdateInput!]!' },
+      cartLinesRemove: { cartId: 'ID!', lineIds: '[ID!]', viewKeys: '[String!]' },
+      cartDiscountCodesUpdate: { cartId: 'ID!', discountCodes: '[String!]!' },
+      cartNoteUpdate: { cartId: 'ID!', note: 'String!' }
+    },
+    Product: { media: { first: 'Int' }, variants: { first: 'Int' }, metafields: { identifiers: '[HasMetafieldsIdentifier!]!' }, seo: {}, featuredImage: {} },
+    ProductVariant: { image: {}, selectedOptions: {} },
+    Cart: { lines: { first: 'Int' }, discountApplications: {}, discountCodes: {}, attributes: {} },
+    CartLine: { discountAllocations: { lineLevelOnly: 'Boolean' }, cost: {} },
+    CartCost: { subtotalAmount: {}, totalAmount: {}, totalTaxAmount: { deprecated: true }, checkoutChargeAmount: {} },
+    Blog: { articles: { first: 'Int' } },
+    Article: { contentHtml: {}, content: {}, excerpt: {}, authorV2: {}, image: {}, tags: {}, author: { deprecated: true } },
+    Page: { body: {}, seo: {} },
+    Shop: { paymentSettings: {}, primaryDomain: {} }
+  };
+  const stubGql = (schema, { fail = false, empty = false } = {}) => async () => {
     if (fail) throw new Error('IntrospectionQuery is not allowed');
     if (empty) return {};
-    return Object.fromEntries(Object.entries(types).map(([k, v]) => [k, {
-      name: k,
-      fields: Object.entries(v).map(([name, args]) => ({ name, args: args.map(a => ({ name: a })) }))
+    return Object.fromEntries(Object.entries(schema).map(([type, fields]) => [type, {
+      name: type,
+      fields: Object.entries(fields).map(([name, def]) => ({
+        name,
+        isDeprecated: !!def.deprecated,
+        args: Object.entries(def.args || Object.fromEntries(Object.keys(def)
+          .filter(k => k !== 'deprecated').map(k => [k, def[k]])))
+          .map(([argName, t]) => ({ name: argName, type: parseType(t) }))
+      }))
     }]));
   };
 
   const good = await schemaCheck.runSchemaCheck(stubGql(goodSchema));
   expect('a matching schema passes the conformance check', good.ok === true,
-    [...good.missingFields, ...good.missingArgs].join(', '));
+    [...good.missingFields, ...good.missingArgs, ...good.nullability].join(' | '));
   expect('every type we query is reported back', schemaCheck.TYPES.every(t => good.types[t]));
-  expect('no deprecated field is reported as gone', schemaCheck.deprecatedStillPresent(good.types).length === 0);
+  expect('mutation argument types are captured',
+    good.argTypes.Mutation.cartNoteUpdate.note === 'String!'
+    && good.argTypes.Mutation.cartDiscountCodesUpdate.discountCodes === '[String!]!',
+    JSON.stringify(good.argTypes.Mutation && good.argTypes.Mutation.cartNoteUpdate));
+  expect('a deprecated field we still use is reported as deprecated, not missing',
+    schemaCheck.deprecatedStillPresent(good.types).length === 0
+    && schemaCheck.deprecatedInUse(good.deprecated).includes('CartCost.totalTaxAmount'),
+    JSON.stringify(schemaCheck.deprecatedInUse(good.deprecated)));
 
-  // This is the exact regression the store hit: media lost its `types` argument
-  // and discountApplications turned out to be a list, not a connection.
+  // This is the regression the store hit: 2026-07 made `note` and
+  // `discountCodes` non-null, so the old nullable variables are rejected with
+  // "Nullability mismatch" before the mutation runs.
+  expect('a non-null variable satisfies a non-null argument',
+    schemaCheck.assignable('String!', 'String!') && schemaCheck.assignable('[String!]!', '[String!]!'));
+  expect('a nullable variable does not satisfy a non-null argument',
+    schemaCheck.assignable('String', 'String!') === false);
+  expect('a non-null variable still satisfies a nullable argument',
+    schemaCheck.assignable('[ID!]!', '[ID!]') === true);
+  const nullableDeclarations = [['Mutation', 'cartNoteUpdate', { note: 'String' }],
+    ['Mutation', 'cartDiscountCodesUpdate', { discountCodes: '[String!]' }]];
+  const caught = schemaCheck.checkNullability(good.argTypes, nullableDeclarations);
+  expect('the old nullable declarations are reported as nullability mismatches',
+    caught.some(m => /cartNoteUpdate\(note\)/.test(m) && /String!/.test(m))
+    && caught.some(m => /cartDiscountCodesUpdate\(discountCodes\)/.test(m)),
+    caught.join('; '));
+  expect('the current declarations produce no mismatch',
+    schemaCheck.checkNullability(good.argTypes).length === 0,
+    schemaCheck.checkNullability(good.argTypes).join('; '));
+
+  // The other two regressions the store hit.
   const drifted = JSON.parse(JSON.stringify(goodSchema));
-  drifted.Product.media = ['first', 'last'];           // `types` no longer accepted
-  drifted.Cart.discountApplications = ['first'];        // ...but we send none
-  delete drifted.Product.metafields;                    // a field disappeared
+  drifted.Product.media = { first: 'Int', last: 'Int' };
+  drifted.Cart.discountApplications = { first: 'Int' };
+  delete drifted.Product.metafields;
   const driftedCheck = await schemaCheck.runSchemaCheck(stubGql(drifted));
   expect('a dropped field is reported', driftedCheck.missingFields.includes('Product.metafields'),
     driftedCheck.missingFields.join(', '));
@@ -319,9 +383,7 @@ function expect(label, condition, detail = '') {
   expect('the check fails the run rather than passing quietly', driftedCheck.ok === false);
 
   const missingArg = JSON.parse(JSON.stringify(goodSchema));
-  missingArg.CartLine.discountAllocations = ['lineLevelOnly'];
-  missingArg.Product.media = ['first'];
-  missingArg.QueryRoot.search = ['query', 'first'];      // `types` removed
+  missingArg.QueryRoot.search = { query: 'String!', first: 'Int' };
   const argDrift = await schemaCheck.runSchemaCheck(stubGql(missingArg));
   expect('a removed argument is named precisely',
     argDrift.missingArgs.includes('QueryRoot.search(types)'), argDrift.missingArgs.join(', '));
@@ -339,8 +401,13 @@ function expect(label, condition, detail = '') {
   const blankCheck = await schemaCheck.runSchemaCheck(stubGql(goodSchema, { empty: true }));
   expect('an empty introspection answer reports an error', blankCheck.ok === false && !!blankCheck.error);
 
-  // The table and the documents must move together.
+  // The tables and the documents must move together.
   const ops2 = require('../lib/shopify/operations');
+  expect('mutation variable declarations match the conformance table',
+    /\$note:\s*String!/.test(ops2.CART_NOTE_UPDATE)
+    && /\$discountCodes:\s*\[String!\]!/.test(ops2.CART_DISCOUNT_CODES_UPDATE)
+    && schemaCheck.MUTATION_ARGS.some(([t, f, a]) => t === 'Mutation' && f === 'cartNoteUpdate' && a.note === 'String!'),
+    'operations.js and schema-check.js must declare the same nullability');
   expect('the conformance table covers the arguments the cart document sends',
     /lineLevelOnly/.test(ops2.GET_CART)
     && schemaCheck.EXPECTED.some(([t, f, a]) => t === 'CartLine' && f === 'discountAllocations' && a.includes('lineLevelOnly')));

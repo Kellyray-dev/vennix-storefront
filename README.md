@@ -119,7 +119,7 @@ npm run verify
 | Suite | What it proves |
 | --- | --- |
 | `npm run check` | every live module loads cleanly |
-| `npm run test:shopify` | Shopify data layer (154 assertions) against the mock gateway: config guards, checkout-URL allowlist, cookie/CSRF helpers, pinned-document hygiene, schema-conformance logic, normalization, catalog reads, search, recommendations, all cart mutations, inventory rules, discount validation, concurrency |
+| `npm run test:shopify` | Shopify data layer (163 assertions) against the mock gateway: config guards, checkout-URL allowlist, cookie/CSRF helpers, pinned-document hygiene, schema-conformance logic, normalization, catalog reads, search, recommendations, all cart mutations, inventory rules, discount validation, concurrency |
 | `npm run doctor` | configuration and deployment sanity (no network): mode, API version, proxy, CSP, canonical domain, repo hygiene |
 | `npm run secrets` | no credential can reach a browser — static scan of every shipped file, plus a runtime crawl with a fake token in the environment |
 | `npm run check:render` | 27 page shapes render without crash markers, self-boots the server |
