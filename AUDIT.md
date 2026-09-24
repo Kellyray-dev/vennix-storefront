@@ -1,5 +1,366 @@
 # Vennix Storefront — Audit Report
 
+> **Two audits live in this file.**
+>
+> 1. **[Production-readiness audit — 2026-09-23](#production-readiness-audit--2026-09-23)** — the
+>    current one: security, caching, failure states, mobile, SEO, a11y and
+>    performance for the storefront *as it now is* (Shopify = commerce backend,
+>    this repo = presentation).
+> 2. **[Historical audit — 2026-09-21](#historical-audit--2026-09-21-pre-shopify-migration)** — the
+>    original review of the retired custom commerce backend. Kept for the
+>    record; every finding in it was either fixed at the time or made moot by
+>    moving products, carts, checkout, orders and customers into Shopify.
+
+---
+
+<a name="production-readiness-audit--2026-09-23"></a>
+# Production-readiness audit — 2026-09-23
+
+Scope: the Node storefront (`server.js`, `lib/`, `public/`) as the production
+front end for an existing Shopify store. Date: 2026-09-23. Branch:
+`arena/01a0cdc7-vennix-storefront`. Node 22 (project requires `>=18`). Shopify
+Storefront API **2026-07** (current stable, supported until 2027-07-16).
+
+Method: read every module in the request path, then convert each conclusion
+into an automated assertion so it cannot silently regress. Every "status"
+below links to a check that runs in `npm run verify` (or `npm run verify:live`
+for the ones that need a real store).
+
+## Scoreboard
+
+| # | Area | Status | What it rests on |
+| --- | --- | --- | --- |
+| 1 | Authentication / session security | ✅ Strong | No local auth at all — Shopify owns customer identity; the only cookie is an opaque cart id |
+| 2 | CSRF | ✅ Hardened | SameSite=Lax + Origin/Referer + per-session double-submit token; contact form carries a field token |
+| 3 | Cookies | ✅ Hardened | Cart id `HttpOnly` + `SameSite=Lax` + `Secure` (prod *or* `X-Forwarded-Proto: https` behind a proxy); stale cart cookies are expired |
+| 4 | Rate limiting | ✅ Hardened | Per-IP, per-route sliding windows; tight on discount codes and forms; `Retry-After` on every 429 |
+| 5 | XSS | ✅ Hardened | Nonce-based CSP enforced per request + escaping audit + payload regression tests |
+| 6 | Checkout handoff | ✅ Hardened | Shopify-host allowlist before any redirect; 303 on POST; no open-redirect path |
+| 7 | Inventory races | ✅ Hardened | Per-cart serialisation, burst-scoped cart memory, Shopify is authoritative, friendly stock errors |
+| 8 | Caching | ✅ Hardened | Bounded 15s catalog cache with stale-on-error; ETag + 304 + long-lived immutable assets; HTML `private, no-store` |
+| 9 | Shopify API errors | ✅ Hardened | Typed errors, bounded retry with backoff and `Retry-After`, no retry on auth failures, metrics on `/healthz` |
+| 10 | Graceful failure | ✅ Hardened | Branded 503 with `Retry-After` for Shopify outages, 500 otherwise, never a stack trace |
+| 11 | Mobile UX | ✅ Audited + fixed | 16px inputs on small screens (no iOS zoom), 44px hit areas, safe-area insets |
+| 12 | SEO | ✅ Audited | Canonical/og/twitter/JSON-LD, live sitemap, `noindex` on cart/search/checkout/account/track |
+| 13 | Accessibility | ✅ Audited + fixed | 130 automated assertions; heading order, alt text, labelling, dialogs, live regions |
+| 14 | Performance | ✅ Improved | brotli/gzip (~7× smaller HTML, ~5× smaller CSS/JS), ETag/304, preconnect to `cdn.shopify.com`, LCP `fetchpriority` |
+
+---
+
+## 1. Authentication / session security
+
+**Status: strong by architecture.** There is no local login, no password, no
+session table, no customer record and no payment record anywhere in this
+repository. Customer identity, order history and addresses live behind
+Shopify's own customer accounts; `/account`, `/account/login`,
+`/account/orders` and `/account/addresses` link (or 302) to the store's
+Shopify-hosted account URL. The retired admin (`/admin`) returns a pointer to
+the Shopify admin.
+
+The only value the storefront keeps per visitor is the **Shopify cart id**, in
+an `HttpOnly` cookie. It is not an identity: it grants nothing but access to a
+cart Shopify already owns, and it is validated by Shopify on every read.
+
+Verified by: `scripts/verify-live.js` §11 (accounts point at Shopify), §12 (no
+local customer/order store), `scripts/smoke.js` (cart-cookie flags).
+
+## 2. CSRF
+
+Three independent layers, because state-changing requests (cart mutations,
+leads, reviews) are the whole point of the site:
+
+1. **SameSite=Lax cookies** — a cross-site POST never carries them.
+2. **Origin/Referer check** (`sameOrigin()` in `server.js`) on every non-GET.
+3. **Double-submit token** — `lib/security.js` mints a 256-bit `vnx_csrf`
+   cookie per session; `public/js/main.js` echoes it in `X-CSRF-Token`, server
+   compares with `timingSafeEqual`. Server-rendered forms (contact) carry a
+   hidden `_csrf` field instead.
+
+A browser session always has the cookie, so a cross-site POST — which cannot
+*read* the cookie — is refused with 403. Non-browser clients with no cookie
+fall through to the Origin check, so curl and webhooks keep working.
+
+Verified by: `scripts/smoke.js` ("a POST without the token header is refused",
+"the same POST with the token is accepted", "cross-origin POST is blocked"),
+`scripts/test-shopify.js` (CSRF helper unit tests).
+
+## 3. Cookies
+
+| Cookie | Flags | Purpose |
+| --- | --- | --- |
+| `vnx_cart` | `HttpOnly`, `SameSite=Lax`, `Secure` when TLS, `Path=/`, 60 days | Shopify cart id, server-side only |
+| `vnx_csrf` | readable by page JS (double-submit needs it), `SameSite=Lax`, `Secure` when TLS, 12 hours | CSRF token — an unguessable value, not an identity |
+| `vnx_sid` | readable, `SameSite=Lax`, per tab | Correlates the parallel requests of one click-burst |
+
+`Secure` is set when `NODE_ENV=production` **or** when `TRUST_PROXY=1` and
+`X-Forwarded-Proto: https` — so a TLS-terminating proxy no longer silently
+downgrades cookies to plain HTTP. Cookies are appended, never overwritten (the
+old `Set-Cookie` clobbering bug stays fixed).
+
+When Shopify no longer knows the cart in the cookie (checked out, expired,
+abandoned), the cookie is expired on that response so the next add starts
+clean instead of 404-ing Shopify forever.
+
+Verified by: `scripts/smoke.js` ("the cart cookie is HttpOnly/SameSite=Lax"),
+`scripts/test-shopify.js` (Secure-cookie matrix), `scripts/verify-live.js`.
+
+## 4. Rate limiting
+
+`lib/ratelimit.js` (in-memory sliding window, per IP) plus a per-route table in
+`lib/api.js`:
+
+| Route group | Limit | Why |
+| --- | --- | --- |
+| cart add / update / remove | 45–60 / min | generous but bounded |
+| **discount apply** | **10 / min** | discount-code guessing is the one enumerable surface |
+| newsletter | 6 / min | subscription spam |
+| contact form | 3 / 10 min | human inbox |
+| review submit | 3 / 10 min | moderation queue |
+| back-in-stock alert | 12 / min | email target |
+| search / quickview / fit / monogram | 30–90 / min | catalog-cache protection |
+| any write | 120 / 10 s | global backstop |
+| any request | 900 / min | process backstop |
+
+Every rejection carries `Retry-After`. Behind a proxy, set `TRUST_PROXY=1` so
+the key is `X-Forwarded-For` and not the proxy's own address (the doctor warns
+when it is unset).
+
+**Known limit:** single process. Multi-instance deploys need sticky sessions
+or a shared limiter — Shopify stays authoritative regardless.
+
+Verified by: `scripts/smoke.js` ("a flood of submissions is throttled",
+"the 429 says when to retry").
+
+## 5. XSS
+
+- **Enforced, nonce-based CSP** on every HTML response (per-request nonce via
+  `AsyncLocalStorage`; every inline `<script>` in the codebase carries it).
+  `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`,
+  `form-action 'self'`. Inline `style` attributes stay allowed — the design
+  system sets per-element CSS custom properties (swatch colours, stagger
+  indices, progress widths) and CSP has no nonce mechanism for attributes.
+  `CSP_MODE=report-only` ships the same policy without enforcement if you want
+  to watch for violations first.
+- **Escaping**: every interpolation in `lib/ui.js`, `lib/layout.js` and
+  `lib/pages/*` goes through `esc()`/`attr()`.
+- **Regression tests**: `<script>` and attribute-breakout payloads are sent
+  through reflected (search) and stored (contact, reviews, newsletter,
+  back-in-stock) paths and asserted escaped.
+- **Historical**: the search-overlay DOM XSS from the 2026-09-21 audit is fixed
+  and covered.
+
+Verified by: `scripts/smoke.js` (nonce coverage on every inline script, output
+encoding), `scripts/secret-scan.js` (no client code touches the token).
+
+## 6. Checkout handoff
+
+`/checkout` and `/api/buy-now` never redirect to a URL they have not
+allowlisted. `security.isAllowedCheckoutUrl()` requires `https:` and a host on
+the store's own domain, the primary domain, `*.myshopify.com`,
+`*.shopify.com`, `checkout.shopify.com`, or an explicit
+`SHOPIFY_CHECKOUT_HOSTS` list. Anything else is logged and refused, so a
+tampered or unexpected cart payload cannot turn this route into an open
+redirect. POST uses 303 (so the follow-up is a GET).
+
+Verified by: `scripts/test-shopify.js` (allowlist unit tests),
+`scripts/smoke.js` (302 to a Shopify URL), `scripts/verify-live.js` §10.
+
+## 7. Inventory race conditions
+
+- **Shopify is the authority.** Every add goes through `cartLinesAdd/Update`,
+  and Shopify refuses oversell with a `userError` the storefront surfaces as
+  "Only N left in that size — lower the quantity to continue."
+- **Lost updates are prevented locally.** The add flow is read-modify-write
+  (read cart → merge lines → write). `lib/locks.js` serialises it per cart, so
+  two taps on "add" cannot both read quantity 1 and both write 2.
+- **Parallel first-time adds share one cart.** The cart cookie only exists on
+  the *response*, so `lib/locks.js` remembers a just-created cart id for
+  at most **2 seconds** (750 ms without the per-tab id) — long enough for one
+  click-burst, far too short for two different visitors behind the same NAT to
+  inherit each other's carts.
+- Cached stock can be up to `SHOPIFY_CACHE_TTL_MS` (15 s) old on a product
+  page; the cart and checkout always re-check with Shopify.
+- Whether an oversell is refused at add time is the store's own inventory
+  policy, not our code: Shopify rejects the line when a variant is set to
+  *deny* overselling, and accepts it (reconciling at checkout) when it is set
+  to continue selling. `npm run verify:live` reports which behaviour the store
+  has instead of asserting one.
+
+Verified by: `scripts/test-shopify.js` (concurrency, session-key isolation),
+`scripts/verify-live.js` (oversell refused, sold-out refused).
+
+## 8. Caching
+
+| Layer | Policy |
+| --- | --- |
+| HTML | `Cache-Control: private, no-store`, `Vary: Cookie, Accept-Encoding` — the CSP nonce is per request and the cart count is per visitor |
+| Catalog (Shopify reads) | bounded map, 15 s TTL, single-flight per key, stale-on-error up to 5 min, `cacheStats()` on `/healthz` |
+| CSS / JS | `public, max-age=300, must-revalidate` + ETag → cheap deploys |
+| Images | `public, max-age=604800, must-revalidate` + ETag |
+| Sitemap / robots | `public, max-age=600` / `3600` |
+| API (`/api/*`) | `no-store` |
+| Compressed bodies | in-memory cache of the brotli/gzip result, bounded at 64 entries |
+
+Nothing about price or stock is decided from cache: Shopify re-prices every
+cart and every checkout.
+
+Verified by: `scripts/smoke.js` (ETag, 304, HTML cache policy),
+`scripts/test-shopify.js` (cache hit/miss/invalidate).
+
+## 9. Shopify API errors
+
+`lib/shopify/client.js` classifies every failure into a typed
+`ShopifyError.code` (`auth`, `throttle`, `network`, `timeout`, `server`,
+`graphql`, `not_found`, `bad_response`):
+
+- 429 / `THROTTLED` → waits `Retry-After` (bounded at 15 s) and retries, with
+  jittered backoff, up to 2 retries.
+- 5xx / network / timeout → jittered backoff retry.
+- 401 / 403 → **no retry**, with an actionable message naming the token and the
+  Storefront API integration.
+- GraphQL `errors` → surfaced verbatim; mutation `userErrors` → surfaced as a
+  shopper-facing message.
+- Counters (requests, errors, retries, throttles, last error) are exposed on
+  `/healthz` for alerting. No token ever appears in a response.
+
+At boot, `lib/shopify/preflight.js` proves each required scope before the
+server accepts traffic, and **refuses to start** if the store cannot be read.
+
+Verified by: `scripts/test-shopify.js` (error codes, retryability),
+`scripts/verify-live.js` §2 (preflight) and §3 (schema conformance — the
+documents are checked against the store's own introspection, so a renamed field
+or dropped argument fails the run instead of failing at checkout).
+
+**Pinned-document drift is a real risk** — a version bump can drop a field, drop
+an argument, or tighten nullability. 2026-07 alone removed `types` from
+`Product.media`, renamed `Article.body` to `contentHtml` (and deprecated
+`Article.author` in favour of `authorV2`), made `Cart.discountApplications` a
+plain list rather than a connection (no `first`, no `nodes`), and made
+`cartNoteUpdate(note:)` and `cartDiscountCodesUpdate(discountCodes:)` non-null —
+a nullable variable for a non-null argument is rejected with *"Nullability
+mismatch"* before the mutation runs. Normalizers keep the storefront's own field
+names (`body`, `author`) so templates never change when Shopify renames
+something. Guards:
+`scripts/verify-live.js` §3 introspects the live schema, and
+`scripts/test-shopify.js` both greps the documents for known-rejected arguments
+and unit-tests the conformance checker against stubbed schemas.
+
+## 10. Graceful failure states
+
+- **Shopify unreachable / throttled / credentials rejected** → branded 503 with
+  `Retry-After: 30`, "The store is catching its breath", a retry button and the
+  support address. Nothing internal, no stack trace.
+- **Our bug** → branded 500, logged server-side, no detail to the visitor.
+- **Cart failures** → JSON `{ ok: false, error }` with translated copy
+  ("That piece just sold out…"), and the UI keeps the last known cart.
+- **Empty / no results** states exist for cart, search, filters, wishlist and
+  reviews (verified in the feature suite).
+
+Verified by: `scripts/smoke.js`, `lib/pages/status.js`,
+`scripts/verify-live.js`.
+
+## 11. Mobile UX
+
+Audited the responsive layer (breakpoints at 1100 / 900 / 620 px) and fixed
+what was genuinely broken:
+
+- **iOS zoom on focus**: form controls are 16 px on small screens
+  (13–13.5 px inputs used to trigger Safari's auto-zoom).
+- **Tap targets**: `.icon-btn`, `.qty button`, `.size`, `.swatch--lg` and
+  `.cart-line__remove` now have ≥44 px hit areas — grown with padding and
+  pseudo-element insets, so nothing looks different.
+- **Home-indicator overlap**: `env(safe-area-inset-bottom)` padding on the
+  cart drawer, mobile menu, footer and toast stack.
+- Already sound: viewport allows zoom, 2-column product grid at 620 px,
+  sticky ATC collapses to a column, horizontal rails use scroll-snap, motion
+  is off under `prefers-reduced-motion`.
+
+Not a substitute for device testing — worth one pass on a real iPhone and a
+mid-range Android.
+
+## 12. SEO
+
+- Canonical, `og:*`, `twitter:card`, `theme-color`, JSON-LD
+  (`Organization`, `WebSite`, `Product`, `FAQPage`, `BreadcrumbList`) — all
+  present and generated from live Shopify data.
+- `sitemap.xml` is built from the live catalog (products, collections, pages,
+  journal) with `lastmod`; `robots.txt` points at it and blocks
+  `/checkout`, `/cart`, `/account`, `/api/`.
+- `noindex,follow` on internal search, cart, checkout, track, account and 404 —
+  thin and personal pages stay out of the index while their links are still
+  followed.
+- `<img>` always carries `alt` + intrinsic `width`/`height` (no CLS); product
+  cards lazy-load; the hero is `fetchpriority="high"`.
+- **Before launch**: set `PUBLIC_SITE_DOMAIN` to the real hostname so
+  canonicals and the sitemap use it (`npm run doctor` warns while it is unset
+  or a placeholder).
+
+## 13. Accessibility
+
+130 automated assertions over rendered HTML (`npm run a11y`) across ten page
+types: one `<main>`, one `<h1>`, no skipped heading levels, `lang` + zoomable
+viewport, skip link, `alt` on every image, an accessible name on every control
+and button, labelled dialogs, `aria-live` for async updates, no `tabindex="-1"`
+outside the skip target.
+
+Fixed during this audit: heading-order skips on the collection, size-guide and
+account pages (visually-hidden `h2`s — no visual change), and the accessible
+names of unlabelled controls.
+
+Still requires a human pass: screen-reader narration of the cart drawer and
+quick view, and a contrast check on any new brand palette.
+
+## 14. Performance
+
+Measured on the home page (brotli vs identity):
+
+| Asset | Raw | On the wire |
+| --- | --- | --- |
+| HTML (home) | 99,976 B | 12,776 B (br) / 13,705 B (gzip) |
+| `main.css` | 99,322 B | 20,025 B |
+| `main.js` | 58,148 B | 14,625 B |
+
+Zero dependencies: compression uses `node:zlib` (brotli → gzip → deflate,
+chosen from `Accept-Encoding`), with `Vary: Accept-Encoding` and a bounded
+cache of compressed static bodies. Static responses carry ETag + 304. In live
+mode the head preconnects to `https://cdn.shopify.com`. Catalog reads are
+cached 15 s with single-flight, so a page render costs one Shopify round trip,
+not one per component. Server keeps connections alive (65 s) with a 30 s
+request timeout.
+
+## Residual risks (honest list)
+
+1. **Rate limiting is per process.** Run one instance, use sticky sessions, or
+   put a limiter in the proxy.
+2. **Cart-burst memory is per process** for the same reason; the worst case is
+   an extra Shopify cart, never a wrong order.
+3. **Leads live on local disk** (`data/leads.json`). Non-commerce, but mount
+   persistent storage or swap `lib/leads.js` for Klaviyo / your review app.
+4. **The catalog cache can be 15 s stale** on price/stock display. Cart and
+   checkout are always live. Lower `SHOPIFY_CACHE_TTL_MS` if you sell
+   one-of-one items.
+5. **CSP still allows inline `style` attributes** (design-system custom
+   properties). Moving swatch colours into a nonce'd `<style>` block would let
+   you drop `'unsafe-inline'` from `style-src`.
+6. **No request logging / tracing yet** beyond console errors and `/healthz`
+   counters. Add your platform's log drain and alert on
+   `/healthz` → `shopify.lastError`.
+7. **Device testing**: the mobile fixes are reasoned and automated-checked, not
+   yet hand-verified on hardware.
+
+---
+
+<a name="historical-audit--2026-09-21-pre-shopify-migration"></a>
+# Historical audit — 2026-09-21 (pre-Shopify migration)
+
+*Kept for the record. This reviewed the retired custom commerce backend;
+products, carts, checkout, orders, payments and customers now live in Shopify,
+which removed most of these findings at the root. The retired code is isolated
+in `legacy/` and is loaded by nothing.*
+
+---
+
+
 Date: 2026-09-21
 Branch: `arena/01a0c182-vennix-storefront`
 Base commit: `0623e3b` ("Add files via upload")

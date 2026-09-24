@@ -16,6 +16,7 @@
 
 const { spawn } = require('child_process');
 const path = require('path');
+const { offlineChildEnv } = require('./helpers');
 
 const PORT = Number(process.argv[2] || 3099);
 const ROOT = path.join(__dirname, '..');
@@ -82,9 +83,12 @@ async function waitForServer(attempts = 40) {
 (async function main() {
   console.log(`\nVennix render check — port ${PORT}\n`);
 
+  // Offline suite: the URL list below is the FIXTURE catalogue, so the child
+  // must render demo mode even on a machine configured for the live store
+  // (offlineChildEnv strips the Shopify variables and skips .env entirely).
   const server = spawn(process.execPath, ['server.js'], {
     cwd: ROOT,
-    env: { ...process.env, PORT: String(PORT), NODE_ENV: 'test' },
+    env: offlineChildEnv({ PORT: String(PORT), NODE_ENV: 'test' }),
     stdio: ['ignore', 'pipe', 'pipe']
   });
 

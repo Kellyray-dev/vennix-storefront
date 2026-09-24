@@ -13,7 +13,9 @@
 
 'use strict';
 
-const BASE = (process.argv[2] || 'http://127.0.0.1:3000').replace(/\/$/, '');
+const { ensureBase } = require('./helpers');
+let BASE = '';
+let stopServer = null;
 
 const SEEDS = [
   '/', '/collections/all', '/collections/women', '/collections/men', '/collections/active',
@@ -61,6 +63,9 @@ function linksFrom(html, pageUrl) {
 }
 
 (async function run() {
+  const host = await ensureBase(process.argv[2]);
+  BASE = host.base;
+  stopServer = host.stop;
   console.log(`Vennix link check — ${BASE}\n`);
 
   const discovered = new Map();   // url -> where it was found
@@ -129,6 +134,7 @@ function linksFrom(html, pageUrl) {
     });
   }
 
+  if (stopServer) await stopServer();
   console.log(`\n${'─'.repeat(48)}`);
   console.log(`  ${okCrawled.length} pages OK · ${redirects.length} guest redirects · ${broken.length} broken`);
   process.exit(broken.length ? 1 : 0);

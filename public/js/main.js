@@ -13,13 +13,40 @@
     return '$' + n.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
+  /* CSRF: the server mints a vnx_csrf cookie on every page; every POST echoes
+     it back in a header (double-submit). Cookies are SameSite=Lax too — this is
+     the second lock, not the only one. */
+  function csrfToken() {
+    var match = /(?:^|; )vnx_csrf=([^;]+)/.exec(document.cookie || '');
+    return match ? decodeURIComponent(match[1]) : '';
+  }
+
   function api(path, data) {
+    var headers = { 'Content-Type': 'application/json' };
+    var token = csrfToken();
+    if (token) headers['X-CSRF-Token'] = token;
     return fetch('/api' + path, {
       method: data === undefined ? 'GET' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: headers,
       body: data === undefined ? undefined : JSON.stringify(data)
     }).then(function (r) { return r.json().catch(function () { return { ok: false, error: 'Unexpected server response.' }; }); });
   }
+
+  window.vennixCsrfToken = csrfToken;
+
+  /* Per-tab id. The server uses it (with ip + user agent) to recognise the
+     parallel requests of one click-burst, so a first add-to-cart never spawns
+     two carts. It is a random value, not an identity, and it dies with the tab. */
+  (function sessionId() {
+    try {
+      if (/(?:^|; )vnx_sid=/.test(document.cookie || '')) return;
+      var sid = (window.crypto && window.crypto.randomUUID)
+        ? window.crypto.randomUUID()
+        : String(Date.now()) + Math.random().toString(16).slice(2);
+      document.cookie = 'vnx_sid=' + encodeURIComponent(sid) + '; Path=/; SameSite=Lax' +
+        (location.protocol === 'https:' ? '; Secure' : '');
+    } catch (error) { /* cookies disabled: the server falls back to ip + user agent */ }
+  })();
 
   /* --------------------------------------------------------------- toasts */
   function toast(message, kind, linkHref, linkText) {
@@ -1127,7 +1154,7 @@
       btn.disabled = true;
       var original = btn.innerHTML;
       btn.innerHTML = 'Loading…';
-      fetch(nextUrl, { credentials: 'same-origin' })
+      fetch(nextUrl, { credentials: 'same-origin', headers: (function () { var t = csrfToken(); return t ? { 'X-CSRF-Token': t } : {}; })() })
         .then(function (r) { return r.text(); })
         .then(function (html) {
           var doc = new DOMParser().parseFromString(html, 'text/html');

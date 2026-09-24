@@ -54,6 +54,20 @@ img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
+/* Screen-reader-only text: real structure (headings, labels) with no visual
+   footprint. Used where the design has no room for a visible heading but the
+   document outline still needs one. */
+.sr-only {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 h1, h2, h3, h4 { margin: 0 0 .4em; font-family: var(--font-display); font-weight: 400; line-height: 1.16; letter-spacing: -.01em; }
 h1 { font-size: clamp(28px, 4.4vw, 46px); }
 h2 { font-size: clamp(22px, 2.6vw, 32px); }
@@ -1453,3 +1467,45 @@ body > main { animation: shell-in 560ms var(--ease-out-expo) both; animation-del
   font-size: 13px; line-height: 1.5; padding: 8px 20px; text-align: center;
 }
 .demo-banner strong { font-weight: 700; }
+
+/* ------------------------------------------------------------------ mobile --
+   Touch ergonomics that must not disturb the desktop design:
+   - 16px form controls on small screens, so iOS Safari does not zoom on focus
+   - 44px minimum hit areas, grown with padding/pseudo-elements (not by making
+     the visible control bigger)
+   - safe-area insets, so the home indicator never sits on top of a button
+*/
+@media (max-width: 900px) {
+  input:not([type="hidden"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  .qty button { padding: 12px 14px; }
+  .icon-btn { padding: 12px; }
+  .size { padding: 13px 17px; }
+  .swatch--lg::after,
+  .cart-line__remove::after,
+  .icon-btn::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: inherit;
+  }
+  .cart-line__remove { position: relative; }
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 900px) {
+    .drawer__foot,
+    .mob-menu__foot {
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+    .site-foot__base {
+      padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
+    .toast-wrap {
+      bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+  }
+}

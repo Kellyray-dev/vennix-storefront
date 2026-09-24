@@ -8,9 +8,12 @@ One storefront experience, three parts with strictly separated jobs:
 | --- | --- | --- |
 | **Custom storefront** | `server.js`, `lib/`, `public/` | Presentation: renders the editorial theme (home, collections with server-side filtering/sorting, PDP with variant switching, cart drawer + page, journal, CMS pages, gift cards), and hands cart/checkout to Shopify. Captures non-commerce leads only (newsletter, contact, back-in-stock alerts, review submissions). |
 | **Shopify** | configured via env | Source of truth for products, variants, prices, inventory, collections, pages, blog posts, carts, discount codes, customers, checkout, orders, payments, shipping and taxes. Talked to through the Storefront API (`lib/shopify/`). |
-| **OS 2.0 theme** | `shopify-theme/` | The in-Shopify twin of the design: 32 sections, 12 snippets, JSON templates, locale file, mirrored motion layer. Works in a real Shopify Online Store 2.0 if you point the store at it directly. |
+| **OS 2.0 theme** | `shopify-theme/` | The **production storefront** — hosted by Shopify, synced from this repo via *Deploy with Shopify* (GitHub integration on `main`). 32 sections, 12 snippets, JSON templates, locale file, mirrored motion layer. |
 
-There is **no second commerce database**. The retired custom JSON backend is
+Production path: the theme is the published storefront; the Node app is an
+alternative custom deploy of the same Shopify data (and the zero-credential
+demo). Don't let both render the same domain. There is **no second commerce
+database**. The retired custom JSON backend is
 isolated in `legacy/` (see `legacy/README.md`) and is not loaded by anything.
 
 ---
@@ -33,7 +36,13 @@ To run against your store:
 export SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
 export SHOPIFY_STOREFRONT_ACCESS_TOKEN=shpat_…   # Storefront API token
 node server.js
+
+# …then prove it end to end against your store:
+npm run verify:live
 ```
+
+Credentials can also live in a git-ignored `.env` — the server loads `.env`
+and `.env.local` on boot (the real process environment always wins).
 
 Full instructions: [`docs/SETUP.md`](docs/SETUP.md). Env reference:
 [`.env.example`](.env.example). Migration plan and rationale:
@@ -85,7 +94,9 @@ Full instructions: [`docs/SETUP.md`](docs/SETUP.md). Env reference:
 
 | Concern | Location |
 | --- | --- |
-| Routes, security headers, CSRF, rate limiting, sitemap/robots | `server.js`, `lib/ratelimit.js` |
+| Routes, security headers, CSP nonces, CSRF, rate limiting, compression, caching, sitemap/robots | `server.js`, `lib/security.js`, `lib/compress.js`, `lib/ratelimit.js` |
+| Per-cart serialisation (no lost updates on double-add) | `lib/locks.js` |
+| Graceful 503/500 pages that never need Shopify | `lib/pages/status.js` |
 | Shopify GraphQL client + operations + normalization (cents, images, metafields) | `lib/shopify/{config,client,operations,normalize}.js` |
 | Cached catalog facade (products, collections, pages, articles, search, recommendations) | `lib/shopify/catalog.js` |
 | Shopify cart mutations | `lib/shopify/cart-api.js` |
@@ -111,13 +122,17 @@ npm run verify
 | Suite | What it proves |
 | --- | --- |
 | `npm run check` | every live module loads cleanly |
-| `npm run test:shopify` | Shopify data layer (39 assertions) against the mock gateway: normalization, catalog reads, search, recommendations, all cart mutations, inventory rules, discount validation |
+| `npm run test:shopify` | Shopify data layer (163 assertions) against the mock gateway: config guards, checkout-URL allowlist, cookie/CSRF helpers, pinned-document hygiene, schema-conformance logic, normalization, catalog reads, search, recommendations, all cart mutations, inventory rules, discount validation, concurrency |
+| `npm run doctor` | configuration and deployment sanity (no network): mode, API version, proxy, CSP, canonical domain, repo hygiene |
+| `npm run secrets` | no credential can reach a browser — static scan of every shipped file, plus a runtime crawl with a fake token in the environment |
 | `npm run check:render` | 27 page shapes render without crash markers, self-boots the server |
 | `npm run theme:check` | the OS 2.0 theme's Liquid/JSON/i18n/settings parity |
-| `npm run smoke` | 74 HTTP end-to-end assertions: pages, cart API, checkout handoff, leads, CSRF, SEO payloads |
+| `npm run smoke` | 100 HTTP end-to-end assertions: pages, cart API, checkout handoff, leads, CSP nonces, CSRF tokens, rate limits, output encoding, cookie flags, compression, ETag/304, SEO payloads |
 | `npm run features` | 45 feature-rule assertions: monogramming, size finder, shop-the-look, alerts, filtering/sorting/load-more, free-shipping promise |
 | `npm run links` | dead-link crawl over every internal href |
+| `npm run a11y` | 130 accessibility assertions over rendered HTML: landmarks, heading order, alt text, control labelling, dialogs, live regions |
 | `npm run browser:test` | 62 real-DOM click assertions (jsdom, dev-only dep): variant switching, add-to-cart, drawer, quick view, discount forms, motion layer, monogram UI, size finder, look bundle, alerts, search memory |
+| `npm run verify:live` | **against your real store**: schema conformance (every field and argument we send must exist on 2026-07), products, prices, inventory, collections, search, recommendations, cart mutations, discount validation, checkout handoff, Shopify-owned accounts/orders, no local commerce store, live pages with no demo banner |
 
 `browser:test` needs jsdom once: `npm install --no-save jsdom` (or in
 `/tmp/jsdom` — the script finds it there). CI installs it automatically.
@@ -132,6 +147,12 @@ npm run verify
 - Money is integer cents end-to-end; Shopify `MoneyV2` is converted at the
   normalization edge.
 - Catalog reads are cached for ~15s (`SHOPIFY_CACHE_TTL_MS`) so page fan-out
-  doesn't hammer the API; carts are never cached.
+  doesn't hammer the API; carts are never cached. If Shopify goes quiet the
+  last good catalog is served for up to five minutes, then a branded 503 with
+  `Retry-After` takes over.
+- Security defaults: nonce-based CSP (per request), SameSite=Lax + `Secure`
+  cookies, double-submit CSRF tokens, per-IP per-route rate limits, Shopify-only
+  checkout redirects, and zero secrets in client code (proven by `npm run
+  secrets`). See `AUDIT.md` for the full production-readiness audit.
 - The custom admin is retired: `/admin` returns a pointer to the Shopify
   admin, where products, orders, customers and discounts are managed.

@@ -5957,14 +5957,14 @@
         "handle": "why-we-chose-480-gsm",
         "title": "Why we chose 480 gsm (and why most brands won't)",
         "excerpt": "Heavy fleece costs more, shrinks more and takes longer to knit. It is also the only way to make a hoodie that survives five winters.",
-        "body": "<p>Fabric weight is the first place a product gets cheapened, because nobody can tell in a photo. 280&nbsp;gsm fleece photographs identically to 480&nbsp;gsm fleece. It is only after two months of washing that the difference becomes obvious — the light stuff pills, the cuffs stretch out, and the whole garment starts to look like a sleeping bag.</p>\n<h3>Heavier yarn costs us 34% more</h3><p>Our mill in Portugal knits the Atlas body on a slower loom. Slower means fewer metres per hour, which means a higher per-unit price. We also brush the back after knitting, which adds a pass and a failure mode: brush too hard and you weaken the loop structure.</p>\n<h3>Pre-shrunk, not post-regret</h3><p>Heavy cotton shrinks. We wash every panel before cutting, so what you order is what you own in a year. That step alone adds six days to production.</p>\n<h3>What that buys you</h3><ul><li>A hood that still stands up after a season</li><li>Cuffs that recover instead of flaring</li><li>No pilling at the pocket edges</li></ul><p>We would rather make one hoodie properly than three that quietly fall apart. That is the entire brief.</p>",
+        "contentHtml": "<p>Fabric weight is the first place a product gets cheapened, because nobody can tell in a photo. 280&nbsp;gsm fleece photographs identically to 480&nbsp;gsm fleece. It is only after two months of washing that the difference becomes obvious — the light stuff pills, the cuffs stretch out, and the whole garment starts to look like a sleeping bag.</p>\n<h3>Heavier yarn costs us 34% more</h3><p>Our mill in Portugal knits the Atlas body on a slower loom. Slower means fewer metres per hour, which means a higher per-unit price. We also brush the back after knitting, which adds a pass and a failure mode: brush too hard and you weaken the loop structure.</p>\n<h3>Pre-shrunk, not post-regret</h3><p>Heavy cotton shrinks. We wash every panel before cutting, so what you order is what you own in a year. That step alone adds six days to production.</p>\n<h3>What that buys you</h3><ul><li>A hood that still stands up after a season</li><li>Cuffs that recover instead of flaring</li><li>No pilling at the pocket edges</li></ul><p>We would rather make one hoodie properly than three that quietly fall apart. That is the entire brief.</p>",
         "image": {
           "url": "/images/blog-1.jpg",
           "altText": "Why we chose 480 gsm (and why most brands won't)",
           "width": 1200,
           "height": 800
         },
-        "author": {
+        "authorV2": {
           "name": "Iris Nakamura, Head of Product"
         },
         "tags": [
@@ -5979,14 +5979,14 @@
         "handle": "capsule-01-design-notes",
         "title": "Capsule 01: the design notes",
         "excerpt": "Eight styles, one colour story, and a rule that every piece had to work with every other piece in the range.",
-        "body": "<p>Capsule 01 started with a constraint: eight styles, and any two of them have to look intentional together. That ruled out the usual approach of designing hero pieces and filling the gaps with whatever was left over.</p>\n<h3>The colour story</h3><p>Bone, Fog Heather, Charcoal, Ink, Clay, Moss. Three neutrals, two earths and one deep green. Every piece ships in at least three of them and the palette does not shift between categories — the legging charcoal is the hoodie charcoal.</p>\n<h3>Fit language</h3><p>Tops sit relaxed through the body with a defined shoulder. Bottoms taper. Layers run true with room for a base layer underneath. Once that grammar is fixed, mixing pieces stops being a styling exercise and starts being obvious.</p>",
+        "contentHtml": "<p>Capsule 01 started with a constraint: eight styles, and any two of them have to look intentional together. That ruled out the usual approach of designing hero pieces and filling the gaps with whatever was left over.</p>\n<h3>The colour story</h3><p>Bone, Fog Heather, Charcoal, Ink, Clay, Moss. Three neutrals, two earths and one deep green. Every piece ships in at least three of them and the palette does not shift between categories — the legging charcoal is the hoodie charcoal.</p>\n<h3>Fit language</h3><p>Tops sit relaxed through the body with a defined shoulder. Bottoms taper. Layers run true with room for a base layer underneath. Once that grammar is fixed, mixing pieces stops being a styling exercise and starts being obvious.</p>",
         "image": {
           "url": "/images/lookbook-2.jpg",
           "altText": "Capsule 01: the design notes",
           "width": 1200,
           "height": 800
         },
-        "author": {
+        "authorV2": {
           "name": "Design Studio"
         },
         "tags": [
@@ -6001,14 +6001,14 @@
         "handle": "training-at-dawn",
         "title": "Training at dawn: a winter layering guide",
         "excerpt": "What to wear at 5°C when you leave the house in the dark and finish in daylight, from our coaching partners in Brooklyn.",
-        "body": "<p>The hardest part of a winter session is that conditions change while you are out. You leave at 4°C and come back at 9°C, and the layer you needed at the start is a liability at the end.</p>\n<h3>The three-layer rule</h3><p>Base layer against the skin to move sweat. A shell or mid-layer for wind and light rain. Nothing insulating that you cannot remove or pack into a pocket. The Summit Packable exists because a 96&nbsp;gram shell you can fold into your waistband beats a jacket you leave at home.</p>\n<h3>Hands and head first</h3><p>If your hands are cold you will cut the session short. Thumbhole cuffs buy you ten degrees of perceived warmth for almost no weight.</p>",
+        "contentHtml": "<p>The hardest part of a winter session is that conditions change while you are out. You leave at 4°C and come back at 9°C, and the layer you needed at the start is a liability at the end.</p>\n<h3>The three-layer rule</h3><p>Base layer against the skin to move sweat. A shell or mid-layer for wind and light rain. Nothing insulating that you cannot remove or pack into a pocket. The Summit Packable exists because a 96&nbsp;gram shell you can fold into your waistband beats a jacket you leave at home.</p>\n<h3>Hands and head first</h3><p>If your hands are cold you will cut the session short. Thumbhole cuffs buy you ten degrees of perceived warmth for almost no weight.</p>",
         "image": {
           "url": "/images/lookbook-1.jpg",
           "altText": "Training at dawn: a winter layering guide",
           "width": 1200,
           "height": 800
         },
-        "author": {
+        "authorV2": {
           "name": "Vennix Run Club"
         },
         "tags": [

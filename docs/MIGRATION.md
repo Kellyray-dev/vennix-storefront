@@ -241,8 +241,12 @@ server.js (Node 18+, zero runtime deps)
   ├─ storefront logic (kept): lib/fit.js · lib/personalize.js · lib/style.js
   ├─ Shopify data access: lib/shopify/
   │     config.js    env → { mode: live | demo, endpoint, token, version }
-  │     client.js    GraphQL over fetch: timeouts, retry, userErrors
-  │     operations.js  pinned query/mutation documents (API 2025-10)
+  │                  + hard guards (no demo in prod, no mock with a live store)
+  │     preflight.js boot-time proof of every Storefront API scope
+  │     client.js    GraphQL over fetch: timeouts, backoff, typed errors
+  │     operations.js  pinned query/mutation documents (API 2026-07,
+                  including the 2026-07 renames: Article.contentHtml,
+                  Article.authorV2, cart discountApplications)
   │     normalize.js   Shopify JSON → internal storefront shapes
   │     catalog.js     cached reads: products, collections, pages, blog,
   │                    search, recommendations

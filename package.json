@@ -2,21 +2,25 @@
   "name": "vennix-storefront",
   "version": "2.0.0",
   "private": true,
-  "description": "Vennix — premium editorial storefront for Shopify. The Node presentation layer renders the storefront and hands cart/checkout to Shopify; the OS 2.0 theme in shopify-theme/ is the in-Shopify twin. Zero runtime dependencies.",
+  "description": "Vennix \u2014 premium editorial storefront for Shopify. The Node presentation layer renders the storefront and hands cart/checkout to Shopify (Storefront API 2026-07); the OS 2.0 theme in shopify-theme/ is the in-Shopify twin. Zero runtime dependencies.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
     "check": "node --check server.js && node -e \"require('./lib/settings');require('./lib/auth');require('./lib/cart');require('./lib/ui');require('./lib/layout');require('./lib/api');require('./lib/ratelimit');require('./lib/shopify/catalog');require('./lib/shopify/cart-api');require('./lib/pages/home');require('./lib/pages/catalog');require('./lib/pages/product');require('./lib/pages/cart');require('./lib/pages/checkout');require('./lib/pages/account');require('./lib/pages/content');console.log('all modules load cleanly')\"",
-    "fixtures": "node scripts/build-fixtures.js",
-    "theme:check": "node scripts/theme-check.js",
     "test:shopify": "node scripts/test-shopify.js",
+    "doctor": "node scripts/doctor.js",
+    "secrets": "node scripts/secret-scan.js",
+    "check:render": "node scripts/render-check.js",
+    "theme:check": "node scripts/theme-check.js",
     "smoke": "node scripts/smoke.js",
     "features": "node scripts/features.js",
     "links": "node scripts/link-check.js",
+    "a11y": "node scripts/a11y-check.js",
     "browser:test": "node scripts/browser-smoke.js",
-    "check:render": "node scripts/render-check.js",
-    "verify": "npm run check && npm run test:shopify && npm run check:render && npm run theme:check && npm run smoke && npm run features && npm run links && npm run browser:test"
+    "verify": "npm run check && npm run test:shopify && npm run doctor && npm run secrets && npm run check:render && npm run theme:check && npm run smoke && npm run features && npm run links && npm run a11y && npm run browser:test",
+    "verify:live": "node scripts/verify-live.js",
+    "fixtures": "node scripts/build-fixtures.js"
   },
   "engines": {
     "node": ">=18"
@@ -31,10 +35,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-org/vennix-storefront.git"
+    "url": "https://github.com/kellyraydev/vennix-storefront.git"
   },
   "bugs": {
-    "url": "https://github.com/your-org/vennix-storefront/issues"
+    "url": "https://github.com/kellyraydev/vennix-storefront/issues"
   },
-  "homepage": "https://github.com/your-org/vennix-storefront#readme"
+  "homepage": "https://github.com/kellyraydev/vennix-storefront"
 }

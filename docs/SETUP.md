@@ -68,14 +68,26 @@ export SHOPIFY_STORE_DOMAIN=your-store.myshopify.com
 export SHOPIFY_STOREFRONT_ACCESS_TOKEN=…
 # optional
 export SHOPIFY_PRIMARY_DOMAIN=www.yourbrand.com   # canonical domain
-export SHOPIFY_API_VERSION=2025-10
+export SHOPIFY_API_VERSION=2026-07
 node server.js
-# [vennix] Live mode — reading catalog and carts from your-store.myshopify.com (2025-10).
+# [vennix] Live mode — catalog and carts come from your-store.myshopify.com (Storefront API 2026-07).
+# [vennix] Connection preflight:
+#   ✓ shop — Your Store Name
+#   ✓ products (unauthenticated_read_product_listings) — 12 products visible
+#   ✓ inventory (unauthenticated_read_product_inventory) — variant stock readable (8)
+#   ✓ cart + checkout (unauthenticated_write_checkouts) — cartCreate accepted
+#   ✓ pages + journal (unauthenticated_read_content) — pages query accepted
 ```
 
-Or copy `.env.example` to `.env` and load it with your process manager. See
-`.env.example` for the full reference. **Never commit tokens** — `.env` is
-git-ignored.
+Or copy `.env.example` to `.env` (git-ignored) and fill it in — the server
+loads `.env` and `.env.local` itself (`.env.local` wins), and the real process
+environment always wins over both. See `.env.example` for the full reference.
+**Never commit tokens.**
+
+The server refuses to start in demo mode when `NODE_ENV=production`, and
+refuses to start at all when the Storefront API cannot be reached with the
+credentials you supplied. A misconfigured deploy fails loudly at boot instead
+of quietly serving an empty catalogue.
 
 ### c. What the storefront uses from your store, as-is
 
@@ -110,41 +122,86 @@ monogram UI degrades to a free-note mode and stops quoting a fee.
 
 ---
 
-## 3. Deploying the OS 2.0 theme
+## 3. Deploying the OS 2.0 theme (the production storefront)
 
-`shopify-theme/` is a complete Online Store 2.0 theme. Deploy it with the
-Shopify CLI:
+`shopify-theme/` is a complete Online Store 2.0 theme and the **canonical
+production storefront** — hosted by Shopify itself, synced from this repo.
+
+### a. GitHub Sync (recommended): "Deploy with Shopify"
+
+Shopify's first-party GitHub integration deploys the theme on every push —
+no server, no CLI, no secrets in the repo:
+
+1. Shopify admin → **Online Store → Themes → Deploy with Shopify →
+   Set up your repository**.
+2. Authorise Shopify's GitHub app for this repository
+   (`kellyraydev/vennix-storefront`). It is scoped to this repo and only
+   reads theme files from it.
+3. Configure the sync: branch **`main`**, path to theme files
+   **`shopify-theme`**, and a target theme. Point it at an **unpublished**
+   theme to stage and publish manually, or at the **published** theme for
+   live updates on every merge.
+4. Every push to `main` deploys to the connected theme within ~1 minute.
+   Verify the first sync by touching any theme file (even a comment in
+   `assets/theme.css`) and watching it appear in the theme editor.
+
+CI runs `npm run theme:check` (inside `npm run verify`) on every push and
+PR, so a structurally broken theme fails in GitHub before it can be
+published.
+
+### b. Shopify CLI / tag workflow (fallback)
 
 ```bash
 cd shopify-theme
-shopify theme dev --store your-store.myshopify.com     # preview
+shopify theme dev --store your-store.myshopify.com     # live preview
 shopify theme push --store your-store.myshopify.com    # upload
 ```
 
-…or use the included workflow: **Actions → Deploy Shopify theme** (needs the
-`SHOPIFY_STORE`, `SHOPIFY_CLI_THEME_TOKEN`, optional `SHOPIFY_THEME_ID`
-secrets). The theme is self-contained and works without the Node storefront.
+…or use the included workflow: **Actions → Deploy Shopify theme** (push a
+`v*` tag, or run it manually; needs the `SHOPIFY_STORE`,
+`SHOPIFY_CLI_THEME_TOKEN`, optional `SHOPIFY_THEME_ID` secrets). Use it when
+the GitHub app isn't installed. The theme is self-contained and works
+without the Node storefront.
 
-**Ownership rule:** the Node storefront and the theme are two front doors to
-the same Shopify data. Don't let both render the same domain — either serve
-the storefront on your domain and keep the theme unpublished (or on a
-password-protected theme for reference), or publish the theme and retire the
-Node server.
+**Ownership rule:** the theme is the production front door (Shopify-hosted).
+The Node storefront (`server.js`) is an alternative custom deploy of the
+same Shopify data — don't let both render the same domain.
 
 ---
 
 ## Production hosting notes
 
 - Bind `HOST=0.0.0.0`, put TLS termination in front, set `NODE_ENV=production`
-  (cart cookies become `Secure`) and `TRUST_PROXY=1` behind a reverse proxy.
+  (cookies become `Secure`, HSTS is sent, demo mode is refused) and
+  `TRUST_PROXY=1` behind a reverse proxy so rate limiting keys on
+  `X-Forwarded-For` and cookies go `Secure` on `X-Forwarded-Proto: https`.
 - `PUBLIC_SITE_DOMAIN` should match the public hostname for canonical URLs;
   the sitemap is generated live from the Shopify catalog.
+- Cookies: with `NODE_ENV=production` (or `TRUST_PROXY=1` plus
+  `X-Forwarded-Proto: https`) the cart and CSRF cookies are `Secure`. In
+  production they also carry the `__Host-` prefix, so no subdomain can set or
+  shadow them; set `COOKIE_HOST_PREFIX=off` if you ever need the plain names,
+  and `VENNIX_FORCE_INSECURE_COOKIES=1` only for a plain-http host you control.
 - The catalog cache (`SHOPIFY_CACHE_TTL_MS`, default 15s) keeps page fan-out
-  cheap; carts are always read fresh.
+  cheap; carts are always read fresh. On a Shopify outage the last good
+  catalog is served for up to five minutes before the 503 page takes over.
 - Local state is limited to non-commerce leads in `data/leads.json`
   (newsletter, contact messages, back-in-stock alerts, review submissions for
   moderation). Mount that path on persistent storage if you need the captures
   to survive deploys, or wire `lib/leads.js` to your own sink.
+
+### What ships switched on
+
+| Area | Behaviour |
+| --- | --- |
+| CSP | Nonce-based, enforced (`CSP_MODE=report-only` to observe first) |
+| Cookies | `Secure` under TLS, `HttpOnly` cart id, `SameSite=Lax`, `__Host-` prefixed in production |
+| CSRF | SameSite=Lax cookies + Origin check + double-submit `vnx_csrf` token |
+| Rate limits | Per-IP, per-route (tight on discount codes, forms and reviews) |
+| Transport | HSTS, nosniff, referrer-policy, COOP, permissions-policy, frame-deny |
+| Compression | brotli → gzip for HTML/CSS/JS, ETag + 304 for static assets |
+| Checkout | Only Shopify hosts are allowed to receive the handoff |
+| Failure states | Branded 503 with `Retry-After` for Shopify outages, 500 otherwise — never a stack trace |
 
 ---
 
@@ -152,10 +209,35 @@ Node server.
 
 ```bash
 npm install --no-save jsdom     # dev-only, for the browser click test
-npm run verify
+npm run verify                  # everything below, start to finish
+npm run doctor                  # configuration only, no network
+npm run verify:live             # prove a REAL store is wired up end to end
 ```
 
-Runs module load check, the Shopify data-layer suite (mock gateway), render
-check (self-boots a server), theme structure check, then boots the demo
-storefront and runs the HTTP smoke, feature, link-crawl and browser suites.
-CI runs the same pipeline on every push (`.github/workflows/verify.yml`).
+`npm run verify` runs: module load check → Shopify data-layer suite (mock
+gateway) → configuration doctor → secret scan (static + runtime) → render
+check → theme structure check → HTTP smoke → feature suite → link crawl →
+accessibility check → browser click test. Every suite that needs a server
+boots its own throwaway instance, so they can be run in any order, twice in a
+row, without inheriting state. CI runs the same pipeline on every push
+(`.github/workflows/verify.yml`).
+
+`npm run verify:live` is the one to run after you set real credentials. It
+introspects your store's schema first and confirms every field and argument the
+pinned documents send exists on 2026-07 (that is what catches
+`Field 'x' doesn't accept argument 'y'` before a shopper does), then
+boots the storefront against your store and proves, in order: live products,
+live variants/prices, live inventory, live collections, live search, live
+recommendations, cart mutations (create/add/update/note/remove), discount
+codes validated by Shopify, a checkout URL that passes the Shopify-only
+allowlist, account/order URLs that point at Shopify, no local order/payment/
+customer store anywhere in the runtime path, and real pages served with live
+data and no demo banner. It creates one throwaway draft cart on your store —
+never an order, customer or payment.
+
+```bash
+SHOPIFY_STORE_DOMAIN=your-store.myshopify.com \
+SHOPIFY_STOREFRONT_ACCESS_TOKEN=… \
+VENNIX_LIVE_DISCOUNT_CODE=WELCOME10 \
+npm run verify:live
+```
