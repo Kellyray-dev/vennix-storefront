@@ -170,6 +170,14 @@ const ROOT = path.join(__dirname, '..');
   soft('Shopify pages load', pages.length > 0, `${pages.length} pages`);
   const articles = await catalog.getArticles();
   soft('journal articles load', articles.length > 0, `${articles.length} articles`);
+  if (articles.length) {
+    const first = articles[0];
+    // 2026-07: Article.body does not exist — if this is empty, the body is
+    // being read from a field the store no longer returns.
+    ok('the article body renders from contentHtml', !!first.body && String(first.body).length > 0,
+      `${first.handle}: ${String(first.body || '').length} chars`);
+    ok('the article author resolves', !!first.author, first.author);
+  }
 
   /* ------------------------------------------------------------- 9. cart */
   section('9. Cart mutations (live)');

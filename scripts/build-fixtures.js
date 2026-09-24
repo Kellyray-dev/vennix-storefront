@@ -188,9 +188,9 @@ const fixture = {
       handle: p.handle,
       title: p.title,
       excerpt: p.excerpt,
-      body: p.body,
+      contentHtml: p.body,
       image: { url: p.image, altText: p.title, width: 1200, height: 800 },
-      author: { name: p.author },
+      authorV2: { name: p.author },
       tags: p.tags,
       readMinutes: p.readMinutes,
       publishedAt: p.publishedAt

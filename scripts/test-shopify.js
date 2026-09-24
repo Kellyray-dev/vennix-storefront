@@ -239,6 +239,28 @@ function expect(label, condition, detail = '') {
   expect('cart discount applications are read as a plain list',
     /discountApplications\s*\{/.test(ops.GET_CART), 'expected "discountApplications {" with no arguments');
   expect('product media is still selected for the PDP gallery', /media\(first:/.test(ops.PRODUCTS));
+  // Article lost `body` in 2026-07 (it is contentHtml / content now) and
+  // `author` is deprecated in favour of authorV2.
+  expect('the blog document does not select the removed Article.body field', !/\bbody\b/.test(ops.BLOG),
+    ops.BLOG.replace(/\s+/g, ' ').slice(0, 120));
+  expect('the blog document reads the article body from contentHtml', /contentHtml/.test(ops.BLOG));
+  expect('the blog document uses authorV2, not the deprecated author', /authorV2/.test(ops.BLOG) && !/\bauthor\s*\{/.test(ops.BLOG));
+  expect('page documents keep Page.body, which still exists', /\bbody\b/.test(ops.PAGES));
+
+  const N2 = require('../lib/shopify/normalize');
+  const html = '<p>Hello <strong>world</strong></p>';
+  const from2026 = N2.normalizeArticle({
+    id: 'gid://shopify/Article/1', handle: 'a', title: 'A',
+    excerpt: 'Short', contentHtml: html, authorV2: { name: 'Iris' }, tags: ['Studio'], publishedAt: '2026-01-01T00:00:00Z'
+  });
+  expect('an Article is normalized from contentHtml', from2026.body === html, from2026.body);
+  expect('the article author comes from authorV2', from2026.author === 'Iris', from2026.author);
+  expect('the excerpt is used when Shopify provides one', from2026.excerpt === 'Short');
+  const legacyArticle = N2.normalizeArticle({ handle: 'b', title: 'B', body: html, author: { name: 'Old' } });
+  expect('an older body/author shape still renders', legacyArticle.body === html && legacyArticle.author === 'Old');
+  const noExcerpt = N2.normalizeArticle({ handle: 'c', title: 'C', content: 'Plain text body here' });
+  expect('a missing excerpt falls back to stripped content', noExcerpt.excerpt === 'Plain text body here', noExcerpt.excerpt);
+  expect('reading minutes are derived from the body', noExcerpt.readMinutes >= 1);
   for (const [name, doc] of documents) {
     const opens = (doc.match(/{/g) || []).length;
     const closes = (doc.match(/}/g) || []).length;
@@ -262,6 +284,9 @@ function expect(label, condition, detail = '') {
     Cart: { lines: ['first'], discountApplications: [], discountCodes: [], attributes: [] },
     CartLine: { discountAllocations: ['lineLevelOnly'], cost: [] },
     CartCost: { subtotalAmount: [], totalAmount: [], totalTaxAmount: [], checkoutChargeAmount: [] },
+    Blog: { articles: ['first'] },
+    Article: { contentHtml: [], content: [], excerpt: [], authorV2: [], image: [], tags: [] },
+    Page: { body: [], seo: [] },
     Shop: { paymentSettings: [], primaryDomain: [] }
   };
   const stubGql = (types, { fail = false, empty = false } = {}) => async () => {

@@ -226,9 +226,13 @@ Verified by: `scripts/test-shopify.js` (error codes, retryability),
 documents are checked against the store's own introspection, so a renamed field
 or dropped argument fails the run instead of failing at checkout).
 
-**Pinned-document drift is a real risk** (a version bump can drop an argument:
-2026-07 removed `types` from `Product.media`, and `Cart.discountApplications`
-is a plain list, not a connection — no `first`, no `nodes`). Three guards:
+**Pinned-document drift is a real risk** — a version bump can drop a field or an
+argument. 2026-07 alone removed `types` from `Product.media`, renamed
+`Article.body` to `contentHtml` (and deprecated `Article.author` in favour of
+`authorV2`), and `Cart.discountApplications` is a plain list, not a connection —
+no `first`, no `nodes`. Normalizers keep the storefront's own field names
+(`body`, `author`) so templates never change when Shopify renames something.
+Three guards:
 `scripts/verify-live.js` §3 introspects the live schema, and
 `scripts/test-shopify.js` both greps the documents for known-rejected arguments
 and unit-tests the conformance checker against stubbed schemas.
