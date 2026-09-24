@@ -2,6 +2,11 @@ name: Deploy Shopify theme
 
 # Pushes the Online Store 2.0 theme in ./shopify-theme to your live store.
 #
+# NOTE: the primary sync path is Shopify's first-party GitHub integration
+# ("Deploy with Shopify" — Online Store → Themes → Deploy with Shopify),
+# which deploys shopify-theme/ from main on every push with no secrets.
+# This workflow is the fallback for when the GitHub app isn't installed.
+#
 # Required repository secrets:
 #   SHOPIFY_STORE          your-store.myshopify.com
 #   SHOPIFY_CLI_THEME_TOKEN   a Theme Access token (Online Store → Themes →

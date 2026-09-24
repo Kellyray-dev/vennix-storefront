@@ -8,9 +8,12 @@ One storefront experience, three parts with strictly separated jobs:
 | --- | --- | --- |
 | **Custom storefront** | `server.js`, `lib/`, `public/` | Presentation: renders the editorial theme (home, collections with server-side filtering/sorting, PDP with variant switching, cart drawer + page, journal, CMS pages, gift cards), and hands cart/checkout to Shopify. Captures non-commerce leads only (newsletter, contact, back-in-stock alerts, review submissions). |
 | **Shopify** | configured via env | Source of truth for products, variants, prices, inventory, collections, pages, blog posts, carts, discount codes, customers, checkout, orders, payments, shipping and taxes. Talked to through the Storefront API (`lib/shopify/`). |
-| **OS 2.0 theme** | `shopify-theme/` | The in-Shopify twin of the design: 32 sections, 12 snippets, JSON templates, locale file, mirrored motion layer. Works in a real Shopify Online Store 2.0 if you point the store at it directly. |
+| **OS 2.0 theme** | `shopify-theme/` | The **production storefront** — hosted by Shopify, synced from this repo via *Deploy with Shopify* (GitHub integration on `main`). 32 sections, 12 snippets, JSON templates, locale file, mirrored motion layer. |
 
-There is **no second commerce database**. The retired custom JSON backend is
+Production path: the theme is the published storefront; the Node app is an
+alternative custom deploy of the same Shopify data (and the zero-credential
+demo). Don't let both render the same domain. There is **no second commerce
+database**. The retired custom JSON backend is
 isolated in `legacy/` (see `legacy/README.md`) and is not loaded by anything.
 
 ---

@@ -122,26 +122,50 @@ monogram UI degrades to a free-note mode and stops quoting a fee.
 
 ---
 
-## 3. Deploying the OS 2.0 theme
+## 3. Deploying the OS 2.0 theme (the production storefront)
 
-`shopify-theme/` is a complete Online Store 2.0 theme. Deploy it with the
-Shopify CLI:
+`shopify-theme/` is a complete Online Store 2.0 theme and the **canonical
+production storefront** — hosted by Shopify itself, synced from this repo.
+
+### a. GitHub Sync (recommended): "Deploy with Shopify"
+
+Shopify's first-party GitHub integration deploys the theme on every push —
+no server, no CLI, no secrets in the repo:
+
+1. Shopify admin → **Online Store → Themes → Deploy with Shopify →
+   Set up your repository**.
+2. Authorise Shopify's GitHub app for this repository
+   (`kellyraydev/vennix-storefront`). It is scoped to this repo and only
+   reads theme files from it.
+3. Configure the sync: branch **`main`**, path to theme files
+   **`shopify-theme`**, and a target theme. Point it at an **unpublished**
+   theme to stage and publish manually, or at the **published** theme for
+   live updates on every merge.
+4. Every push to `main` deploys to the connected theme within ~1 minute.
+   Verify the first sync by touching any theme file (even a comment in
+   `assets/theme.css`) and watching it appear in the theme editor.
+
+CI runs `npm run theme:check` (inside `npm run verify`) on every push and
+PR, so a structurally broken theme fails in GitHub before it can be
+published.
+
+### b. Shopify CLI / tag workflow (fallback)
 
 ```bash
 cd shopify-theme
-shopify theme dev --store your-store.myshopify.com     # preview
+shopify theme dev --store your-store.myshopify.com     # live preview
 shopify theme push --store your-store.myshopify.com    # upload
 ```
 
-…or use the included workflow: **Actions → Deploy Shopify theme** (needs the
-`SHOPIFY_STORE`, `SHOPIFY_CLI_THEME_TOKEN`, optional `SHOPIFY_THEME_ID`
-secrets). The theme is self-contained and works without the Node storefront.
+…or use the included workflow: **Actions → Deploy Shopify theme** (push a
+`v*` tag, or run it manually; needs the `SHOPIFY_STORE`,
+`SHOPIFY_CLI_THEME_TOKEN`, optional `SHOPIFY_THEME_ID` secrets). Use it when
+the GitHub app isn't installed. The theme is self-contained and works
+without the Node storefront.
 
-**Ownership rule:** the Node storefront and the theme are two front doors to
-the same Shopify data. Don't let both render the same domain — either serve
-the storefront on your domain and keep the theme unpublished (or on a
-password-protected theme for reference), or publish the theme and retire the
-Node server.
+**Ownership rule:** the theme is the production front door (Shopify-hosted).
+The Node storefront (`server.js`) is an alternative custom deploy of the
+same Shopify data — don't let both render the same domain.
 
 ---
 
