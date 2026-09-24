@@ -246,6 +246,18 @@ function expect(label, condition, detail = '') {
   expect('the blog document reads the article body from contentHtml', /contentHtml/.test(ops.BLOG));
   expect('the blog document uses authorV2, not the deprecated author', /authorV2/.test(ops.BLOG) && !/\bauthor\s*\{/.test(ops.BLOG));
   expect('page documents keep Page.body, which still exists', /\bbody\b/.test(ops.PAGES));
+  // Live 2026-07 rejects a cartLinesRemove call that passes both lineIds and
+  // viewKeys — "must include exactly one of the following arguments" — even
+  // when one side is an empty list. Each pinned document must therefore carry
+  // exactly one of the two arguments.
+  expect('the cartLinesRemove document passes lineIds only',
+    /cartLinesRemove\([^)]*\blineIds:\s*\$lineIds[^)]*\)/.test(ops.CART_LINES_REMOVE_BY_IDS)
+    && !/viewKeys/.test(ops.CART_LINES_REMOVE_BY_IDS),
+    ops.CART_LINES_REMOVE_BY_IDS.replace(/\s+/g, ' ').slice(0, 120));
+  expect('the cartLinesRemove-by-viewKey document passes viewKeys only',
+    /cartLinesRemove\([^)]*\bviewKeys:\s*\$viewKeys[^)]*\)/.test(ops.CART_LINES_REMOVE_BY_VIEW_KEYS)
+    && !/lineIds/.test(ops.CART_LINES_REMOVE_BY_VIEW_KEYS),
+    ops.CART_LINES_REMOVE_BY_VIEW_KEYS.replace(/\s+/g, ' ').slice(0, 120));
 
   const N2 = require('../lib/shopify/normalize');
   const html = '<p>Hello <strong>world</strong></p>';
@@ -623,6 +635,32 @@ function expect(label, condition, detail = '') {
 
   const removed = await cartApi.removeLines(cartId, [svcLine2.id]);
   expect('cartLinesRemove drops the line', removed.ok && !removed.cart.lines.some(l => l.id === svcLine2.id));
+
+  // 2026-07: a call may pass lineIds OR viewKeys, never both — so removeLines
+  // must split mixed references into one exactly-one-argument call per kind.
+  const mixedSetup = await cartApi.addLines(cartId, [{ merchandiseId: serviceVariant.id, quantity: 1 }]);
+  const hoodieLine = mixedSetup.cart.lines.find(l => l.merchandiseId === inStock.id);
+  const svcMixed = mixedSetup.cart.lines.find(l => l.merchandiseId === serviceVariant.id);
+  const mixed = await cartApi.removeLines(cartId, [{ id: hoodieLine.id }, { viewKey: svcMixed.viewKey }]);
+  expect('mixed id + viewKey removals are split into exactly-one-argument calls',
+    mixed.ok && mixed.cart.lines.length === 0,
+    mixed.ok ? `${mixed.cart.lines.length} line(s) left` : mixed.error);
+  const nothing = await cartApi.removeLines(cartId, []);
+  expect('removing nothing is refused without calling Shopify',
+    !nothing.ok && /at least one/.test(String(nothing.error)), String(nothing.error));
+
+  // The mock gateway mirrors the live rule, so a regression that resurrects a
+  // both-arguments document fails here exactly the way it fails in production
+  // (this is the exact document shape that crashed a live verify:line run).
+  let bothArgsErr = null;
+  try {
+    await client.gql(
+      'mutation CartLinesRemove($cartId: ID!, $lineIds: [ID!], $viewKeys: [String!]) { cartLinesRemove(cartId: $cartId, lineIds: $lineIds, viewKeys: $viewKeys) { cart { id } userErrors { field message } } }',
+      { cartId, lineIds: ['gid://shopify/CartLine/anything'], viewKeys: [] });
+  } catch (err) { bothArgsErr = err; }
+  expect('the gateway refuses a call carrying both lineIds and viewKeys, like the live API',
+    !!bothArgsErr && /exactly one/.test(String(bothArgsErr && bothArgsErr.message)),
+    bothArgsErr ? bothArgsErr.message : 'no error thrown');
 
   const withUrl = await cartApi.checkoutUrl(cartId);
   expect('checkoutUrl is an https Shopify-hosted URL', typeof withUrl === 'string' && /^https:\/\//.test(withUrl));

@@ -289,6 +289,15 @@ const PAIRS = {
   'Gift Card': ['Hoodie', 'Leggings', 'T-Shirt']
 };
 
+/**
+ * Throwing this from a handler answers with a top-level GraphQL error envelope
+ * (HTTP 200 + `{ errors }`) — how live Shopify reports request-level
+ * validation failures — instead of an HTTP 500.
+ */
+class GraphQLRequestError extends Error {
+  constructor(message) { super(message); this.graphql = true; }
+}
+
 function handleOperation(state, operation, body) {
   const vars = body.variables || {};
 
@@ -422,7 +431,18 @@ function handleOperation(state, operation, body) {
       return { cartLinesUpdate: { cart: serializeCart(state, cart), userErrors: [] } };
     }
 
-    case 'CartLinesRemove': {
+    case 'CartLinesRemove':
+    case 'CartLinesRemoveByViewKeys': {
+      // Live 2026-07 validates argument shape BEFORE execution: a call must
+      // pass EXACTLY ONE of lineIds / viewKeys — both present (even one
+      // empty) or neither is rejected as a top-level GraphQL error. Mirror it
+      // here so a client that sends both fails in the offline suite exactly
+      // the way it fails in production.
+      const hasIds = Array.isArray(vars.lineIds);
+      const hasKeys = Array.isArray(vars.viewKeys);
+      if (hasIds === hasKeys) {
+        throw new GraphQLRequestError('cartLinesRemove must include exactly one of the following arguments: lineIds, viewKeys.');
+      }
       const cart = state.carts.get(vars.cartId);
       if (!cart) return { cartLinesRemove: { cart: null, userErrors: [{ field: ['cartId'], message: 'Cart not found.' }] } };
       // 2026-07: cartLinesRemove takes either lineIds or viewKeys.
@@ -508,6 +528,12 @@ function startMockGateway({ port = 0, host = '127.0.0.1' } = {}) {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ data }));
       } catch (err) {
+        if (err && err.graphql === true) {
+          // Live Shopify answers request-level validation failures with a 200
+          // carrying a top-level errors array, not with an HTTP error status.
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          return res.end(JSON.stringify({ errors: [{ message: err.message }] }));
+        }
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ errors: [{ message: err.message }] }));
       }
