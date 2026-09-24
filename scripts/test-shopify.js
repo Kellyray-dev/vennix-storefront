@@ -81,6 +81,27 @@ function expect(label, condition, detail = '') {
   delete process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
   delete process.env.SHOPIFY_API_VERSION;
 
+  // The offline suites spawn throwaway servers that must render the FIXTURE
+  // catalogue even on a machine whose .env points at the live store — so the
+  // env loader honours an explicit opt-out (set by scripts/helpers.js).
+  console.log('\nEnv-file opt-out for offline children');
+  const fsEnv = require('fs');
+  const osEnv = require('os');
+  const pathEnv = require('path');
+  const { loadEnv } = require('../lib/env');
+  const envDir = fsEnv.mkdtempSync(pathEnv.join(osEnv.tmpdir(), 'vennix-env-'));
+  fsEnv.writeFileSync(pathEnv.join(envDir, '.env'), 'VENNIX_ENV_TEST_KEY=from-file\n');
+  process.env.VENNIX_SKIP_ENV_FILE = '1';
+  const skipped = loadEnv({ cwd: envDir, quiet: true });
+  expect('VENNIX_SKIP_ENV_FILE=1 skips .env entirely',
+    skipped.loaded.length === 0 && skipped.vars.length === 0 && !process.env.VENNIX_ENV_TEST_KEY);
+  delete process.env.VENNIX_SKIP_ENV_FILE;
+  const readBack = loadEnv({ cwd: envDir, quiet: true });
+  expect('without the opt-out the same file is read',
+    readBack.loaded.length === 1 && process.env.VENNIX_ENV_TEST_KEY === 'from-file');
+  delete process.env.VENNIX_ENV_TEST_KEY;
+  fsEnv.rmSync(envDir, { recursive: true, force: true });
+
   /* ---------------------------------------------------------------- guards */
   console.log('\nSecurity guards');
   const security = require('../lib/security');

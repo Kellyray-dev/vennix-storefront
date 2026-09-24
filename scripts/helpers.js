@@ -21,10 +21,29 @@ function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/** Shopify connection variables the offline suites must never inherit. */
+const LIVE_ENV_KEYS = [
+  'SHOPIFY_STORE_DOMAIN', 'SHOPIFY_STOREFRONT_ACCESS_TOKEN', 'SHOPIFY_API_VERSION',
+  'SHOPIFY_PRIMARY_DOMAIN', 'SHOPIFY_ACCOUNT_URL', 'SHOPIFY_CHECKOUT_HOSTS'
+];
+
+/**
+ * Env for a throwaway offline child server: strip any live-store
+ * configuration from the inherited environment AND stop the child re-reading
+ * it from `.env` (VENNIX_SKIP_ENV_FILE). The offline chain asserts fixture
+ * content, so it must render the demo catalogue even on a machine that is
+ * configured for the live store. Explicit `extra` keys always win.
+ */
+function offlineChildEnv(extra = {}) {
+  const env = { ...process.env };
+  for (const key of LIVE_ENV_KEYS) delete env[key];
+  return { ...env, VENNIX_SKIP_ENV_FILE: '1', ...extra };
+}
+
 async function startTestServer({ env = {} } = {}) {
   const child = spawn(process.execPath, [path.join(ROOT, 'server.js')], {
     cwd: ROOT,
-    env: { ...process.env, PORT: '0', HOST: '127.0.0.1', ...env },
+    env: offlineChildEnv({ PORT: '0', HOST: '127.0.0.1', ...env }),
     stdio: ['ignore', 'pipe', 'pipe']
   });
   let log = '';
@@ -73,4 +92,4 @@ async function ensureBase(input) {
   return { base: server.base, stop: server.stop, managed: true, server };
 }
 
-module.exports = { ensureBase, startTestServer, wait };
+module.exports = { ensureBase, startTestServer, offlineChildEnv, wait };

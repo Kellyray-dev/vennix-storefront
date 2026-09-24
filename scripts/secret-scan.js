@@ -117,9 +117,11 @@ function walk(dir, out = []) {
       PORT: String(port), HOST: '127.0.0.1',
       // no SHOPIFY_STORE_DOMAIN → demo mode, but the token IS in the
       // environment, which is exactly what a template bug would leak.
+      // VENNIX_SKIP_ENV_FILE keeps a developer's live .env out of this child.
       SHOPIFY_STORE_DOMAIN: '',
       SHOPIFY_STOREFRONT_ACCESS_TOKEN: FAKE,
-      SHOPIFY_PRIMARY_DOMAIN: 'fake-store.myshopify.com'
+      SHOPIFY_PRIMARY_DOMAIN: 'fake-store.myshopify.com',
+      VENNIX_SKIP_ENV_FILE: '1'
     },
     stdio: ['ignore', 'pipe', 'pipe']
   });
