@@ -583,8 +583,13 @@ async function boot() {
     }
   }
 
-  // Warm the catalog cache so the first page does not pay for it.
-  try { await layout.prepareChrome(); } catch (err) { console.error('[vennix] catalog warm-up failed:', err.message); }
+  // Warm the catalog cache so the first page does not pay for it. It can be
+  // skipped with VENNIX_SKIP_WARMUP=1 (the live-verification child uses it so
+  // it can listen before pulling a large live catalogue) — pages fetch the
+  // chrome lazily if a request lands before the warm-up finishes.
+  if (process.env.VENNIX_SKIP_WARMUP !== '1') {
+    try { await layout.prepareChrome(); } catch (err) { console.error('[vennix] catalog warm-up failed:', err.message); }
+  }
 
   const server = http.createServer((req, res) => {
     let url;

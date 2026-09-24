@@ -352,19 +352,29 @@ const ROOT = path.join(__dirname, '..');
 /** Boot the real server on an ephemeral port, run `fn`, then shut it down. */
 async function withServer(fn) {
   const port = 30000 + Math.floor(Math.random() * 20000);
+  // VENNIX_SKIP_WARMUP: in live mode boot() warms the full catalogue (every
+  // product, collection, page and article) BEFORE calling listen — on a large
+  // store that alone can outlast this health check. Warm-up is a first-page
+  // optimisation, not a boot dependency (pages fetch the chrome lazily), so
+  // the verification child skips it and listens immediately.
   const child = spawn(process.execPath, [path.join(ROOT, 'server.js')], {
     cwd: ROOT,
-    env: { ...process.env, PORT: String(port), HOST: '127.0.0.1', VENNIX_SKIP_PREFLIGHT: '1' },
+    env: { ...process.env, PORT: String(port), HOST: '127.0.0.1', VENNIX_SKIP_PREFLIGHT: '1', VENNIX_SKIP_WARMUP: '1' },
     stdio: ['ignore', 'pipe', 'pipe']
   });
   let log = '';
+  let exitCode = null;
   child.stdout.on('data', d => { log += d.toString(); });
   child.stderr.on('data', d => { log += d.toString(); });
+  child.on('exit', code => { exitCode = code; });
 
   const base = `http://127.0.0.1:${port}`;
   try {
     let up = false;
-    for (let i = 0; i < 40 && !up; i++) {
+    // Up to 60s: a live boot still pays for the config/token checks and the
+    // first Storefront API round-trips, and slow CI/store connections should
+    // not read as "the storefront does not boot".
+    for (let i = 0; i < 240 && !up && exitCode === null; i++) {
       await new Promise(r => setTimeout(r, 250));
       try {
         const res = await fetch(`${base}/healthz`);
@@ -372,7 +382,10 @@ async function withServer(fn) {
       } catch { /* keep waiting */ }
     }
     if (!up) {
-      ok('the storefront boots against the live store', false, log.split('\n').slice(-4).join(' | '));
+      const detail = exitCode !== null
+        ? `child exited with code ${exitCode} — ${log.split('\n').filter(Boolean).slice(-6).join(' | ')}`
+        : `no /healthz within 60s — ${log.split('\n').filter(Boolean).slice(-6).join(' | ')}`;
+      ok('the storefront boots against the live store', false, detail);
       return;
     }
     await fn(base);
@@ -400,7 +413,11 @@ function scanForLocalCommerce() {
   files.push(path.join(ROOT, 'server.js'));
 
   const legacyRefs = [];
-  const storeRe = /(?:legacy\/store|legacy\/commerce|legacy\/auth|legacy\/admin|legacy\/emails)/;
+  // Only real module references count — require('...legacy/x'), dynamic
+  // import('...legacy/x') or `from '...legacy/x'`. A doc comment that merely
+  // mentions a retired path (e.g. lib/auth.js notes it replaces legacy/auth.js)
+  // is history, not a dependency, and must not fail this check.
+  const storeRe = /(?:require\s*\(\s*['"][^'"]*|import\s*\(\s*['"][^'"]*|from\s+['"][^'"]*)(?:legacy\/store|legacy\/commerce|legacy\/auth|legacy\/admin|legacy\/emails)/;
   for (const file of files) {
     const src = fs.readFileSync(file, 'utf8');
     if (storeRe.test(src)) legacyRefs.push(path.relative(ROOT, file));
