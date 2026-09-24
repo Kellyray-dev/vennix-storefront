@@ -199,6 +199,9 @@ row, without inheriting state. CI runs the same pipeline on every push
 (`.github/workflows/verify.yml`).
 
 `npm run verify:live` is the one to run after you set real credentials. It
+introspects your store's schema first and confirms every field and argument the
+pinned documents send exists on 2026-07 (that is what catches
+`Field 'x' doesn't accept argument 'y'` before a shopper does), then
 boots the storefront against your store and proves, in order: live products,
 live variants/prices, live inventory, live collections, live search, live
 recommendations, cart mutations (create/add/update/note/remove), discount

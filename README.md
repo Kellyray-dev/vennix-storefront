@@ -119,7 +119,7 @@ npm run verify
 | Suite | What it proves |
 | --- | --- |
 | `npm run check` | every live module loads cleanly |
-| `npm run test:shopify` | Shopify data layer (106 assertions) against the mock gateway: config guards, checkout-URL allowlist, cookie/CSRF helpers, normalization, catalog reads, search, recommendations, all cart mutations, inventory rules, discount validation, concurrency |
+| `npm run test:shopify` | Shopify data layer (144 assertions) against the mock gateway: config guards, checkout-URL allowlist, cookie/CSRF helpers, pinned-document hygiene, schema-conformance logic, normalization, catalog reads, search, recommendations, all cart mutations, inventory rules, discount validation, concurrency |
 | `npm run doctor` | configuration and deployment sanity (no network): mode, API version, proxy, CSP, canonical domain, repo hygiene |
 | `npm run secrets` | no credential can reach a browser — static scan of every shipped file, plus a runtime crawl with a fake token in the environment |
 | `npm run check:render` | 27 page shapes render without crash markers, self-boots the server |
@@ -129,7 +129,7 @@ npm run verify
 | `npm run links` | dead-link crawl over every internal href |
 | `npm run a11y` | 130 accessibility assertions over rendered HTML: landmarks, heading order, alt text, control labelling, dialogs, live regions |
 | `npm run browser:test` | 62 real-DOM click assertions (jsdom, dev-only dep): variant switching, add-to-cart, drawer, quick view, discount forms, motion layer, monogram UI, size finder, look bundle, alerts, search memory |
-| `npm run verify:live` | **against your real store**: products, prices, inventory, collections, search, recommendations, cart mutations, discount validation, checkout handoff, Shopify-owned accounts/orders, no local commerce store, live pages with no demo banner |
+| `npm run verify:live` | **against your real store**: schema conformance (every field and argument we send must exist on 2026-07), products, prices, inventory, collections, search, recommendations, cart mutations, discount validation, checkout handoff, Shopify-owned accounts/orders, no local commerce store, live pages with no demo banner |
 
 `browser:test` needs jsdom once: `npm install --no-save jsdom` (or in
 `/tmp/jsdom` — the script finds it there). CI installs it automatically.

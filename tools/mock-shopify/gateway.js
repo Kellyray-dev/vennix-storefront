@@ -184,7 +184,8 @@ function serializeCart(state, cart) {
     attributes: cart.attributes || [],
     buyerIdentity: { email: cart.email || null },
     discountCodes: cartDiscountCodes(state, cart),
-    discountApplications: { nodes: cost.apps },
+    // A plain list in 2026-07 — not a connection, so no `nodes` wrapper.
+    discountApplications: cost.apps,
     lines: {
       nodes: cart.lines.map((line, i) => {
         const entry = state.variantIndex.get(line.merchandiseId);

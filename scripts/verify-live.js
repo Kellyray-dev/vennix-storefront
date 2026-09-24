@@ -12,17 +12,19 @@
  *
  * What it proves (and refuses to skip):
  *   1  configuration            — live mode, API version, no demo fallback
- *   2  products                 — live products, handles, prices
- *   3  variants + prices        — per-variant price / compare-at / currency
- *   4  inventory                — availability + quantities come from Shopify
- *   5  collections              — live collections with membership
- *   6  search                   — predictive search hits Shopify
- *   7  recommendations          — productRecommendations from Shopify
- *   8  cart mutations           — create / add / update / note / remove
- *   9  discount validation      — Shopify accepts good codes, refuses bad ones
- *  10  checkout handoff         — /checkout 302s to a Shopify-hosted URL
- *  11  customers + orders       — account/order URLs point at Shopify
- *  12  no local commerce data   — no fake order/payment/customer store in the path
+ *   2  live connection          — every Storefront API scope answers
+ *   3  schema conformance       — every field/argument we send exists on 2026-07
+ *   4  products                 — live products, handles, prices
+ *   5  variants + prices        — per-variant price / compare-at / currency
+ *   6  inventory                — availability + quantities come from Shopify
+ *   7  collections              — live collections with membership
+ *   8  search                   — predictive search hits Shopify
+ *   9  recommendations          — productRecommendations from Shopify
+ *  10  cart mutations           — create / add / update / note / remove
+ *  11  discount validation      — Shopify accepts good codes, refuses bad ones
+ *  12  checkout handoff         — /checkout 302s to a Shopify-hosted URL
+ *  13  customers + orders       — account/order URLs point at Shopify
+ *  14  no local commerce data   — no fake order/payment/customer store in the path
  *
  * Side effects on the live store: it creates one empty draft cart and adds,
  * updates and removes lines in it. Carts are ephemeral Shopify objects — no
@@ -94,8 +96,35 @@ const ROOT = path.join(__dirname, '..');
   ok('shop + product + inventory + cart scopes all answer', boot.ok);
   if (!boot.ok) return finish();
 
-  /* ------------------------------------------------------- 3. catalogue */
-  section('3. Products, variants, prices, inventory (live)');
+  /* ------------------------------------------------ 3. schema conformance */
+  section('3. Pinned documents match this store 2026-07 schema');
+  // The documents in lib/shopify/operations.js are hand-written against a
+  // pinned version. Introspecting the live schema proves every field and every
+  // argument we send still exists — this is what catches "Field X doesn't
+  // accept argument Y" before a shopper does.
+  const { gql } = require('../lib/shopify/client');
+  const schemaCheck = require('../lib/shopify/schema-check');
+  const check = await schemaCheck.runSchemaCheck(gql);
+  if (check.error) {
+    soft('schema introspection is available', false, check.error.slice(0, 140));
+  } else {
+    ok('schema introspection returned the types we query',
+      schemaCheck.TYPES.every(t => check.types[t]), Object.keys(check.types).join(', '));
+    ok('every field the pinned documents select exists in the live schema',
+      check.missingFields.length === 0, check.missingFields.join(', '));
+    ok('every argument the pinned documents send is accepted by the live schema',
+      check.missingArgs.length === 0, check.missingArgs.join(', '));
+    const gone = schemaCheck.deprecatedStillPresent(check.types);
+    if (gone.length) {
+      soft(`deprecated field(s) still present: ${gone.join(', ')}`, false,
+        'removed from this API version — the code already tolerates its absence');
+    } else {
+      ok('the deprecated CartCost.totalTaxAmount still exists (and is optional anyway)', true);
+    }
+  }
+
+  /* ------------------------------------------------------- 4. catalogue */
+  section('4. Products, variants, prices, inventory (live)');
   const catalog = require('../lib/shopify/catalog');
   const products = await catalog.getAllProducts();
   ok('products load from Shopify', products.length > 0, `${products.length} products`);
@@ -112,8 +141,8 @@ const ROOT = path.join(__dirname, '..');
   if (soldOut) ok('sold-out variant reports zero availability', soldOut.stock <= 0, soldOut.title);
   else soft('sold-out variant present in this store', false, 'every variant is in stock right now (nothing to prove)');
 
-  /* ------------------------------------------------------ 4. collections */
-  section('4. Collections (live)');
+  /* ------------------------------------------------------ 5. collections */
+  section('5. Collections (live)');
   const collections = await catalog.getCollections();
   ok('collections load from Shopify', collections.length > 0, `${collections.length} collections`);
   const withMembers = collections.find(c => c.productHandles.length > 0);
@@ -121,29 +150,29 @@ const ROOT = path.join(__dirname, '..');
   const members = withMembers ? await catalog.getCollectionProducts(withMembers.handle) : [];
   ok('collection products are real catalogue products', members.length > 0 && members.every(p => p.handle));
 
-  /* ----------------------------------------------------------- 5. search */
-  section('5. Search (live)');
+  /* ----------------------------------------------------------- 6. search */
+  section('6. Search (live)');
   const term = String(priced.title).split(' ')[0];
   const hits = await catalog.searchProducts(term, 8);
   ok(`search for "${term}" returns live products`, hits.length > 0, `${hits.length} hits`);
   const miss = await catalog.searchProducts('zzz-no-such-product-zzz', 5);
   ok('a nonsense query returns nothing', miss.length === 0);
 
-  /* -------------------------------------------------- 6. recommendations */
-  section('6. Recommendations (live)');
+  /* -------------------------------------------------- 7. recommendations */
+  section('7. Recommendations (live)');
   const recs = await catalog.recommendations(priced.id, 4);
   soft('Shopify productRecommendations returns partners', recs.length > 0,
     recs.length ? recs.map(p => p.handle).join(', ') : 'none for this product (Shopify needs purchase history)');
 
-  /* --------------------------------------------------------- 7. content */
-  section('7. Content (pages + journal, live)');
+  /* --------------------------------------------------------- 8. content */
+  section('8. Content (pages + journal, live)');
   const pages = await catalog.getPages();
   soft('Shopify pages load', pages.length > 0, `${pages.length} pages`);
   const articles = await catalog.getArticles();
   soft('journal articles load', articles.length > 0, `${articles.length} articles`);
 
-  /* ------------------------------------------------------------- 8. cart */
-  section('8. Cart mutations (live)');
+  /* ------------------------------------------------------------- 9. cart */
+  section('9. Cart mutations (live)');
   const cartApi = require('../lib/shopify/cart-api');
   const cartLib = require('../lib/cart');
   const created = await cartApi.createCart([]);
@@ -186,8 +215,8 @@ const ROOT = path.join(__dirname, '..');
   const noted = await cartApi.setNote(cartId, 'Vennix live verification — safe to ignore');
   ok('cart note round-trips through Shopify', noted.ok && /Vennix live verification/.test(noted.cart.note));
 
-  /* --------------------------------------------------------- 9. discount */
-  section('9. Discount codes are validated by Shopify');
+  /* -------------------------------------------------------- 10. discount */
+  section('10. Discount codes are validated by Shopify');
   const bogus = await cartApi.setDiscountCode(cartId, 'VENNIX-NOT-A-REAL-CODE-90210');
   ok('an invalid code is refused by Shopify', !bogus.ok, bogus.ok ? '' : String(bogus.error).slice(0, 90));
   const configured = (process.env.VENNIX_LIVE_DISCOUNT_CODE || '').trim();
@@ -207,15 +236,15 @@ const ROOT = path.join(__dirname, '..');
       'set VENNIX_LIVE_DISCOUNT_CODE to prove a real code prices the cart (invalid codes are already proven refused)');
   }
 
-  /* -------------------------------------------------------- 10. checkout */
-  section('10. Checkout handoff');
+  /* -------------------------------------------------------- 11. checkout */
+  section('11. Checkout handoff');
   const checkoutUrl = await cartApi.checkoutUrl(cartId);
   ok('cart carries a Shopify checkout URL', !!checkoutUrl && /^https:\/\//.test(checkoutUrl), checkoutUrl);
   const security = require('../lib/security');
   ok('the checkout URL passes the Shopify-only allowlist', security.isAllowedCheckoutUrl(checkoutUrl, cfg));
 
-  /* ------------------------------------------- 11. customers and orders */
-  section('11. Customers, accounts and orders are Shopify\'s');
+  /* ------------------------------------------- 12. customers and orders */
+  section('12. Customers, accounts and orders are Shopify\'s');
   const settings = require('../lib/settings');
   const s = settings.get();
   const accountUrl = s.accountUrl || cfg.accountUrl || '';
@@ -227,16 +256,16 @@ const ROOT = path.join(__dirname, '..');
   const cleaned = await cartApi.removeLines(cartId, [line.id]);
   ok('cartLinesRemove clears the test line', cleaned.ok);
 
-  /* ------------------------------------------------ 12. no local orders */
-  section('12. No local commerce database in the production path');
+  /* ------------------------------------------------ 13. no local orders */
+  section('13. No local commerce database in the production path');
   const scan = scanForLocalCommerce();
   ok('no module in lib/ or server.js requires the retired commerce backend', scan.legacyRefs.length === 0,
     scan.legacyRefs.join(', '));
   ok('no order/payment/customer JSON store is read at runtime', scan.stores.length === 0, scan.stores.join(', '));
   ok('leads store holds non-commerce data only', scan.leadsOnly !== false, scan.leadsNote);
 
-  /* ------------------------------------------- 13. HTTP: the real pages */
-  section('13. The served storefront (live data, no demo banner)');
+  /* ------------------------------------------- 14. HTTP: the real pages */
+  section('14. The served storefront (live data, no demo banner)');
   await withServer(async base => {
     const get = async (p, opts = {}) => {
       const res = await fetch(base + p, { redirect: 'manual', ...opts });

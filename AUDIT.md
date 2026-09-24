@@ -222,7 +222,16 @@ At boot, `lib/shopify/preflight.js` proves each required scope before the
 server accepts traffic, and **refuses to start** if the store cannot be read.
 
 Verified by: `scripts/test-shopify.js` (error codes, retryability),
-`scripts/verify-live.js` §2 (preflight).
+`scripts/verify-live.js` §2 (preflight) and §3 (schema conformance — the
+documents are checked against the store's own introspection, so a renamed field
+or dropped argument fails the run instead of failing at checkout).
+
+**Pinned-document drift is a real risk** (a version bump can drop an argument:
+2026-07 removed `types` from `Product.media`, and `Cart.discountApplications`
+is a plain list, not a connection — no `first`, no `nodes`). Three guards:
+`scripts/verify-live.js` §3 introspects the live schema, and
+`scripts/test-shopify.js` both greps the documents for known-rejected arguments
+and unit-tests the conformance checker against stubbed schemas.
 
 ## 10. Graceful failure states
 

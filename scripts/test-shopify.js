@@ -215,6 +215,111 @@ function expect(label, condition, detail = '') {
   }
   delete process.env.NODE_ENV;
 
+  /* ------------------------------------------------- pinned documents */
+  console.log('\nPinned GraphQL documents (2026-07)');
+  const ops = require('../lib/shopify/operations');
+  const documents = Object.entries(ops).filter(([, v]) => typeof v === 'string');
+  expect('every exported document is a non-empty string',
+    documents.length > 0 && documents.every(([, v]) => v.trim().length > 10), `${documents.length} documents`);
+  // Arguments the 2026-07 schema rejects. These are the two that broke a real
+  // store: Product.media lost `types`, and Cart.discountApplications is a plain
+  // list, not a connection (no `first`, no `nodes` wrapper).
+  const forbidden = [
+    [/media\([^)]*types\s*:/, 'Product.media no longer accepts a types argument in 2026-07'],
+    [/discountApplications\s*\(/, 'Cart.discountApplications is a list, not a connection — it takes no arguments'],
+    [/discountApplications\s*\([^)]*first\s*:/, 'Cart.discountApplications has no first argument']
+  ];
+  for (const [pattern, why] of forbidden) {
+    const offenders = documents.filter(([, v]) => pattern.test(v)).map(([k]) => k);
+    expect(`no document uses a rejected argument (${why})`, offenders.length === 0, offenders.join(', '));
+  }
+  expect('cart lines ask for order-level discount allocations too',
+    /discountAllocations\(lineLevelOnly:\s*false\)/.test(ops.GET_CART),
+    'lineLevelOnly defaults to true and would hide order-level discounts');
+  expect('cart discount applications are read as a plain list',
+    /discountApplications\s*\{/.test(ops.GET_CART), 'expected "discountApplications {" with no arguments');
+  expect('product media is still selected for the PDP gallery', /media\(first:/.test(ops.PRODUCTS));
+  for (const [name, doc] of documents) {
+    const opens = (doc.match(/{/g) || []).length;
+    const closes = (doc.match(/}/g) || []).length;
+    expect(`${name} has balanced selection sets`, opens === closes, `${opens} { vs ${closes} }`);
+  }
+
+  /* -------------------------------------------------- schema conformance */
+  console.log('\nSchema conformance (offline)');
+  const schemaCheck = require('../lib/shopify/schema-check');
+  expect('the introspection query asks for every type we query',
+    schemaCheck.TYPES.every(t => schemaCheck.INTROSPECTION_QUERY.includes(`__type(name: "${t}")`)));
+  expect('the introspection query is a single named operation',
+    /^query\s+VennixSchemaCheck\s*\{/.test(schemaCheck.INTROSPECTION_QUERY.trim()));
+
+  // A schema shaped exactly like the Storefront API's introspection answer,
+  // with every field and argument the pinned documents use.
+  const goodSchema = {
+    QueryRoot: { products: ['first', 'after'], product: ['handle'], collections: ['first'], collection: ['handle'], search: ['query', 'first', 'types'], productRecommendations: ['productId'], pages: ['first'], blog: ['handle'] },
+    Product: { media: ['first', 'last', 'reverse', 'sortKey'], variants: ['first'], metafields: ['identifiers'], seo: [], featuredImage: [] },
+    ProductVariant: { image: [], selectedOptions: [] },
+    Cart: { lines: ['first'], discountApplications: [], discountCodes: [], attributes: [] },
+    CartLine: { discountAllocations: ['lineLevelOnly'], cost: [] },
+    CartCost: { subtotalAmount: [], totalAmount: [], totalTaxAmount: [], checkoutChargeAmount: [] },
+    Shop: { paymentSettings: [], primaryDomain: [] }
+  };
+  const stubGql = (types, { fail = false, empty = false } = {}) => async () => {
+    if (fail) throw new Error('IntrospectionQuery is not allowed');
+    if (empty) return {};
+    return Object.fromEntries(Object.entries(types).map(([k, v]) => [k, {
+      name: k,
+      fields: Object.entries(v).map(([name, args]) => ({ name, args: args.map(a => ({ name: a })) }))
+    }]));
+  };
+
+  const good = await schemaCheck.runSchemaCheck(stubGql(goodSchema));
+  expect('a matching schema passes the conformance check', good.ok === true,
+    [...good.missingFields, ...good.missingArgs].join(', '));
+  expect('every type we query is reported back', schemaCheck.TYPES.every(t => good.types[t]));
+  expect('no deprecated field is reported as gone', schemaCheck.deprecatedStillPresent(good.types).length === 0);
+
+  // This is the exact regression the store hit: media lost its `types` argument
+  // and discountApplications turned out to be a list, not a connection.
+  const drifted = JSON.parse(JSON.stringify(goodSchema));
+  drifted.Product.media = ['first', 'last'];           // `types` no longer accepted
+  drifted.Cart.discountApplications = ['first'];        // ...but we send none
+  delete drifted.Product.metafields;                    // a field disappeared
+  const driftedCheck = await schemaCheck.runSchemaCheck(stubGql(drifted));
+  expect('a dropped field is reported', driftedCheck.missingFields.includes('Product.metafields'),
+    driftedCheck.missingFields.join(', '));
+  expect('sending no argument to a list field stays valid',
+    !driftedCheck.missingArgs.some(a => a.includes('discountApplications')),
+    driftedCheck.missingArgs.join(', '));
+  expect('the check fails the run rather than passing quietly', driftedCheck.ok === false);
+
+  const missingArg = JSON.parse(JSON.stringify(goodSchema));
+  missingArg.CartLine.discountAllocations = ['lineLevelOnly'];
+  missingArg.Product.media = ['first'];
+  missingArg.QueryRoot.search = ['query', 'first'];      // `types` removed
+  const argDrift = await schemaCheck.runSchemaCheck(stubGql(missingArg));
+  expect('a removed argument is named precisely',
+    argDrift.missingArgs.includes('QueryRoot.search(types)'), argDrift.missingArgs.join(', '));
+
+  const noTaxSchema = JSON.parse(JSON.stringify(goodSchema));
+  delete noTaxSchema.CartCost.totalTaxAmount;
+  const noTax = await schemaCheck.runSchemaCheck(stubGql(noTaxSchema));
+  expect('a removed deprecated field is flagged before it breaks anything',
+    schemaCheck.deprecatedStillPresent(noTax.types).includes('CartCost.totalTaxAmount'));
+  expect('a removed deprecated field does not fail the run', noTax.ok === true);
+
+  const refusedCheck = await schemaCheck.runSchemaCheck(stubGql(goodSchema, { fail: true }));
+  expect('a store that refuses introspection reports an error instead of throwing',
+    refusedCheck.ok === false && /not allowed/.test(refusedCheck.error), refusedCheck.error);
+  const blankCheck = await schemaCheck.runSchemaCheck(stubGql(goodSchema, { empty: true }));
+  expect('an empty introspection answer reports an error', blankCheck.ok === false && !!blankCheck.error);
+
+  // The table and the documents must move together.
+  const ops2 = require('../lib/shopify/operations');
+  expect('the conformance table covers the arguments the cart document sends',
+    /lineLevelOnly/.test(ops2.GET_CART)
+    && schemaCheck.EXPECTED.some(([t, f, a]) => t === 'CartLine' && f === 'discountAllocations' && a.includes('lineLevelOnly')));
+
   /* ---------------------------------------------------------- cart errors */
   console.log('\nCart error translation');
   const cartLib = require('../lib/cart');
