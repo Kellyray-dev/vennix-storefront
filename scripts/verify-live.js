@@ -175,7 +175,7 @@ const ROOT = path.join(__dirname, '..');
   const pages = await catalog.getPages();
   soft('Shopify pages load', pages.length > 0, `${pages.length} pages`);
   const articles = await catalog.getArticles();
-  const journalHandle = require('../settings').get().journalHandle || 'journal';
+  const journalHandle = require('../lib/settings').get().journalHandle || 'journal';
   soft('journal articles load', articles.length > 0,
     articles.length ? `${articles.length} articles`
       : `0 articles — the store has no blog at handle "${journalHandle}". Set journalHandle in config/storefront.json if your blog is called something else, or publish an article to prove this path.`);

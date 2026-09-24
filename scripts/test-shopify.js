@@ -276,6 +276,12 @@ function expect(label, condition, detail = '') {
     /^query\s+VennixSchemaCheck\s*\{/.test(schemaCheck.INTROSPECTION_QUERY.trim()));
   expect('deprecated fields are introspected, not hidden',
     schemaCheck.INTROSPECTION_QUERY.includes('fields(includeDeprecated: true)'));
+  expect('the introspection query has no unsubstituted placeholders',
+    !/\$\{/.test(schemaCheck.INTROSPECTION_QUERY), schemaCheck.INTROSPECTION_QUERY.match(/\$\{[^}]*\}/) ? schemaCheck.INTROSPECTION_QUERY.match(/\$\{[^}]*\}/)[0] : 'clean');
+  expect('every type block expands the argument type shape',
+    schemaCheck.TYPES.every(() => true) &&
+    (schemaCheck.INTROSPECTION_QUERY.match(/args \{ name type \{ kind name ofType/g) || []).length === schemaCheck.TYPES.length,
+    `${(schemaCheck.INTROSPECTION_QUERY.match(/args \{ name type \{ kind name ofType/g) || []).length}/${schemaCheck.TYPES.length} blocks expanded`);
 
   // GraphQL type syntax -> the nested shape introspection returns.
   const parseType = (t) => {
